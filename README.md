@@ -20,6 +20,7 @@
 Traditional verification relies on labor-intensive manual audits or error-prone keyword search that silently fails on multi-document date mismatches, units disparity (acres vs. hectares vs. sq. meters), post-dated certificates, and version regressions.
 
 TRACE transforms this regulatory scrutiny workflow through **six core differentiated features**:
+
 1. **ChronoGraph**: Cross-document contradiction graph that normalizes atomic claims and isolates temporal, value, and stale-validity contradictions with clickable bounding-box evidence.
 2. **RuleReplay**: Regulatory change impact simulator running draft handbook amendments in shadow mode across stored evidence without altering production records, protected by an authorized publication gate.
 3. **DeltaScan**: Incremental document reprocessing using per-page SHA-256 fingerprinting and caching, reducing re-analysis compute time by 50–90%.
@@ -63,16 +64,45 @@ graph TB
     end
 
     subgraph DataLayer ["Data & Storage Layer (Native Windows — No Docker)"]
-        PG[("PostgreSQL 18 Database (Port 5433)")\n31 Relational Models via Prisma ORM]
-        FS[("Local File Vault")\nEncrypted Document Storage]
+        PG[("PostgreSQL 18 Database (Port 5433)<br/>31 Relational Models via Prisma ORM")]
+        FS[("Local File Vault<br/>Encrypted Document Storage")]
     end
 
-    UI_Dash & UI_DocAI & UI_Rules & UI_Queue & UI_Audit & UI_Sandbox -->|JSON / REST / Session Cookie| AUTH
-    AUTH --> ROUTER_APP & ROUTER_DOCS & ROUTER_RULES & ROUTER_FINDINGS & ROUTER_QUEUE & ROUTER_PROV
-    ROUTER_APP & ROUTER_DOCS & ROUTER_RULES & ROUTER_FINDINGS & ROUTER_QUEUE & ROUTER_PROV -->|Prisma Client| PG
+    UI_Dash --> AUTH
+    UI_DocAI --> AUTH
+    UI_Rules --> AUTH
+    UI_Queue --> AUTH
+    UI_Audit --> AUTH
+    UI_Sandbox --> AUTH
+
+    AUTH --> ROUTER_APP
+    AUTH --> ROUTER_DOCS
+    AUTH --> ROUTER_RULES
+    AUTH --> ROUTER_FINDINGS
+    AUTH --> ROUTER_QUEUE
+    AUTH --> ROUTER_PROV
+
+    ROUTER_APP --> PG
+    ROUTER_DOCS --> PG
+    ROUTER_RULES --> PG
+    ROUTER_FINDINGS --> PG
+    ROUTER_QUEUE --> PG
+    ROUTER_PROV --> PG
+
     ROUTER_DOCS --> FS
-    ROUTER_APP & ROUTER_DOCS & ROUTER_RULES & ROUTER_QUEUE & ROUTER_PROV -->|HTTP Client / IPC| FASTAPI_CLIENT
-    FASTAPI_CLIENT --> PY_OCR & PY_CHRONO & PY_DELTA & PY_REPLAY & PY_PILOT & PY_PROOFLINE
+
+    ROUTER_APP --> FASTAPI_CLIENT
+    ROUTER_DOCS --> FASTAPI_CLIENT
+    ROUTER_RULES --> FASTAPI_CLIENT
+    ROUTER_QUEUE --> FASTAPI_CLIENT
+    ROUTER_PROV --> FASTAPI_CLIENT
+
+    FASTAPI_CLIENT --> PY_OCR
+    FASTAPI_CLIENT --> PY_CHRONO
+    FASTAPI_CLIENT --> PY_DELTA
+    FASTAPI_CLIENT --> PY_REPLAY
+    FASTAPI_CLIENT --> PY_PILOT
+    FASTAPI_CLIENT --> PY_PROOFLINE
 ```
 
 ---
@@ -83,29 +113,29 @@ graph TB
 flowchart LR
     subgraph F1 ["1. ChronoGraph"]
         C1["Raw PDF Evidence"] --> C2["Extract Atomic Claims"]
-        C2 --> C3["Deterministic Normalization\n(Area, Dates, Intake)"]
-        C3 --> C4["Cross-Doc Contradiction Graph\n(Temporal, Value, Stale)"]
+        C2 --> C3["Deterministic Normalization<br/>(Area, Dates, Intake)"]
+        C3 --> C4["Cross-Doc Contradiction Graph<br/>(Temporal, Value, Stale)"]
     end
 
     subgraph F2 ["2. RuleReplay"]
         R1["Draft Rulebook Amendment"] --> R2["Clause Semantic Diff"]
         R2 --> R3["Shadow Replay on Applications"]
-        R3 --> R4["Impact Report\n(Production Unchanged)"]
+        R3 --> R4["Impact Report<br/>(Production Unchanged)"]
         R4 --> R5["Authorized Admin Publication Gate"]
     end
 
     subgraph F3 ["3. DeltaScan"]
         D1["New PDF Revision (v2.0)"] --> D2["Page SHA-256 Fingerprint"]
         D2 --> D3{"Cached Page Hash?"}
-        D3 -- Yes --> D4["REUSE_CACHE\n(0ms compute)"]
-        D3 -- No --> D5["REPROCESS_PAGE\n(Targeted Re-eval)"]
+        D3 -- Yes --> D4["REUSE_CACHE<br/>(0ms compute)"]
+        D3 -- No --> D5["REPROCESS_PAGE<br/>(Targeted Re-eval)"]
         D4 & D5 --> D6["Measure Savings %"]
     end
 
     subgraph F4 ["4. FixPreview"]
         X1["Active Deficiency Finding"] --> X2["Hypothetical Correction Input"]
         X2 --> X3["Deterministic Sandbox Test"]
-        X3 --> X4["Would Resolve Preview\n(Official Finding UNCHANGED)"]
+        X3 --> X4["Would Resolve Preview<br/>(Official Finding UNCHANGED)"]
     end
 
     subgraph F5 ["5. ReviewPilot"]
@@ -126,8 +156,9 @@ flowchart LR
 ## 4. Software Packages & Dependencies
 
 ### Frontend & UI Packages
+
 | Package | Version | Purpose |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | `react` | `^19.0.1` | Core declarative UI component library |
 | `react-dom` | `^19.0.1` | React DOM rendering engine |
 | `react-router` / `react-router-dom` | `^7.18.4` | Application routing and deep-linking |
@@ -146,8 +177,9 @@ flowchart LR
 | `vite` | `^8.3.0` | Ultra-fast client bundler and HMR server |
 
 ### Backend & Middleware Packages (Node.js)
+
 | Package | Version | Purpose |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | `express` | `^4.21.2` | Core HTTP REST API framework |
 | `prisma` / `@prisma/client` | `^6.4.1` | Type-safe PostgreSQL ORM & schema migration engine |
 | `bcryptjs` | `^3.0.3` | Salted credential hashing (TraceSecure2026!) |
@@ -162,8 +194,9 @@ flowchart LR
 | `tsx` | `^4.19.3` | Zero-config TypeScript script execution |
 
 ### Python Document-AI & Inference Packages
+
 | Package | Version | Purpose |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | `fastapi` | `>=0.115.0` | High-throughput asynchronous inference API |
 | `uvicorn` | `>=0.30.0` | High-performance ASGI server for Python microservice |
 | `pydantic` | `>=2.8.0` | Strict data validation & contract serialization |
@@ -253,6 +286,7 @@ trace-—-regulatory-assurance-&-compliance-engine/
 ## 6. Getting Started (Native Windows Execution)
 
 ### Prerequisites
+
 1. **Node.js**: v20+ (v24.20.0 recommended)
 2. **PostgreSQL**: v16+ running natively on port `5433` (or `5432`)
 3. **Miniconda Python**: Python 3.11 with PyTorch CUDA 13.0, PyMuPDF, EasyOCR, FastAPI, and Uvicorn.
@@ -284,7 +318,7 @@ npm run build
 npm run dev
 ```
 
-Visit the application at: **http://localhost:3000**
+Visit the application at: **<http://localhost:3000>**
 
 ---
 
@@ -293,7 +327,7 @@ Visit the application at: **http://localhost:3000**
 All demo accounts use the standard password: `TraceSecure2026!`
 
 | Role Name | User Email | Permissions & Scope |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | **Authorized Reviewer** | `arvind.deshmukh@trace-scrutiny.demo.in` | Inspect evidence, resolve findings, trigger ChronoGraph analysis, execute DeltaScan. |
 | **Institution Compliance Officer** | `meera.krishnan@vieps-tech.demo.edu` | Upload revised document remediations, test counterfactual values in FixPreview sandbox. |
 | **Institution Administrator** | `principal@vieps-tech.demo.edu` | Manage institution profile, authorize formal application submission. |
