@@ -267,7 +267,7 @@ export const ComplianceCenterPage: React.FC = () => {
           </h2>
           <div className="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-3 before:w-px before:bg-slate-200">
             {[...filteredReqs]
-              .sort((a, b) => a.deadline.localeCompare(b.deadline))
+              .sort((a, b) => String(a.deadline || '').localeCompare(String(b.deadline || '')))
               .map((req) => (
                 <div key={req.id} className="relative pl-9">
                   <div

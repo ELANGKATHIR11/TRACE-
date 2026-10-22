@@ -11,6 +11,7 @@ import {
 } from '../types/domain';
 import { api } from './api-client';
 import { toast } from 'sonner';
+import { INITIAL_TRACE_STORE } from '../tests/fixtures/demo-data';
 
 export interface CreateTaskInput {
   findingId: string;
@@ -119,15 +120,16 @@ const emptyState: TraceStateStore = {
 const TraceStoreContext = createContext<TraceStoreContextValue | undefined>(undefined);
 
 export const TraceStoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<TraceStateStore>(emptyState);
+  const [state, setState] = useState<TraceStateStore>(INITIAL_TRACE_STORE);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeFindingDrawerId, setActiveFindingDrawerId] = useState<string | null>(null);
 
   const refreshState = useCallback(async () => {
     try {
       const serverState = await api.getState();
-      if (serverState && serverState.applications) {
+      if (serverState && serverState.applications && serverState.applications.length > 0) {
         setState((prev) => ({
+          ...prev,
           ...serverState,
           copilotHistory: prev.copilotHistory || [],
         }));

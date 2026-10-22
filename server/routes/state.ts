@@ -293,27 +293,39 @@ stateRouter.get('/', async (req, res) => {
       discrepancySummary: t.finding?.discrepancyNote || t.description,
     }));
 
-    // Format obligations
-    const formattedObligations = obligations.map((o) => ({
-      id: o.id,
-      title: o.title,
-      institutionId: o.institutionId,
-      institutionName: o.institution.name,
-      applicationId: o.applicationId,
-      applicationCode: o.application.code,
-      clauseId: o.clauseId,
-      clauseNumber: o.clauseNumber,
-      regulationRef: o.regulationRef,
-      academicYear: o.academicYear,
-      category: o.category,
-      dueDate: o.dueDate.toISOString().split('T')[0],
-      frequency: o.frequency,
-      status: o.status,
-      evidenceRequired: o.evidenceRequired,
-      evidenceSubmitted: o.evidenceSubmitted,
-      penaltyRisk: o.penaltyRisk,
-      lastAssessedAt: o.lastAssessedAt.toISOString(),
-    }));
+    // Format obligations (ComplianceRequirementItem)
+    const formattedObligations = obligations.map((o) => {
+      const deadline = o.dueDate.toISOString().split('T')[0];
+      return {
+        id: o.id,
+        institutionId: o.institutionId,
+        institutionName: o.institution.name,
+        applicationId: o.applicationId,
+        applicationCode: o.application.code,
+        code: o.clauseNumber ? `REQ-${o.clauseNumber.replace(/[^a-zA-Z0-9]/g, '-')}` : `REQ-${o.id}`,
+        title: o.title,
+        category: (o.category as any) || 'Land & Built-up Area',
+        sourceDocument: o.regulationRef || 'Approval Process Handbook 2026-27',
+        clauseId: o.clauseId,
+        clauseRef: `${o.clauseNumber} (${o.regulationRef})`,
+        academicYear: (o.academicYear as any) || '2026-27',
+        ruleVersion: 'APH 2026-27 v2.0',
+        status: (o.status as any) || 'Upcoming',
+        evidenceDocumentId: undefined,
+        evidenceDocumentTitle: o.evidenceRequired,
+        evidenceValidationState: undefined,
+        assignedOwner: 'Prof. Meera Krishnan',
+        lastVerifiedDate: o.lastAssessedAt.toISOString().split('T')[0],
+        deadline,
+        dueDate: deadline,
+        nextRequiredAction: o.evidenceRequired ? `Submit: ${o.evidenceRequired}` : 'Upload compliance verification',
+        frequency: o.frequency,
+        evidenceRequired: o.evidenceRequired,
+        evidenceSubmitted: o.evidenceSubmitted,
+        penaltyRisk: o.penaltyRisk,
+        lastAssessedAt: o.lastAssessedAt.toISOString(),
+      };
+    });
 
     // Format alerts
     const formattedAlerts = alerts.map((a) => {

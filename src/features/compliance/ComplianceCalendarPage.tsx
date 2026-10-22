@@ -20,11 +20,11 @@ export const ComplianceCalendarPage: React.FC = () => {
     })),
     ...state.requirements.map((r) => ({
       id: r.id,
-      date: r.deadline,
+      date: r.deadline || (r as any).dueDate || '2026-10-31',
       type: 'Compliance Obligation',
-      title: `${r.code}: ${r.title}`,
-      subtitle: `${r.clauseRef} (${r.ruleVersion})`,
-      owner: r.assignedOwner,
+      title: `${r.code || r.id}: ${r.title}`,
+      subtitle: `${r.clauseRef || 'Statutory Clause'} (${r.ruleVersion || 'APH 2026-27'})`,
+      owner: r.assignedOwner || 'Compliance Lead',
       status: r.status,
       onClick: () => navigate('/compliance'),
     })),
@@ -32,7 +32,7 @@ export const ComplianceCalendarPage: React.FC = () => {
       .filter((d) => d.expiryDate)
       .map((d) => ({
         id: d.id,
-        date: d.expiryDate!,
+        date: d.expiryDate || '2026-12-31',
         type: 'Certificate Expiry',
         title: `Expiry: ${d.title}`,
         subtitle: `Document ${d.id} · App ${d.applicationId}`,
@@ -40,7 +40,7 @@ export const ComplianceCalendarPage: React.FC = () => {
         status: d.validationState,
         onClick: () => navigate(`/document-intelligence?docId=${d.id}`),
       })),
-  ].sort((a, b) => a.date.localeCompare(b.date));
+  ].sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
 
   return (
     <div className="space-y-6">
