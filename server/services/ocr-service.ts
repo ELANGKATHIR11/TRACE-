@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 // @ts-ignore
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import crypto from 'crypto';
 
 export interface ExtractedPageResult {
@@ -114,9 +114,11 @@ export async function processDocumentFile(filepath: string): Promise<DocumentPro
   let pdfText = '';
   let pageCount = 1;
   try {
-    const parsedPdf = await pdfParse(fileBuffer);
-    pdfText = parsedPdf.text || '';
-    pageCount = parsedPdf.numpages || 1;
+    const parser = new PDFParse({ data: fileBuffer });
+    const parsedText = await parser.getText();
+    pdfText = parsedText?.text || '';
+    const info = await parser.getInfo().catch(() => null);
+    pageCount = info?.totalPages || 1;
   } catch {
     pdfText = 'Binary file uploaded — text extraction via fallback';
   }
