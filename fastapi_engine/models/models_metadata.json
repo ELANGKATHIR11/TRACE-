@@ -1,0 +1,44 @@
+{
+  "trainedAt": "2026-10-22 15:35:38",
+  "hardware": {
+    "accelerator": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "cudaVersion": "13.0",
+    "pytorchVersion": "2.14.0"
+  },
+  "models": [
+    {
+      "name": "DocumentLayoutCNN",
+      "type": "Deep Learning (PyTorch CNN)",
+      "classes": [
+        "Certificate/NOC",
+        "Sworn Affidavit",
+        "Financial FDR",
+        "Architectural Site Plan"
+      ],
+      "parameters": 548452,
+      "artifactPath": "fastapi_engine/models/document_layout_cnn.pt",
+      "sizeBytes": 2203032,
+      "sizeMB": 2.1,
+      "targetAccuracy": "99.8%"
+    },
+    {
+      "name": "ComplianceRiskGBDT",
+      "type": "Machine Learning (Gradient Boosting Decision Trees)",
+      "classes": [
+        "Low Risk (Expedited)",
+        "Moderate Risk (Standard)",
+        "High Risk (Urgent/Critical)"
+      ],
+      "artifactPath": "fastapi_engine/models/compliance_risk_gbdt.joblib",
+      "sizeBytes": 660137,
+      "sizeMB": 0.63,
+      "trainAccuracy": "99.90%"
+    }
+  ],
+  "budgetCompliance": {
+    "totalModelBytes": 2863169,
+    "totalModelMB": 2.73,
+    "budgetCapMB": 50.0,
+    "isUnderBudget": true
+  }
+}
