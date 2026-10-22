@@ -30,30 +30,85 @@ const queryClient = new QueryClient({
   },
 });
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[Trace ErrorBoundary caught error]:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 max-w-xl mx-auto my-12 rounded-xl border border-red-200 bg-white shadow-sm text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-4 font-bold text-xl">
+            !
+          </div>
+          <h2 className="text-lg font-bold text-slate-900">Page Rendering Notice</h2>
+          <p className="mt-1 text-xs text-slate-600">
+            A temporary component view error occurred while rendering this page.
+          </p>
+          <div className="mt-4 p-3 rounded bg-slate-50 border border-slate-200 text-left font-mono text-[11px] text-red-600 overflow-x-auto">
+            {this.state.error?.message || 'Unknown runtime error'}
+          </div>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
+            className="mt-5 rounded-md bg-[#0F766E] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0d645d] transition-colors"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export function AppRoutes() {
   return (
     <AppShell>
-      <Routes>
-        <Route path="/" element={<ControlTowerPage />} />
-        <Route path="/my-work" element={<MyWorkPage />} />
-        <Route path="/alerts" element={<AlertCenterPage />} />
-        <Route path="/applications" element={<ApplicationsPage />} />
-        <Route path="/intake" element={<ApplicationIntakePage />} />
-        <Route path="/document-intelligence" element={<DocumentIntelligencePage />} />
-        <Route path="/verification-queue" element={<VerificationQueuePage />} />
-        <Route path="/compliance" element={<ComplianceCenterPage />} />
-        <Route path="/rules" element={<RegulatoryRulebookPage />} />
-        <Route path="/calendar" element={<ComplianceCalendarPage />} />
-        <Route path="/copilot" element={<RegulatoryCopilotPage />} />
-        <Route path="/workflows" element={<WorkflowManagementPage />} />
-        <Route path="/institutions" element={<InstitutionsPage />} />
-        <Route path="/analytics" element={<AnalyticsReportsPage />} />
-        <Route path="/audit" element={<AuditTrailPage />} />
-        <Route path="/admin/users" element={<AdministrationPage />} />
-        <Route path="/admin/rules-config" element={<AdministrationPage />} />
-        <Route path="/admin/settings" element={<AdministrationPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<ControlTowerPage />} />
+          <Route path="/my-work" element={<MyWorkPage />} />
+          <Route path="/alerts" element={<AlertCenterPage />} />
+          <Route path="/applications" element={<ApplicationsPage />} />
+          <Route path="/intake" element={<ApplicationIntakePage />} />
+          <Route path="/document-intelligence" element={<DocumentIntelligencePage />} />
+          <Route path="/verification-queue" element={<VerificationQueuePage />} />
+          <Route path="/compliance" element={<ComplianceCenterPage />} />
+          <Route path="/rules" element={<RegulatoryRulebookPage />} />
+          <Route path="/calendar" element={<ComplianceCalendarPage />} />
+          <Route path="/copilot" element={<RegulatoryCopilotPage />} />
+          <Route path="/workflows" element={<WorkflowManagementPage />} />
+          <Route path="/institutions" element={<InstitutionsPage />} />
+          <Route path="/analytics" element={<AnalyticsReportsPage />} />
+          <Route path="/audit" element={<AuditTrailPage />} />
+          <Route path="/admin/users" element={<AdministrationPage />} />
+          <Route path="/admin/rules-config" element={<AdministrationPage />} />
+          <Route path="/admin/settings" element={<AdministrationPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </ErrorBoundary>
     </AppShell>
   );
 }

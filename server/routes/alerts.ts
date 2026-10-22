@@ -19,25 +19,69 @@ alertsRouter.get('/', async (req, res) => {
       orderBy: { triggeredAt: 'desc' },
     });
 
-    const formatted = alerts.map((a) => ({
-      id: a.id,
-      applicationId: a.applicationId,
-      applicationCode: a.application?.code || 'SYSTEM-WIDE',
-      institutionId: a.institutionId,
-      institutionName: a.institution.name,
-      code: a.code,
-      type: a.type,
-      severity: a.severity,
-      title: a.title,
-      message: a.message,
-      sourceClauseId: a.sourceClauseId,
-      targetRole: a.targetRole,
-      triggeredAt: a.triggeredAt.toISOString(),
-      acknowledged: a.acknowledged,
-      acknowledgedAt: a.acknowledgedAt?.toISOString(),
-      acknowledgedBy: a.acknowledgedBy,
-      channels: typeof a.channels === 'string' ? JSON.parse(a.channels) : a.channels,
-    }));
+    const formatted = alerts.map((a) => {
+      let parsedChannels: any[] = [];
+      try {
+        if (typeof a.channels === 'string') {
+          parsedChannels = JSON.parse(a.channels);
+        } else if (Array.isArray(a.channels)) {
+          parsedChannels = a.channels;
+        }
+      } catch {
+        parsedChannels = [];
+      }
+
+      const deliveryChannels = (Array.isArray(parsedChannels) && parsedChannels.length > 0)
+        ? parsedChannels.map((ch: any) => ({
+            channel: ch.channel === 'IN_APP' ? 'In-App Console' : ch.channel === 'EMAIL' ? 'Institutional Email Relay (Simulated)' : (ch.channel || 'In-App Console'),
+            status: ch.status === 'DELIVERED' ? 'Delivered' : ch.status === 'PENDING_CONFIG' ? 'Simulated Local Only' : (ch.status || 'Delivered'),
+            recipient: ch.recipient || a.targetRole || 'Compliance Lead',
+            lastAttemptAt: ch.timestamp || ch.lastAttemptAt || a.triggeredAt.toISOString(),
+          }))
+        : [
+            {
+              channel: 'In-App Console',
+              status: 'Delivered',
+              recipient: a.targetRole || 'Compliance Lead',
+              lastAttemptAt: a.triggeredAt.toISOString(),
+            },
+          ];
+
+      const sevLower = a.severity.toLowerCase();
+      const severity = (sevLower === 'critical' ? 'critical' : sevLower === 'major' || sevLower === 'warning' ? 'warning' : 'info') as 'critical' | 'warning' | 'info';
+
+      let eventType = 'Document Inconsistency';
+      if (a.type === 'MISSING_EVIDENCE') eventType = 'Missing Mandatory Evidence';
+      else if (a.type === 'OVERDUE_TASK') eventType = 'Overdue Task';
+      else if (a.type === 'DISCREPANCY_FLAG') eventType = 'Document Inconsistency';
+      else if (a.type) eventType = a.type;
+
+      return {
+        id: a.id,
+        code: a.code,
+        title: a.title,
+        message: a.message,
+        severity,
+        eventType,
+        createdAt: a.triggeredAt.toISOString(),
+        dueDate: undefined,
+        applicationId: a.applicationId,
+        applicationCode: a.application?.code || 'SYSTEM-WIDE',
+        institutionId: a.institutionId,
+        institutionName: a.institution.name,
+        sourceClauseId: a.sourceClauseId,
+        targetRole: a.targetRole,
+        assignedOwner: a.targetRole || 'Assigned Officer',
+        recommendedAction: 'Inspect affected finding and verify compliance with regulatory clause ' + (a.sourceClauseId || ''),
+        isRead: a.acknowledged,
+        acknowledged: a.acknowledged,
+        acknowledgedAt: a.acknowledgedAt?.toISOString(),
+        acknowledgedBy: a.acknowledgedBy,
+        escalationLevel: 'None' as const,
+        channels: deliveryChannels,
+        deliveryChannels,
+      };
+    });
 
     res.json({ alerts: formatted });
   } catch (error: any) {

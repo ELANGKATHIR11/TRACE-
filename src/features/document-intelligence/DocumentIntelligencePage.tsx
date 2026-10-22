@@ -378,7 +378,7 @@ export const DocumentIntelligencePage: React.FC = () => {
           {/* Version History Selector */}
           <div className="border-t border-slate-100 pt-3 text-xs space-y-2">
             <label className="block font-bold text-slate-800">
-              Document Version History ({currentDoc.versions.length})
+              Document Version History ({(currentDoc.versions || []).length})
             </label>
             <select
               aria-label="Select Document Version"
@@ -386,13 +386,13 @@ export const DocumentIntelligencePage: React.FC = () => {
               onChange={(e) => setSelectedVersion(e.target.value)}
               className="w-full rounded border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-mono"
             >
-              {currentDoc.versions.map((v) => (
+              {(currentDoc.versions || []).map((v) => (
                 <option key={v.version} value={v.version}>
                   {v.version} — {v.validationState} ({v.fileName})
                 </option>
               ))}
             </select>
-            {currentDoc.versions.map((v) => (
+            {(currentDoc.versions || []).map((v) => (
               <div
                 key={v.version}
                 className="rounded border border-slate-100 bg-slate-50 p-2 text-[11px]"
@@ -445,7 +445,7 @@ export const DocumentIntelligencePage: React.FC = () => {
               <span className="font-bold text-slate-800">2. Interactive Preview Canvas</span>
               <span className="text-slate-300">·</span>
               <div className="flex items-center gap-1">
-                {currentDoc.pages.map((p) => (
+                {(currentDoc.pages || []).map((p) => (
                   <button
                     key={p.pageNumber}
                     onClick={() => setSelectedPage(p.pageNumber)}
@@ -594,7 +594,7 @@ export const DocumentIntelligencePage: React.FC = () => {
 
           {/* Extracted Fields List */}
           <div className="space-y-3">
-            {currentDoc.extractedFields.map((field) => {
+            {(currentDoc.extractedFields || []).map((field) => {
               const isSelectedBox = activeBboxId === field.boundingBoxId;
               const isEditing = editingFieldId === field.id;
 
@@ -806,7 +806,7 @@ export const DocumentIntelligencePage: React.FC = () => {
                 </button>
               </div>
               <div className="space-y-1.5 max-h-36 overflow-y-auto pt-1">
-                {currentDoc.reviewerNotes.map((rn) => (
+                {(currentDoc.reviewerNotes || []).map((rn) => (
                   <div
                     key={rn.id}
                     className="rounded border border-slate-100 bg-slate-50 p-2 text-[11px]"

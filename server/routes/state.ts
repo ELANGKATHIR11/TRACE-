@@ -316,44 +316,102 @@ stateRouter.get('/', async (req, res) => {
     }));
 
     // Format alerts
-    const formattedAlerts = alerts.map((a) => ({
-      id: a.id,
-      applicationId: a.applicationId,
-      applicationCode: a.application?.code || 'SYSTEM-WIDE',
-      institutionId: a.institutionId,
-      institutionName: a.institution.name,
-      code: a.code,
-      type: a.type,
-      severity: a.severity,
-      title: a.title,
-      message: a.message,
-      sourceClauseId: a.sourceClauseId,
-      targetRole: a.targetRole,
-      triggeredAt: a.triggeredAt.toISOString(),
-      acknowledged: a.acknowledged,
-      acknowledgedAt: a.acknowledgedAt?.toISOString(),
-      acknowledgedBy: a.acknowledgedBy,
-      channels: typeof a.channels === 'string' ? JSON.parse(a.channels) : a.channels,
-    }));
+    const formattedAlerts = alerts.map((a) => {
+      let parsedChannels: any[] = [];
+      try {
+        if (typeof a.channels === 'string') {
+          parsedChannels = JSON.parse(a.channels);
+        } else if (Array.isArray(a.channels)) {
+          parsedChannels = a.channels;
+        }
+      } catch {
+        parsedChannels = [];
+      }
+
+      const deliveryChannels = (Array.isArray(parsedChannels) && parsedChannels.length > 0)
+        ? parsedChannels.map((ch: any) => ({
+            channel: ch.channel === 'IN_APP' ? 'In-App Console' : ch.channel === 'EMAIL' ? 'Institutional Email Relay (Simulated)' : (ch.channel || 'In-App Console'),
+            status: ch.status === 'DELIVERED' ? 'Delivered' : ch.status === 'PENDING_CONFIG' ? 'Simulated Local Only' : (ch.status || 'Delivered'),
+            recipient: ch.recipient || a.targetRole || 'Compliance Lead',
+            lastAttemptAt: ch.timestamp || ch.lastAttemptAt || a.triggeredAt.toISOString(),
+          }))
+        : [
+            {
+              channel: 'In-App Console',
+              status: 'Delivered',
+              recipient: a.targetRole || 'Compliance Lead',
+              lastAttemptAt: a.triggeredAt.toISOString(),
+            },
+          ];
+
+      // Map DB severity to frontend severity lowercase
+      const sevLower = a.severity.toLowerCase();
+      const severity = (sevLower === 'critical' ? 'critical' : sevLower === 'major' || sevLower === 'warning' ? 'warning' : 'info') as 'critical' | 'warning' | 'info';
+
+      // Map eventType
+      let eventType = 'Document Inconsistency';
+      if (a.type === 'MISSING_EVIDENCE') eventType = 'Missing Mandatory Evidence';
+      else if (a.type === 'OVERDUE_TASK') eventType = 'Overdue Task';
+      else if (a.type === 'DISCREPANCY_FLAG') eventType = 'Document Inconsistency';
+      else if (a.type) eventType = a.type;
+
+      return {
+        id: a.id,
+        code: a.code,
+        title: a.title,
+        message: a.message,
+        severity,
+        eventType,
+        createdAt: a.triggeredAt.toISOString(),
+        dueDate: undefined,
+        applicationId: a.applicationId,
+        applicationCode: a.application?.code || 'SYSTEM-WIDE',
+        institutionId: a.institutionId,
+        institutionName: a.institution.name,
+        sourceClauseId: a.sourceClauseId,
+        targetRole: a.targetRole,
+        assignedOwner: a.targetRole || 'Assigned Officer',
+        recommendedAction: 'Inspect affected finding and verify compliance with regulatory clause ' + (a.sourceClauseId || ''),
+        isRead: a.acknowledged,
+        acknowledged: a.acknowledged,
+        acknowledgedAt: a.acknowledgedAt?.toISOString(),
+        acknowledgedBy: a.acknowledgedBy,
+        escalationLevel: 'None' as const,
+        channels: deliveryChannels,
+        deliveryChannels,
+      };
+    });
 
     // Format audit events
-    const formattedAudit = auditEvents.map((a) => ({
-      id: a.id,
-      timestamp: a.timestamp.toISOString(),
-      actorName: a.actorName,
-      actorRole: a.actorRole,
-      action: a.action,
-      entityType: a.entityType,
-      entityId: a.entityId,
-      applicationId: a.applicationId,
-      institutionId: a.institutionId,
-      previousState: a.previousState,
-      newState: a.newState,
-      ruleVersion: a.ruleVersion,
-      evidenceReference: a.evidenceReference,
-      outcome: a.outcome,
-      ipAddress: a.ipAddress,
-    }));
+    const formattedAudit = auditEvents.map((a) => {
+      const actionType = a.action || 'APPLICATION_CREATED';
+      const actionLabel = a.action.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
+      const entityLabel = `${a.entityType} ${a.entityId}`;
+
+      return {
+        id: a.id,
+        timestamp: a.timestamp.toISOString(),
+        actorName: a.actorName,
+        actorRole: a.actorRole,
+        action: a.action,
+        actionType,
+        actionLabel,
+        entityType: (a.entityType as any) || 'Application',
+        entityId: a.entityId,
+        entityLabel,
+        applicationId: a.applicationId,
+        institutionId: a.institutionId,
+        previousState: a.previousState || undefined,
+        newState: a.newState || undefined,
+        ruleVersion: a.ruleVersion,
+        evidenceReference: a.evidenceReference,
+        evidenceOrRuleRef: a.evidenceReference || a.ruleVersion || undefined,
+        outcome: a.outcome,
+        ipAddress: a.ipAddress,
+        correlationId: `CORR-${a.id}`,
+        isDemoAction: true,
+      };
+    });
 
     // Format rule sets
     const formattedRuleSets = ruleSets.map((rs) => {

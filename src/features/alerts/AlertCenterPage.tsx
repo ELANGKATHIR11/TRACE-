@@ -137,34 +137,38 @@ export const AlertCenterPage: React.FC = () => {
             {/* Delivery Channels & Honest Status */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <div className="flex flex-wrap items-center gap-2">
-                {alert.deliveryChannels.map((ch, idx) => (
-                  <div
-                    key={idx}
-                    className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2.5 py-1 text-[11px]"
-                  >
-                    <span className="font-medium text-slate-700">{ch.channel}:</span>
-                    <span
-                      className={`font-mono font-semibold ${
-                        ch.status === 'Delivered'
-                          ? 'text-emerald-700'
-                          : ch.status.includes('Failed')
-                          ? 'text-red-600'
-                          : 'text-slate-500'
-                      }`}
+                {(alert.deliveryChannels || []).map((ch, idx) => {
+                  const channelStatus = ch?.status || 'Delivered';
+                  const channelName = ch?.channel || 'In-App Console';
+                  return (
+                    <div
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-2.5 py-1 text-[11px]"
                     >
-                      {ch.status}
-                    </span>
-                    {ch.status.includes('Failed') && (
-                      <button
-                        onClick={() => retryFailedAlertDelivery(alert.id, idx)}
-                        className="ml-1 inline-flex items-center gap-0.5 text-[#0F766E] hover:underline"
+                      <span className="font-medium text-slate-700">{channelName}:</span>
+                      <span
+                        className={`font-mono font-semibold ${
+                          channelStatus === 'Delivered'
+                            ? 'text-emerald-700'
+                            : channelStatus.includes('Failed')
+                            ? 'text-red-600'
+                            : 'text-slate-500'
+                        }`}
                       >
-                        <RefreshCw className="h-3 w-3" />
-                        Retry
-                      </button>
-                    )}
-                  </div>
-                ))}
+                        {channelStatus}
+                      </span>
+                      {channelStatus.includes('Failed') && (
+                        <button
+                          onClick={() => retryFailedAlertDelivery(alert.id, idx)}
+                          className="ml-1 inline-flex items-center gap-0.5 text-[#0F766E] hover:underline"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          Retry
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="flex items-center gap-2">

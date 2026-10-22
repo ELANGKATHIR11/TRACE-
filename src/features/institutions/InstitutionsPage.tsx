@@ -108,10 +108,10 @@ export const InstitutionsPage: React.FC = () => {
             {/* Approved Technical Programs */}
             <div>
               <h3 className="font-bold text-slate-900 mb-2">
-                Approved & Applied Technical Programs ({activeInst.programs.length})
+                Approved & Applied Technical Programs ({(activeInst.programs || []).length})
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                {activeInst.programs.map((prg) => (
+                {(activeInst.programs || []).map((prg) => (
                   <div
                     key={prg.id}
                     className="rounded border border-slate-200 bg-slate-50/70 p-3"
@@ -134,7 +134,7 @@ export const InstitutionsPage: React.FC = () => {
                 Authorized Compliance & Nodal Contacts
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {activeInst.complianceContacts.map((c, idx) => (
+                {(activeInst.complianceContacts || []).map((c, idx) => (
                   <div key={idx} className="rounded border border-slate-200 p-3">
                     <div className="font-semibold text-slate-900">
                       {c.name} ({c.role})

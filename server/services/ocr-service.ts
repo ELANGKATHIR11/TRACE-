@@ -118,7 +118,7 @@ export async function processDocumentFile(filepath: string): Promise<DocumentPro
     const parsedText = await parser.getText();
     pdfText = parsedText?.text || '';
     const info = await parser.getInfo().catch(() => null);
-    pageCount = info?.totalPages || 1;
+    pageCount = (info as any)?.totalPages || (info as any)?.numpages || (info as any)?.pages || 1;
   } catch {
     pdfText = 'Binary file uploaded — text extraction via fallback';
   }

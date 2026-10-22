@@ -635,12 +635,12 @@ export const ControlTowerPage: React.FC = () => {
                 className="rounded border border-slate-100 bg-slate-50/70 p-2.5 text-xs"
               >
                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>{evt.actionType}</span>
-                  <span>{new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{evt.actionType || (evt as any).action || 'ACTIVITY'}</span>
+                  <span>{evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
                 </div>
-                <div className="mt-0.5 font-medium text-slate-900">{evt.actionLabel}</div>
+                <div className="mt-0.5 font-medium text-slate-900">{evt.actionLabel || (evt as any).action || 'System Event'}</div>
                 <div className="mt-0.5 text-[11px] text-slate-600">
-                  {evt.actorName} · {evt.newState}
+                  {evt.actorName} · {evt.newState || 'Completed'}
                 </div>
               </div>
             ))}
