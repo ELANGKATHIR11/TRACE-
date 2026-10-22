@@ -1,0 +1,205 @@
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import path from 'path';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { prisma } from './server/db/prisma';
+import { authMiddleware } from './server/middleware/auth';
+
+// Routers
+import { authRouter } from './server/routes/auth';
+import { usersRouter } from './server/routes/users';
+import { institutionsRouter } from './server/routes/institutions';
+import { applicationsRouter } from './server/routes/applications';
+import { documentsRouter } from './server/routes/documents';
+import { findingsRouter } from './server/routes/findings';
+import { tasksRouter } from './server/routes/tasks';
+import { rulesRouter } from './server/routes/rules';
+import { obligationsRouter } from './server/routes/obligations';
+import { alertsRouter } from './server/routes/alerts';
+import { auditRouter } from './server/routes/audit';
+import { analyticsRouter } from './server/routes/analytics';
+import { copilotRouter } from './server/routes/copilot';
+import { stateRouter } from './server/routes/state';
+import { reviewQueueRouter } from './server/routes/review-queue';
+import { provenanceRouter } from './server/routes/provenance';
+
+dotenv.config();
+
+const PORT = Number(process.env.PORT || 3000);
+
+export async function createExpressApp() {
+  const app = express();
+
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    }) as any
+  );
+  app.use(cookieParser() as any);
+  app.use(express.json({ limit: '25mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+  // Global authentication & session middleware
+  app.use(authMiddleware);
+
+  // Health and Readiness Endpoint
+  app.get('/api/health', async (_req, res) => {
+    let dbStatus = 'disconnected';
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      dbStatus = 'connected';
+    } catch (e: any) {
+      dbStatus = `error: ${e?.message}`;
+    }
+
+    const localAiConfig = {
+      offline: true,
+      provider: 'Local Ollama & Deterministic Statutory RAG',
+      model: process.env.LOCAL_LLM_MODEL || 'qwen2.5:1.5b-instruct',
+      ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
+    };
+
+    res.json({
+      status: 'ok',
+      service: 'TRACE — Regulatory Assurance & Compliance Engine',
+      environment: process.env.NODE_ENV || 'development',
+      offlineMode: true,
+      database: {
+        provider: 'PostgreSQL',
+        status: dbStatus,
+      },
+      hardwareAcceleration: {
+        pythonEnv: process.env.MINICONDA_PYTHON || 'C:\\Users\\elang\\miniconda3\\envs\\dgpu-core\\python.exe',
+        gpuTarget: 'NVIDIA GeForce RTX 5060 Laptop GPU',
+        frameworks: 'PyTorch CUDA 13.0 + EasyOCR + PyMuPDF',
+      },
+      aiEngine: localAiConfig,
+      liveAiConfigured: true,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // OpenAPI Specification Endpoint
+  app.get('/api/openapi.json', (_req, res) => {
+    res.json({
+      openapi: '3.0.0',
+      info: {
+        title: 'TRACE — Trustworthy Regulatory Assurance & Compliance Engine API',
+        version: '2.0.0',
+        description:
+          'Authoritative REST API for Regulatory Assurance, Evidence Verification, Document Intelligence, and AI Guidance.',
+      },
+      paths: {
+        '/api/auth/login': { post: { summary: 'User login with session cookie' } },
+        '/api/auth/me': { get: { summary: 'Get current user profile' } },
+        '/api/applications': {
+          get: { summary: 'List regulatory applications' },
+          post: { summary: 'Create new application intake' },
+        },
+        '/api/documents/upload': { post: { summary: 'Multipart upload with GPU OCR' } },
+        '/api/documents/{id}/validate': { post: { summary: 'Execute deterministic rule evaluation' } },
+        '/api/documents/{id}/remediate': { post: { summary: 'Upload corrected version v2.0' } },
+        '/api/findings/{id}/resolve': { post: { summary: 'Resolve compliance finding' } },
+        '/api/tasks': {
+          get: { summary: 'List corrective tasks' },
+          post: { summary: 'Assign corrective task' },
+        },
+        '/api/rules': { get: { summary: 'List regulatory rule sets and clauses' } },
+        '/api/copilot/query': { post: { summary: 'Source-grounded Regulatory Copilot' } },
+        '/api/analytics': { get: { summary: 'Database-backed compliance analytics' } },
+        '/api/audit': { get: { summary: 'Immutable audit trail' } },
+        '/api/state': { get: { summary: 'Full unified state snapshot for client synchronization' } },
+      },
+    });
+  });
+
+  // Mount API Routers
+  app.use('/api/auth', authRouter);
+  app.use('/api/users', usersRouter);
+  app.use('/api/institutions', institutionsRouter);
+  app.use('/api/applications', applicationsRouter);
+  app.use('/api/documents', documentsRouter);
+  app.use('/api/findings', findingsRouter);
+  app.use('/api/tasks', tasksRouter);
+  app.use('/api/rules', rulesRouter);
+  app.use('/api/regulations', rulesRouter);
+  app.use('/api/obligations', obligationsRouter);
+  app.use('/api/alerts', alertsRouter);
+  app.use('/api/audit', auditRouter);
+  app.use('/api/analytics', analyticsRouter);
+  app.use('/api/copilot', copilotRouter);
+  app.use('/api/state', stateRouter);
+  app.use('/api/review-queue', reviewQueueRouter);
+  app.use('/api/provenance', provenanceRouter);
+  app.use('/api/assessments', provenanceRouter);
+
+  return app;
+}
+
+// Background scheduler for overdue tasks & compliance deadlines
+function startBackgroundScheduler() {
+  const CHECK_INTERVAL_MS = 60000; // Check every 60 seconds
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      // Detect overdue tasks
+      await prisma.correctiveTask.updateMany({
+        where: {
+          status: 'Open',
+          dueDate: { lt: now },
+        },
+        data: {
+          status: 'Overdue',
+        },
+      });
+
+      // Detect expired documents
+      await prisma.document.updateMany({
+        where: {
+          expiryDate: { lt: now },
+          validationState: { not: 'Expired document' },
+        },
+        data: {
+          validationState: 'Expired document',
+        },
+      });
+    } catch (schedErr) {
+      console.warn('[Scheduler] Periodic compliance check error:', schedErr);
+    }
+  }, CHECK_INTERVAL_MS);
+}
+
+export async function startServer() {
+  const app = await createExpressApp();
+
+  if (process.env.NODE_ENV !== 'production') {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`TRACE Regulatory Engine Server listening on http://0.0.0.0:${PORT}`);
+    console.log(`PostgreSQL Database: localhost:5433 (trace_db)`);
+    console.log(`Miniconda GPU Python: ${process.env.MINICONDA_PYTHON || 'C:\\Users\\elang\\miniconda3\\envs\\dgpu-core\\python.exe'}`);
+  });
+
+  startBackgroundScheduler();
+
+  return server;
+}
+
+if (import.meta.url.endsWith(process.argv[1]) || process.argv[1]?.includes('server.ts')) {
+  startServer();
+}

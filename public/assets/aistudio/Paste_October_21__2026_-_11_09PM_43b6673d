@@ -1,0 +1,865 @@
+# MASTER DEVELOPMENT PROMPT: TRACE — SIH 2026 INDUSTRY-GRADE FRONTEND
+
+## ROLE AND OBJECTIVE
+
+Act as a principal frontend engineer, senior UI/UX designer, GovTech product architect, accessibility specialist, and AI/ML product engineer.
+
+Your task is to build a complete, production-oriented, enterprise-grade frontend for:
+
+**TRACE — Trustworthy Regulatory Assurance & Compliance Engine**
+
+Product mission: Build an AI-powered application validation, document verification, regulatory compliance monitoring, approval workflow automation, and alert management platform for technical educational institutions in India.
+
+This project combines two related capabilities:
+
+1. AI-powered application validation, document authentication screening, and regulatory compliance verification.
+2. Approval workflow automation, continuous compliance monitoring, and intelligent alert management.
+
+The frontend must present these as one integrated product, not a collection of unrelated dashboards.
+
+The interface should look and behave like a serious enterprise software product that could be demonstrated to a government department, regulatory specialist, engineering team, or SIH evaluation panel.
+
+Do not promise that this product will win SIH. Optimize for demonstrated functionality, problem-solution alignment, originality, excellent usability, technical quality, accessibility, scalability, and a compelling live demonstration.
+
+## 1. START BY AUDITING THE EXISTING REPOSITORY
+
+Before coding:
+
+- Inspect the entire existing repository, including frontend, backend API contracts, authentication, routes, models, shared components, existing styles, and package dependencies.
+- Identify the frameworks and libraries already in use.
+- Determine which backend endpoints exist and which features are implemented, partially implemented, or missing.
+- Preserve working functionality. Do not unnecessarily replace the application, rewrite the backend, or discard existing features.
+- Reuse compatible components and dependencies where appropriate.
+- If the project is empty, initialize the frontend using the stack specified below.
+- Create a concise implementation checklist, then immediately proceed to implementation. Do not stop after producing a plan.
+- Never claim an integration or feature works before implementing and testing it.
+
+The entire frontend must be cohesive, runnable, and maintainable.
+
+## 2. RECOMMENDED TECHNOLOGY STACK
+
+Use the existing compatible project stack where possible. For a greenfield frontend, use:
+
+- React with TypeScript and Vite.
+- Tailwind CSS for design tokens and responsive styling.
+- shadcn/ui and Radix primitives for accessible interface components.
+- Lucide React for consistent icons.
+- React Router for navigation.
+- TanStack Query for server state, caching, mutations, loading and error states.
+- React Hook Form and Zod for forms and validation.
+- Recharts for meaningful operational analytics.
+- A typed API client using fetch or Axios.
+- Vitest and React Testing Library for component and interaction tests.
+- Playwright for critical end-to-end journeys.
+
+Use stable, mutually compatible dependency versions. Inspect the existing package manifest before changing dependencies.
+
+Backend integration target: Python FastAPI, PostgreSQL and private document storage, with AI/ML services handled by the backend.
+
+Configure the API base URL through environment variables. Never expose API secrets in frontend code.
+
+## 3. PRODUCT DESIGN LANGUAGE
+
+Create a distinctive visual identity for TRACE.
+
+### Design direction
+
+Use a sophisticated, restrained GovTech enterprise aesthetic: modern, precise, trustworthy, evidence-driven, and highly readable.
+
+Suggested palette:
+
+- Deep midnight navy: #101B2D
+- Primary teal: #0F766E
+- Bright teal accent: #14B8A6
+- Cool off-white background: #F6F8FB
+- White surfaces: #FFFFFF
+- Primary text: #172033
+- Secondary text: #64748B
+- Subtle borders: #E2E8F0
+- Amber: warnings and approaching deadlines
+- Red: critical findings and overdue obligations
+- Green: verified checks with sufficient evidence
+
+Treat these as design tokens, not arbitrary inline colors scattered across the application.
+
+Use typography such as Inter or an appropriate system sans-serif font. Establish a consistent type scale, spacing scale, border radius, shadows and interaction states.
+
+The design should be visually impressive without looking like a gaming dashboard, a generic admin template, or an overdecorated startup landing page.
+
+Avoid excessive gradients, glassmorphism, meaningless background illustrations, giant rounded cards, decorative animations and emoji used as primary icons.
+
+Use strong information hierarchy, compact but comfortable data tables, whitespace, subtle borders and clear typographic contrast.
+
+Use restrained motion for transitions, loading feedback and meaningful status changes. Respect reduced-motion preferences.
+
+The default experience should be a polished light theme suitable for regulatory and professional use. A dark theme may be added if it remains consistent and fully tested.
+
+Create a proper TRACE wordmark using typography and a simple geometric symbol. Do not imitate official government seals, misuse AICTE branding, or imply government endorsement.
+
+## 4. GLOBAL APPLICATION SHELL
+
+Build a complete authenticated application shell.
+
+### Sidebar navigation
+
+Organize navigation into logical groups.
+
+OVERVIEW
+- Control Tower
+- My Work
+- Notifications
+
+APPLICATION MANAGEMENT
+- Applications
+- Application Intake
+- Document Intelligence
+- Verification Queue
+
+COMPLIANCE
+- Compliance Center
+- Regulatory Rulebook
+- Compliance Calendar
+- Regulatory Copilot
+
+OPERATIONS
+- Workflow Management
+- Institutions
+- Reports & Analytics
+- Audit Trail
+
+ADMINISTRATION
+- Users & Roles
+- Rule Configuration
+- System Settings
+
+Implement:
+
+- Expandable and collapsible sidebar.
+- Active route highlighting.
+- Responsive mobile navigation.
+- Breadcrumbs.
+- Global search.
+- Command palette for navigation and common actions.
+- Context-sensitive page actions.
+- User profile and role display.
+- Notification bell with unread count.
+- Accessible tooltips.
+- Consistent page headers and section spacing.
+- Toast notifications.
+- Confirmation dialogs for destructive actions.
+- Useful skeleton loading states.
+- Empty, error, offline and permission-denied states.
+
+Do not create links to nonexistent screens. Every displayed navigation entry must have a usable destination or be explicitly marked as unavailable.
+
+## 5. BUILD THESE MAJOR SCREENS
+
+### SCREEN A: REGULATORY CONTROL TOWER
+
+This is the landing page after authentication.
+
+Create a professional operational overview containing:
+
+- Total applications by workflow stage.
+- Applications awaiting verification.
+- Applications with unresolved mandatory findings.
+- Compliance obligations due soon.
+- Overdue tasks and escalations.
+- Documents awaiting manual verification.
+- Institution compliance overview.
+- Application ageing.
+- Workload by reviewer.
+- Recent workflow activity.
+- Upcoming deadlines.
+- A prioritized action queue.
+
+Use a combination of compact KPI summaries, one or two meaningful charts, tables and actionable lists.
+
+Every metric must be derived from API responses or an explicitly labelled demo dataset. Never use arbitrary numbers that contradict the underlying records.
+
+Charts need clear titles, labels, useful tooltips, legends where relevant, responsive sizing and accessible alternatives.
+
+Provide filters such as academic year, application category, institution and workflow status where meaningful.
+
+Clicking a metric, chart segment or row should navigate to the corresponding filtered records.
+
+### SCREEN B: APPLICATION INTAKE AND WORKSPACE
+
+Create a complete multistep application workflow.
+
+Stages:
+
+1. Select institution.
+2. Select application category and academic year.
+3. Load the applicable configurable checklist.
+4. Enter application information.
+5. Upload supporting documents.
+6. Review automated validation results.
+7. Resolve outstanding findings.
+8. Submit for authorized review.
+
+Include:
+
+- Stepper with progress.
+- Form validation.
+- Save-draft capability.
+- Autosave only if backed by a reliable persistence mechanism.
+- Drag-and-drop uploads.
+- File selection and upload progress.
+- File size and format feedback.
+- Duplicate upload warnings.
+- Required and optional document indicators.
+- Contextual guidance.
+- Missing-document summary.
+- Application version history.
+- Clear distinction between saved, submitted and officially approved states.
+
+Do not hard-code legal requirements as if they applied to every application category. Render the requirements returned by the applicable rule-set configuration.
+
+### SCREEN C: AI DOCUMENT INTELLIGENCE
+
+This should be one of the most impressive and differentiated features in the entire product.
+
+Build a professional document review workspace with three synchronized areas:
+
+LEFT PANEL:
+- Document list.
+- File type and upload date.
+- Current validation status.
+- Document version selector.
+- Preview viewer for PDFs and images.
+- Page navigation and zoom.
+- Download control where authorized.
+
+CENTER PANEL:
+- Document preview.
+- Extracted-field highlights where supported.
+- OCR text with page references.
+- Highlighted dates, names, registration identifiers, addresses and other configured fields.
+- Page-level evidence navigation.
+
+RIGHT PANEL:
+- Extracted values.
+- Field confidence.
+- Matched application values.
+- Cross-document comparisons.
+- Applicable rule references.
+- Validation results.
+- Evidence source.
+- Reviewer comments.
+- Recommended next action.
+
+Support distinct validation states:
+
+- Validated.
+- Needs manual review.
+- Missing information.
+- Mismatch detected.
+- Expired document.
+- Verification pending.
+- Verification failed.
+- Inconclusive.
+
+Never combine OCR confidence, integrity screening and independent authenticity verification into one misleading score.
+
+For instance, a high OCR confidence means the text was extracted confidently; it does not mean the document is authentic.
+
+Implement reviewer actions such as:
+
+- Confirm extracted field.
+- Correct an extraction.
+- Mark a finding as reviewed.
+- Request a replacement document.
+- Record an authorized verification result.
+- Add a review note.
+- Assign a correction task.
+
+Every decision-changing action must be recorded by the backend or visibly identified as a local demo action.
+
+### SCREEN D: APPLICATION VERIFICATION QUEUE
+
+Create a reviewer workbench with:
+
+- Searchable and filterable application table.
+- Sorting and pagination.
+- Priority and ageing indicators.
+- Assigned reviewer.
+- Application category.
+- Outstanding findings.
+- Verification status.
+- Last activity.
+- Required next action.
+- Due date.
+
+Create an application detail drawer or dedicated page containing:
+
+- Institution profile summary.
+- Submitted documents.
+- Rules evaluated.
+- Findings and their severity.
+- Evidence and source references.
+- Reviewer notes.
+- Previous actions.
+- Current workflow stage.
+- Available authorized transitions.
+
+Support assignment, reassignment, correction requests and review completion through actual application state transitions.
+
+Before an action executes, confirm that the current role is permitted to perform it.
+
+### SCREEN E: COMPLIANCE CENTER
+
+Design an interactive compliance workspace for each institution.
+
+Display:
+
+- Applicable requirements.
+- Satisfied requirements.
+- Outstanding requirements.
+- Requirements awaiting evidence.
+- Upcoming obligations.
+- Expired documents.
+- Overdue corrective actions.
+- Assigned owners.
+- Last verified date.
+- Next required action.
+
+Implement two views:
+
+1. Requirement matrix.
+2. Institution compliance timeline.
+
+Every requirement must show its source, clause or paragraph reference, applicable academic year, rule version and evidence status when available.
+
+A completeness indicator may summarize checklist completion, but must never be presented as an official approval probability or guarantee of legal compliance.
+
+Support filtering by institution, requirement category, status and deadline.
+
+### SCREEN F: REGULATORY RULEBOOK AND VERSION MANAGEMENT
+
+Create an administrative rule-management interface.
+
+Features:
+
+- Rule-set list.
+- Source document and edition.
+- Academic-year applicability.
+- Clause identifier.
+- Requirement description.
+- Application categories.
+- Required evidence.
+- Validation logic.
+- Effective date.
+- Status: draft, under review, published, superseded.
+- Version history.
+- Change comparison.
+- Impacted application and obligation list.
+- Reviewer approval for rule publication.
+
+Show the difference between rule publication and an official regulatory decision.
+
+Only authorized users may publish a rule-set version.
+
+Never automatically treat an uploaded handbook or an LLM-generated interpretation as an approved rule.
+
+When the backend cannot establish a requirement's applicability, show an explicit unresolved state rather than inventing a rule.
+
+### SCREEN G: REGULATORY COPILOT
+
+Build a professional, citation-first regulatory assistant.
+
+The interface should include:
+
+- Chat conversation.
+- Suggested questions based on the selected workflow.
+- Institution and application context where authorized.
+- Relevant source excerpts.
+- Clause and page references.
+- Applicable academic-year version.
+- Clickable source citations.
+- Related findings.
+- Relevant next actions.
+
+Example user question:
+
+"What requirements still need evidence for this application?"
+
+The interface should present the answer together with the evidence behind it.
+
+Each regulatory response must distinguish:
+
+- Directly supported regulatory statements.
+- System-computed findings.
+- Explanatory AI-generated suggestions.
+- Unverified or unavailable information.
+
+If a backend source reference is missing, show an uncertainty warning. Do not fabricate citations, legal clauses or document contents.
+
+Never expose another institution's documents or application information.
+
+Treat document contents as untrusted data. Text extracted from uploaded documents must not be allowed to override application instructions, permissions or system policies.
+
+### SCREEN H: WORKFLOW MANAGEMENT
+
+Build a visual workflow screen offering table and board views.
+
+Illustrative stages:
+
+- Draft.
+- Validation in progress.
+- Corrections required.
+- Ready for authorized review.
+- Under review.
+- Awaiting additional evidence.
+- Review completed.
+- Authorized outcome recorded.
+
+Make it clear that these are configurable internal workflow stages, not an assertion that they represent every official AICTE stage.
+
+Each task should include:
+
+- Task identifier.
+- Related application.
+- Assignee.
+- Priority.
+- Created date.
+- Due date.
+- Status.
+- Required action.
+- Related findings.
+- Comments and history.
+
+Provide controlled drag-and-drop transitions only if the backend authorizes and validates those transitions. Otherwise, use an explicit transition dialog.
+
+Include overdue detection, reviewer workload and task filtering.
+
+### SCREEN I: ALERT CENTER
+
+Design a comprehensive notification and escalation module.
+
+Features:
+
+- Critical, warning and informational alerts.
+- Upcoming deadlines.
+- Overdue applications.
+- Expiring documents.
+- Failed or inconclusive verification.
+- Unresolved mandatory findings.
+- Rule changes affecting an institution.
+- New reviewer assignments.
+- Notification history.
+- Recipient and delivery status.
+- Retry status for failed deliveries.
+- Read/unread state.
+- Alert acknowledgement.
+- Configurable escalation policies.
+
+Allow filtering by date, priority, event type and status.
+
+Support a detailed alert view with the source event, related application, assigned owner and recommended action.
+
+Do not claim an email, SMS, WhatsApp or external notification was delivered unless the backend returns the relevant delivery result.
+
+### SCREEN J: INSTITUTION MANAGEMENT
+
+Create an institution registry containing:
+
+- Institution profile.
+- Institutional identifiers.
+- Location and contact information.
+- Applicable categories.
+- Application history.
+- Assigned compliance contacts.
+- Open findings.
+- Upcoming obligations.
+- Document records.
+- Audit history.
+
+Support detailed institution profiles and searchable lists.
+
+Protect institution data using backend authorization. Do not rely exclusively on hidden frontend menu items for security.
+
+### SCREEN K: ANALYTICS AND REPORTING
+
+Create useful operational reports:
+
+- Application volume by stage.
+- Average time in each workflow stage.
+- Outstanding findings by category.
+- Deadline compliance.
+- Reviewer workload.
+- Document-processing outcomes.
+- Manual-verification queue.
+- Repeat deficiencies.
+- Alert delivery performance.
+
+Provide time filters and downloadable reports when the backend supports them.
+
+Clearly differentiate measured production data, calculated metrics and synthetic demonstration data.
+
+Do not fabricate improvements such as "90% fewer errors" unless supported by a defined evaluation and actual measured results.
+
+### SCREEN L: AUDIT TRAIL
+
+Create an evidence-oriented, searchable audit interface.
+
+Include:
+
+- Event timestamp.
+- Acting user or service.
+- Action performed.
+- Affected entity.
+- Previous and new state where appropriate.
+- Related application.
+- Evidence or rule reference.
+- Event correlation identifier where available.
+
+Support filters by user, application, event type and time.
+
+Audit events should be read-only in the standard interface. Never offer ordinary users a control to rewrite audit history.
+
+### SCREEN M: USERS, ROLES AND SETTINGS
+
+Support five distinct roles:
+
+1. Institution administrator.
+2. Institution compliance officer.
+3. Authorized reviewer/verifier.
+4. Regulatory system administrator.
+5. Auditor.
+
+Display role-specific navigation and controls.
+
+Create settings for notification preferences, workflow configuration, profile management and display preferences.
+
+Never expose a production-only privilege escalation or client-side role switch.
+
+A role switcher may exist in the demonstration environment, but it must be explicitly labelled as a demo facility and must not override real backend permissions.
+
+## 6. THE SIGNATURE FEATURE: EVIDENCE-TO-ACTION TRACEABILITY
+
+Make this the central visual and interaction pattern that distinguishes TRACE from an ordinary document portal.
+
+For every finding, connect the following items:
+
+Requirement
+→ Rule version
+→ Source clause
+→ Document evidence
+→ Extracted field
+→ Validation result
+→ Severity and uncertainty
+→ Assigned correction task
+→ Due date
+→ Reviewer decision
+→ Audit history.
+
+Build a reusable evidence panel and a traceability timeline.
+
+Clicking a finding should reveal its source and supporting evidence. Clicking the evidence should open the relevant document and page when possible. Clicking the assigned task should open its corrective workflow.
+
+Represent each stage with readable status labels, meaningful icons and accessible color contrast.
+
+Do not use color alone to communicate errors or success.
+
+## 7. IMPORTANT DATA AND STATUS SEMANTICS
+
+Use clearly defined, typed status values throughout the application.
+
+Distinguish at least:
+
+- Workflow status.
+- Document processing status.
+- Field extraction confidence.
+- Cross-document consistency.
+- Document integrity screening.
+- Independent issuer verification.
+- Regulatory rule evaluation.
+- Human review outcome.
+- Compliance obligation status.
+- Official outcome, when legitimately available.
+
+A document passing one check must not automatically pass unrelated checks.
+
+For example:
+
+A valid PDF signature may provide evidence about integrity and signer identity, but its legal significance depends on the signature and trust validation.
+
+A matching registration identifier is not sufficient proof that an issuing organization genuinely issued the document.
+
+A model-generated suspicion must not be displayed as a confirmed fraud determination.
+
+Use neutral language such as "Potential inconsistency detected" and "Manual verification required" when evidence is insufficient.
+
+## 8. FRONTEND-BACKEND INTEGRATION
+
+Build a clean integration layer rather than scattering HTTP calls across components.
+
+Suggested structure:
+
+src/
+  app/
+    router.tsx
+    providers.tsx
+    query-client.ts
+  components/
+    ui/
+    layout/
+    data-display/
+    forms/
+    feedback/
+    document-viewer/
+    traceability/
+  features/
+    dashboard/
+    applications/
+    document-intelligence/
+    verification/
+    compliance/
+    rules/
+    copilot/
+    workflows/
+    alerts/
+    institutions/
+    analytics/
+    audit/
+    administration/
+  hooks/
+  lib/
+    api-client.ts
+    query-keys.ts
+    permissions.ts
+    formatters.ts
+    validation.ts
+  mocks/
+    demo-data.ts
+    demo-api.ts
+  types/
+    api.ts
+    domain.ts
+  styles/
+  tests/
+
+Adapt this structure to the existing repository instead of duplicating an architecture unnecessarily.
+
+Create typed API services and request/response contracts.
+
+Integrate existing backend endpoints whenever available. For missing endpoints, document the expected contract and isolate the feature behind an adapter.
+
+If a complete backend is not available, implement an explicit demo mode using coherent synthetic data. Make the demonstration mode persistent enough to support a complete user journey, but never present its simulated results as real official verification.
+
+Do not silently fall back to mock results after a production API error.
+
+Provide:
+
+- Loading states.
+- Empty states.
+- Inline validation errors.
+- Retry actions.
+- Request cancellation where appropriate.
+- Error boundaries.
+- Session-expiry handling.
+- Consistent error messages.
+- Idempotent actions where relevant.
+- Upload progress and cancellation.
+- Pagination and filtering that remain synchronized with API state.
+
+For cookie-based authentication, use secure backend-managed cookies and appropriate CSRF protection. Do not store sensitive authentication tokens or secrets in localStorage.
+
+## 9. CREATE A COMPLETE LIVE DEMO JOURNEY
+
+The frontend must demonstrate an actual end-to-end product scenario.
+
+Seed the demo environment with a clearly labelled fictional engineering institution and synthetic documents.
+
+Use illustrative records such as:
+
+- One application with all basic checks satisfied.
+- One application with an inconsistent date across two documents.
+- One application with missing supporting evidence.
+- One application awaiting manual issuer verification.
+- One upcoming compliance obligation.
+- One overdue corrective task.
+- One published rule-set and a later draft version.
+
+Ensure all summary statistics and charts are calculated from the same dataset.
+
+### Demonstration script
+
+1. Open the regulatory control tower.
+2. Select the application with a document inconsistency.
+3. Open its document intelligence workspace.
+4. Display the relevant extracted fields and evidence references.
+5. Show the rule responsible for the finding.
+6. Create a correction task with an owner and due date.
+7. Switch to the institution's authorized demonstration role.
+8. Upload a corrected synthetic document.
+9. Re-run the validation using a real backend endpoint or clearly labelled demo adapter.
+10. Confirm that the specific finding is resolved only when the configured validation passes.
+11. Return to the reviewer queue.
+12. Show the updated application status and audit timeline.
+13. Show the relevant alert and compliance obligation.
+
+Every step must have a functioning interaction and a coherent result.
+
+Use synthetic documents with visible demonstration labels. Do not use fabricated certificates presented as genuine documents.
+
+Do not claim the demonstration is connected to the official AICTE portal or issuing authorities unless the relevant integrations actually exist.
+
+## 10. RESPONSIVE DESIGN AND ACCESSIBILITY
+
+Deliver an excellent experience across:
+
+- Large desktop screens.
+- Standard laptops.
+- Tablets.
+- Mobile devices.
+
+For desktop, optimize dense operational tables and the document review workspace.
+
+For mobile, make forms, alerts, key findings and review actions practical rather than merely shrinking a desktop layout.
+
+Target WCAG 2.2 AA accessibility principles.
+
+Implement:
+
+- Keyboard navigation.
+- Visible focus states.
+- Semantic HTML.
+- Accessible form labels.
+- Screen-reader announcements where appropriate.
+- Sufficient contrast.
+- Accessible dialog focus handling.
+- Reduced-motion support.
+- Helpful validation messages.
+- Proper table headers and responsive alternatives.
+
+Do not make critical actions dependent on hover.
+
+## 11. PERFORMANCE AND ENGINEERING QUALITY
+
+Implement:
+
+- Route-level code splitting.
+- Lazy loading for heavy modules.
+- Memoization only where useful.
+- Efficient table rendering.
+- Appropriate query caching and invalidation.
+- Debounced search.
+- Sensible page sizes.
+- Optimized assets.
+- Predictable component boundaries.
+- Reusable design tokens.
+- Stable TypeScript types.
+- Strict handling of API response errors.
+- No unnecessary re-renders caused by avoidable state design.
+
+Never render entire large PDFs or datasets unnecessarily.
+
+Treat uploaded document previews as potentially sensitive content. Avoid exposing them through public asset directories or unprotected URLs.
+
+Do not put document contents, personal data, access tokens or private API responses in browser logs.
+
+## 12. REQUIRED INTERACTION QUALITY
+
+Every visible control must have an intentional behavior.
+
+Implement real interactions for:
+
+- Search.
+- Filters.
+- Sorting.
+- Pagination.
+- Forms.
+- Document upload.
+- Preview and page navigation.
+- View details.
+- Assign task.
+- Change workflow stage.
+- Request correction.
+- Resolve a finding.
+- Acknowledge an alert.
+- Change relevant preferences.
+- Navigate to supporting evidence.
+- Switch between supported table and board views.
+- Open and close dialogs.
+- Export supported reports.
+- Retry failed operations.
+
+Do not create decorative buttons, empty links, dead menu items or controls that only show an unrelated toast.
+
+When an operation is unavailable, disable it appropriately and explain why.
+
+## 13. DESIGN AND QUALITY VALIDATION
+
+After implementation:
+
+1. Run the frontend development server.
+2. Run TypeScript checks.
+3. Run linting and production build.
+4. Run unit and component tests.
+5. Run critical end-to-end tests.
+6. Inspect every major route.
+7. Fix console errors, missing keys, broken imports, runtime exceptions and accessibility problems.
+8. Check responsive behavior at multiple viewport sizes.
+9. Verify application-level data consistency.
+10. Verify that demo-only and real backend states are clearly distinguished.
+
+Use tests to validate these flows:
+
+- Authentication or clearly labelled demo login.
+- Application creation.
+- Document upload.
+- Validation execution.
+- Finding creation.
+- Correction task assignment.
+- Finding resolution.
+- Alert generation and acknowledgement.
+- Role-based UI permissions.
+- Regulation version display.
+- Citation navigation.
+- Error and retry handling.
+
+Do not claim a test passed unless it was actually executed.
+
+## 14. FINAL ACCEPTANCE CRITERIA
+
+The frontend is not complete until:
+
+- All major screens exist and are navigable.
+- The design is consistent and recognizably branded as TRACE.
+- The application is responsive.
+- Loading, empty, error, permission and success states are implemented.
+- Forms have meaningful validation.
+- The primary user journey works end to end.
+- Demo data is coherent and clearly labelled.
+- Existing backend integration is used where available.
+- Missing backend capabilities are documented rather than faked.
+- Regulatory references have explicit source and version context where available.
+- Document validation is presented as evidence-based screening, not an unsupported guarantee of authenticity.
+- Workflow transitions are role-aware.
+- Critical actions produce consistent UI and data updates.
+- Type checking, build and relevant tests run successfully.
+- Setup instructions and environment-variable documentation are included.
+- There are no unnecessary dependencies, abandoned prototype components or obvious placeholder screens.
+
+## 15. REQUIRED FINAL DELIVERABLES
+
+When the implementation is finished, provide:
+
+1. A summary of the frontend architecture.
+2. The files and modules created or modified.
+3. A complete list of implemented screens.
+4. The end-to-end flows that currently work.
+5. The API endpoints integrated.
+6. The endpoints or backend features still missing.
+7. The commands to install dependencies and run the application.
+8. The commands to run tests and build for production.
+9. Known limitations and security considerations.
+10. A short, rehearsable SIH demonstration sequence.
+
+Do not return only a design proposal, static screenshot, landing page, or code snippets.
+
+Actually inspect the repository, implement the frontend, run the available checks, fix the problems found and deliver the most complete working application possible within the existing project constraints.
+
+BEGIN BY INSPECTING THE REPOSITORY, THEN IMPLEMENT TRACE.

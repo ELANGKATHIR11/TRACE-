@@ -1,0 +1,6 @@
+{
+  "name": "TRACE — Regulatory Assurance & Compliance Engine",
+  "description": "Enterprise GovTech platform combining AI-powered AICTE application validation, document authenticity screening, source-grounded compliance verification, workflow automation, and Evidence-to-Action traceability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
