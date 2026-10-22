@@ -1,25 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTraceStore } from '../../lib/store';
 import {
   LayoutDashboard,
-  Briefcase,
-  Bell,
   FolderKanban,
-  FilePlus2,
   ScanSearch,
-  ClipboardCheck,
   ShieldCheck,
-  BookOpen,
-  CalendarClock,
-  Bot,
-  GitBranch,
-  Building2,
+  Bell,
   BarChart3,
-  History,
-  Users,
-  Sliders,
-  Settings,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -32,17 +20,16 @@ import {
   ArrowRight,
   Menu,
   X,
+  Settings,
 } from 'lucide-react';
 import { EvidenceToActionDrawer } from '../traceability/EvidenceToActionDrawer';
+import { AdministrationPage } from '../../features/administration/AdministrationPage';
 
-interface NavGroup {
-  groupLabel: string;
-  items: {
-    label: string;
-    path: string;
-    icon: React.FC<{ className?: string }>;
-    badge?: number | string;
-  }[];
+interface PrimaryNavItem {
+  label: string;
+  path: string;
+  icon: React.FC<{ className?: string }>;
+  badge?: number | string;
 }
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -55,12 +42,16 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   } = useTraceStore();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDemoWalkthrough, setShowDemoWalkthrough] = useState(true);
+  const [adminDrawerOpen, setAdminDrawerOpen] = useState(
+    searchParams.get('openSettings') === 'true'
+  );
 
   const unreadAlertsCount = state.alerts.filter((a) => !a.isRead).length;
   const openFindingsCount = state.findings.filter((f) => f.status !== 'Resolved').length;
@@ -77,58 +68,28 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navGroups: NavGroup[] = [
+  // EXACTLY SEVEN PRIMARY APPLICATION PAGES
+  const primaryNavItems: PrimaryNavItem[] = [
+    { label: 'Control Tower', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Applications', path: '/applications', icon: FolderKanban },
     {
-      groupLabel: 'OVERVIEW',
-      items: [
-        { label: 'Control Tower', path: '/', icon: LayoutDashboard },
-        { label: 'My Work', path: '/my-work', icon: Briefcase, badge: myTasksCount },
-        { label: 'Notifications', path: '/alerts', icon: Bell, badge: unreadAlertsCount },
-      ],
+      label: 'Document Verification',
+      path: '/verification',
+      icon: ScanSearch,
+      badge: openFindingsCount,
     },
+    { label: 'Compliance & Regulations', path: '/compliance', icon: ShieldCheck },
     {
-      groupLabel: 'APPLICATION MANAGEMENT',
-      items: [
-        { label: 'Applications', path: '/applications', icon: FolderKanban },
-        { label: 'Application Intake', path: '/intake', icon: FilePlus2 },
-        { label: 'Document Intelligence', path: '/document-intelligence', icon: ScanSearch },
-        {
-          label: 'Verification Queue',
-          path: '/verification-queue',
-          icon: ClipboardCheck,
-          badge: openFindingsCount,
-        },
-      ],
+      label: 'Tasks & Alerts',
+      path: '/tasks',
+      icon: Bell,
+      badge: myTasksCount + unreadAlertsCount,
     },
-    {
-      groupLabel: 'COMPLIANCE',
-      items: [
-        { label: 'Compliance Center', path: '/compliance', icon: ShieldCheck },
-        { label: 'Regulatory Rulebook', path: '/rules', icon: BookOpen },
-        { label: 'Compliance Calendar', path: '/calendar', icon: CalendarClock },
-        { label: 'Regulatory Copilot', path: '/copilot', icon: Bot },
-      ],
-    },
-    {
-      groupLabel: 'OPERATIONS',
-      items: [
-        { label: 'Workflow Management', path: '/workflows', icon: GitBranch },
-        { label: 'Institutions', path: '/institutions', icon: Building2 },
-        { label: 'Reports & Analytics', path: '/analytics', icon: BarChart3 },
-        { label: 'Audit Trail', path: '/audit', icon: History },
-      ],
-    },
-    {
-      groupLabel: 'ADMINISTRATION',
-      items: [
-        { label: 'Users & Roles', path: '/admin/users', icon: Users },
-        { label: 'Rule Configuration', path: '/admin/rules-config', icon: Sliders },
-        { label: 'System Settings', path: '/admin/settings', icon: Settings },
-      ],
-    },
+    { label: 'Reports & Audit', path: '/reports', icon: BarChart3 },
+    { label: 'Settings & Control', path: '/settings', icon: Settings },
   ];
 
-  // Calculate current step in the 10/13-Step Live Demo Journey
+  // Calculate current step in the Live Demo Journey
   const targetFinding = state.findings.find((f) => f.id === 'FND-2026-001');
   const targetDoc = state.documents.find((d) => d.id === 'DOC-2026-101');
   const hasTaskAssigned = Boolean(targetFinding?.assignedTaskId);
@@ -137,10 +98,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const hasValidationPassed = targetDoc?.validationState === 'Validated';
   const isFindingResolved = targetFinding?.status === 'Resolved';
 
-  const currentBreadcrumb =
-    navGroups
-      .flatMap((g) => g.items)
-      .find((i) => i.path === location.pathname)?.label || 'Workspace';
+  const currentNav = primaryNavItems.find((i) => location.pathname.startsWith(i.path));
+  const currentBreadcrumb = currentNav?.label || 'Workspace';
 
   const searchResults = searchQuery.trim()
     ? [
@@ -156,7 +115,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             id: a.id,
             label: `${a.code} — ${a.programName}`,
             sub: `${a.institutionName} · ${a.workflowStage}`,
-            onSelect: () => navigate(`/applications?appId=${a.id}`),
+            onSelect: () => navigate(`/applications?tab=registry&appId=${a.id}`),
           })),
         ...state.findings
           .filter(
@@ -183,14 +142,14 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             id: d.id,
             label: `${d.id} — ${d.title}`,
             sub: `${d.validationState} · Version ${d.currentVersion}`,
-            onSelect: () => navigate(`/document-intelligence?docId=${d.id}`),
+            onSelect: () => navigate(`/verification?tab=studio&docId=${d.id}`),
           })),
       ]
     : [];
 
   return (
     <div className="flex min-h-screen bg-[#F6F8FB] text-[#172033]">
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar: EXACTLY SIX PRIMARY ITEMS */}
       <aside
         className={`hidden lg:flex flex-col shrink-0 bg-[#101B2D] text-slate-200 border-r border-slate-800 transition-all duration-150 ${
           sidebarCollapsed ? 'w-[68px]' : 'w-[260px]'
@@ -200,7 +159,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         {/* Brand Identity */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800/80">
           <NavLink
-            to="/"
+            to="/dashboard"
             className="flex items-center gap-2.5 whitespace-nowrap overflow-hidden focus-visible:outline-2 focus-visible:outline-teal-400 rounded"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#0F766E] text-white font-display font-bold text-sm border border-[#14B8A6]/40">
@@ -231,55 +190,47 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </button>
         </div>
 
-        {/* Navigation Groups */}
-        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
-          {navGroups.map((group) => (
-            <div key={group.groupLabel}>
-              {!sidebarCollapsed && (
-                <div className="px-2.5 pb-1.5 text-[10px] font-semibold tracking-wider text-slate-400">
-                  {group.groupLabel}
-                </div>
-              )}
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={item.path === '/'}
-                      title={sidebarCollapsed ? item.label : undefined}
-                      className={({ isActive }: { isActive: boolean }) =>
-                        `flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
-                          isActive
-                            ? 'bg-[#0F766E] text-white'
-                            : 'text-slate-300 hover:bg-[#1A2942] hover:text-white'
-                        }`
-                      }
-                    >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <Icon className="h-4 w-4 shrink-0" />
-                        {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                      </div>
-                      {!sidebarCollapsed && item.badge !== undefined && Number(item.badge) > 0 && (
-                        <span className="ml-2 font-mono text-[11px] font-semibold text-teal-200">
-                          {item.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  );
-                })}
-              </div>
+        {/* Primary Navigation Items (Exact Six) */}
+        <nav className="flex-1 overflow-y-auto px-2.5 py-4 space-y-1">
+          {!sidebarCollapsed && (
+            <div className="px-2.5 pb-2 text-[10px] font-semibold tracking-wider text-slate-400">
+              PRIMARY MODULES
             </div>
-          ))}
+          )}
+          {primaryNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                title={sidebarCollapsed ? item.label : undefined}
+                className={`flex items-center justify-between rounded-md px-2.5 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                  isActive
+                    ? 'bg-[#0F766E] text-white shadow-xs'
+                    : 'text-slate-300 hover:bg-[#1A2942] hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 truncate">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                </div>
+                {!sidebarCollapsed && item.badge !== undefined && Number(item.badge) > 0 && (
+                  <span className="ml-2 font-mono text-[11px] font-semibold rounded-full bg-slate-800/80 px-2 py-0.5 text-teal-300">
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
 
-        {/* Sidebar Footer: Active Demo Environment Notice */}
+        {/* Sidebar Footer: AICTE Compliance Notice & Environment */}
         {!sidebarCollapsed && (
           <div className="border-t border-slate-800/80 p-3 text-[11px] text-slate-400">
-            <div className="font-medium text-slate-200">SIH 2026 Prototype Environment</div>
-            <p className="mt-0.5 leading-snug text-slate-400">
-              Synthetic regulatory dataset. Not affiliated with or endorsed by official AICTE portals.
+            <div className="font-semibold text-slate-200">GovTech TRACE 2.0</div>
+            <p className="mt-0.5 leading-snug text-slate-400 text-[10px]">
+              AICTE Regulatory Assurance & Compliance Engine · SIH 2026
             </p>
           </div>
         )}
@@ -299,36 +250,36 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="mt-4 space-y-4">
-              {navGroups.map((group) => (
-                <div key={group.groupLabel}>
-                  <div className="text-[10px] font-semibold text-slate-400 mb-1">
-                    {group.groupLabel}
-                  </div>
-                  <div className="space-y-1">
-                    {group.items.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <NavLink
-                          key={item.path}
-                          to={item.path}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={({ isActive }: { isActive: boolean }) =>
-                            `flex items-center gap-2.5 rounded px-3 py-2 text-xs font-medium ${
-                              isActive
-                                ? 'bg-[#0F766E] text-white'
-                                : 'text-slate-300 hover:bg-slate-800'
-                            }`
-                          }
-                        >
-                          <Icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </NavLink>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+            <div className="mt-4 space-y-1">
+              <div className="text-[10px] font-semibold text-slate-400 mb-2 px-2">
+                PRIMARY MODULES
+              </div>
+              {primaryNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between rounded px-3 py-2 text-xs font-medium ${
+                      isActive
+                        ? 'bg-[#0F766E] text-white'
+                        : 'text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge !== undefined && Number(item.badge) > 0 && (
+                      <span className="font-mono text-[10px] text-teal-300">
+                        {item.badge}
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -370,9 +321,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             </button>
           </div>
 
-          {/* Right: Hybrid Engine Mode Toggle + Demo Role Switcher + Notifications + Reset */}
+          {/* Right: Hybrid Engine Mode Toggle + Demo Role Switcher + Settings + Notifications + Reset */}
           <div className="flex items-center gap-2.5 shrink-0">
-            {/* Hybrid Engine Toggle (Confirmed Decision 1) */}
+            {/* Hybrid Engine Toggle */}
             <div
               className="hidden sm:flex items-center rounded-md border border-slate-200 bg-slate-100 p-0.5 text-xs"
               role="group"
@@ -424,9 +375,19 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </select>
             </div>
 
+            {/* Contextual Administration & Settings Drawer Button */}
+            <button
+              onClick={() => setAdminDrawerOpen(true)}
+              className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              aria-label="System Settings & Administration"
+              title="Open Administration & Settings Drawer"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
+
             {/* Notifications Bell */}
             <button
-              onClick={() => navigate('/alerts')}
+              onClick={() => navigate('/tasks?tab=alerts')}
               className="relative rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               aria-label={`Notifications (${unreadAlertsCount} unread)`}
               title="Open Alert Center"
@@ -451,7 +412,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </div>
         </header>
 
-        {/* Interactive 10/13-Step Demonstration Walkthrough Ribbon */}
+        {/* Interactive 5-Step Demonstration Walkthrough Ribbon */}
         {showDemoWalkthrough && (
           <div className="border-b border-slate-200 bg-slate-900 px-4 lg:px-6 py-2 text-xs text-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -464,7 +425,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
               <div className="flex flex-wrap items-center gap-2 text-[11px]">
                 <button
-                  onClick={() => navigate('/document-intelligence?docId=DOC-2026-101&page=2')}
+                  onClick={() => navigate('/verification?tab=studio&docId=DOC-2026-101&page=2')}
                   className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 hover:bg-slate-700 text-slate-200"
                 >
                   <span>1. Inspect Date Mismatch (DOC-2026-101)</span>
@@ -485,7 +446,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 <button
                   onClick={() => {
                     switchDemoUserRole('USR-ICO-01');
-                    navigate('/document-intelligence?docId=DOC-2026-101&page=2');
+                    navigate('/verification?tab=studio&docId=DOC-2026-101&page=2');
                   }}
                   className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${
                     hasRemediationUploaded
@@ -498,7 +459,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 </button>
                 <ArrowRight className="h-3 w-3 text-slate-500" />
                 <button
-                  onClick={() => navigate('/document-intelligence?docId=DOC-2026-101&page=2')}
+                  onClick={() => navigate('/verification?tab=studio&docId=DOC-2026-101&page=2')}
                   className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${
                     hasValidationPassed
                       ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/50'
@@ -542,6 +503,38 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         </main>
       </div>
 
+      {/* Contextual Administration & RBAC Settings Slide-Over Drawer */}
+      {adminDrawerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-[1px]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="System Administration and RBAC Settings"
+        >
+          <div className="w-full max-w-4xl bg-white shadow-2xl flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-900 text-white shrink-0">
+              <div className="flex items-center gap-2.5">
+                <Settings className="h-5 w-5 text-teal-400" />
+                <div>
+                  <h2 className="font-bold text-base">System Administration & RBAC Governance</h2>
+                  <p className="text-[11px] text-slate-400">Contextual Access & System Configuration</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setAdminDrawerOpen(false)}
+                className="rounded p-1.5 text-slate-400 hover:text-white hover:bg-slate-800"
+                aria-label="Close settings drawer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 bg-[#F6F8FB]">
+              <AdministrationPage />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Global Command Palette & Search Modal */}
       {commandOpen && (
         <div
@@ -568,48 +561,24 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 Esc
               </button>
             </div>
-            <div className="max-h-80 overflow-y-auto p-3 space-y-2">
-              {searchQuery.trim() === '' ? (
-                <div className="space-y-1">
-                  <div className="px-2 py-1 text-[11px] font-semibold text-slate-400">
-                    QUICK NAVIGATION & DEMO ACTIONS
-                  </div>
-                  <button
-                    onClick={() => {
-                      setCommandOpen(false);
-                      openFindingDrawer('FND-2026-001');
-                    }}
-                    className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-xs hover:bg-slate-100"
-                  >
-                    <span className="font-medium text-slate-900">
-                      Inspect Finding FND-2026-001 (Cross-Document Date Mismatch)
-                    </span>
-                    <span className="font-mono text-[11px] text-[#0F766E]">Evidence-to-Action</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCommandOpen(false);
-                      navigate('/document-intelligence?docId=DOC-2026-101&page=2');
-                    }}
-                    className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-xs hover:bg-slate-100"
-                  >
-                    <span className="font-medium text-slate-900">
-                      Open AI Document Intelligence — DOC-2026-101 Page 2
-                    </span>
-                    <span className="font-mono text-[11px] text-slate-500">Workbench</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCommandOpen(false);
-                      navigate('/intake');
-                    }}
-                    className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-xs hover:bg-slate-100"
-                  >
-                    <span className="font-medium text-slate-900">
-                      Start New 8-Stage Application Intake
-                    </span>
-                    <span className="font-mono text-[11px] text-slate-500">/intake</span>
-                  </button>
+
+            <div className="max-h-96 overflow-y-auto p-2">
+              {!searchQuery.trim() ? (
+                <div className="p-3 text-xs text-slate-500 space-y-2">
+                  <div className="font-semibold text-slate-700">Quick Navigation:</div>
+                  {primaryNavItems.map((item) => (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        setCommandOpen(false);
+                        navigate(item.path);
+                      }}
+                      className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-xs hover:bg-slate-100"
+                    >
+                      <span className="font-medium text-slate-900">{item.label}</span>
+                      <span className="font-mono text-[11px] text-slate-500">{item.path}</span>
+                    </button>
+                  ))}
                 </div>
               ) : searchResults.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-500">

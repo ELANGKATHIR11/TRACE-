@@ -185,7 +185,7 @@ export const EvidenceToActionDrawer: React.FC = () => {
                   <button
                     onClick={() => {
                       closeFindingDrawer();
-                      navigate(`/rules?clause=${encodeURIComponent(finding.clauseId)}`);
+                      navigate(`/compliance?tab=rules&clause=${encodeURIComponent(finding.clauseId)}`);
                     }}
                     className="inline-flex items-center gap-1 text-xs font-medium text-[#0F766E] hover:underline"
                   >
@@ -218,7 +218,7 @@ export const EvidenceToActionDrawer: React.FC = () => {
                       onClick={() => {
                         closeFindingDrawer();
                         navigate(
-                          `/document-intelligence?docId=${finding.documentId}&page=${
+                          `/verification?tab=studio&docId=${finding.documentId}&page=${
                             finding.pageNumber || 1
                           }&bbox=${finding.boundingBoxId || ''}`
                         );
@@ -332,7 +332,7 @@ export const EvidenceToActionDrawer: React.FC = () => {
                     <button
                       onClick={() => {
                         closeFindingDrawer();
-                        navigate(`/workflows?taskId=${linkedTask.id}`);
+                        navigate(`/tasks?tab=board&taskId=${linkedTask.id}`);
                       }}
                       className="inline-flex items-center gap-1 text-xs font-medium text-[#0F766E] hover:underline"
                     >
@@ -544,7 +544,7 @@ export const EvidenceToActionDrawer: React.FC = () => {
                   <button
                     onClick={() => {
                       closeFindingDrawer();
-                      navigate(`/audit?app=${finding.applicationId}`);
+                      navigate(`/reports?tab=audit&app=${finding.applicationId}`);
                     }}
                     className="inline-flex items-center gap-1 text-xs font-medium text-[#0F766E] hover:underline"
                   >

@@ -16,7 +16,7 @@ export const ComplianceCalendarPage: React.FC = () => {
       subtitle: `${t.institutionName} (${t.applicationCode})`,
       owner: t.assigneeName,
       status: t.status,
-      onClick: () => navigate(`/workflows?taskId=${t.id}`),
+      onClick: () => navigate(`/tasks?tab=board&taskId=${t.id}`),
     })),
     ...state.requirements.map((r) => ({
       id: r.id,
@@ -38,7 +38,7 @@ export const ComplianceCalendarPage: React.FC = () => {
         subtitle: `Document ${d.id} · App ${d.applicationId}`,
         owner: d.uploadedBy,
         status: d.validationState,
-        onClick: () => navigate(`/document-intelligence?docId=${d.id}`),
+        onClick: () => navigate(`/verification?tab=studio&docId=${d.id}`),
       })),
   ].sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
 

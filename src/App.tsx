@@ -4,22 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { TraceStoreProvider } from './lib/store';
 import { AppShell } from './components/layout/AppShell';
+
+// EXACTLY SEVEN PRIMARY APPLICATION PAGES
 import { ControlTowerPage } from './features/dashboard/ControlTowerPage';
-import { MyWorkPage } from './features/dashboard/MyWorkPage';
 import { ApplicationsPage } from './features/applications/ApplicationsPage';
-import { ApplicationIntakePage } from './features/applications/ApplicationIntakePage';
-import { DocumentIntelligencePage } from './features/document-intelligence/DocumentIntelligencePage';
-import { VerificationQueuePage } from './features/verification/VerificationQueuePage';
-import { ComplianceCenterPage } from './features/compliance/ComplianceCenterPage';
-import { ComplianceCalendarPage } from './features/compliance/ComplianceCalendarPage';
-import { RegulatoryRulebookPage } from './features/rules/RegulatoryRulebookPage';
-import { RegulatoryCopilotPage } from './features/copilot/RegulatoryCopilotPage';
-import { WorkflowManagementPage } from './features/workflows/WorkflowManagementPage';
-import { AlertCenterPage } from './features/alerts/AlertCenterPage';
-import { InstitutionsPage } from './features/institutions/InstitutionsPage';
-import { AnalyticsReportsPage } from './features/analytics/AnalyticsReportsPage';
-import { AuditTrailPage } from './features/audit/AuditTrailPage';
-import { AdministrationPage } from './features/administration/AdministrationPage';
+import { VerificationPage } from './features/verification/VerificationPage';
+import { CompliancePage } from './features/compliance/CompliancePage';
+import { TasksAlertsPage } from './features/tasks/TasksAlertsPage';
+import { ReportsAuditPage } from './features/reports/ReportsAuditPage';
+import { SettingsPage } from './features/settings/SettingsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,25 +81,34 @@ export function AppRoutes() {
     <AppShell>
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={<ControlTowerPage />} />
-          <Route path="/my-work" element={<MyWorkPage />} />
-          <Route path="/alerts" element={<AlertCenterPage />} />
+          {/* EXACTLY SEVEN PRIMARY CANONICAL APPLICATION ROUTES */}
+          <Route path="/dashboard" element={<ControlTowerPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
-          <Route path="/intake" element={<ApplicationIntakePage />} />
-          <Route path="/document-intelligence" element={<DocumentIntelligencePage />} />
-          <Route path="/verification-queue" element={<VerificationQueuePage />} />
-          <Route path="/compliance" element={<ComplianceCenterPage />} />
-          <Route path="/rules" element={<RegulatoryRulebookPage />} />
-          <Route path="/calendar" element={<ComplianceCalendarPage />} />
-          <Route path="/copilot" element={<RegulatoryCopilotPage />} />
-          <Route path="/workflows" element={<WorkflowManagementPage />} />
-          <Route path="/institutions" element={<InstitutionsPage />} />
-          <Route path="/analytics" element={<AnalyticsReportsPage />} />
-          <Route path="/audit" element={<AuditTrailPage />} />
-          <Route path="/admin/users" element={<AdministrationPage />} />
-          <Route path="/admin/rules-config" element={<AdministrationPage />} />
-          <Route path="/admin/settings" element={<AdministrationPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/verification" element={<VerificationPage />} />
+          <Route path="/compliance" element={<CompliancePage />} />
+          <Route path="/tasks" element={<TasksAlertsPage />} />
+          <Route path="/reports" element={<ReportsAuditPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+
+          {/* PRESERVED LEGACY & SUB-MODULE REDIRECTS WITH CONTEXTUAL TAB MAPPINGS */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/my-work" element={<Navigate to="/tasks?tab=my-work" replace />} />
+          <Route path="/alerts" element={<Navigate to="/tasks?tab=alerts" replace />} />
+          <Route path="/workflows" element={<Navigate to="/tasks?tab=board" replace />} />
+          <Route path="/calendar" element={<Navigate to="/tasks?tab=calendar" replace />} />
+          <Route path="/intake" element={<Navigate to="/applications?tab=intake" replace />} />
+          <Route path="/institutions" element={<Navigate to="/applications?tab=institutions" replace />} />
+          <Route path="/document-intelligence" element={<Navigate to="/verification?tab=studio" replace />} />
+          <Route path="/verification-queue" element={<Navigate to="/verification?tab=queue" replace />} />
+          <Route path="/rules" element={<Navigate to="/compliance?tab=rules" replace />} />
+          <Route path="/copilot" element={<Navigate to="/compliance?tab=copilot" replace />} />
+          <Route path="/analytics" element={<Navigate to="/reports?tab=analytics" replace />} />
+          <Route path="/audit" element={<Navigate to="/reports?tab=audit" replace />} />
+          <Route path="/admin/*" element={<Navigate to="/settings" replace />} />
+          <Route path="/admin" element={<Navigate to="/settings" replace />} />
+
+          {/* CATCH-ALL REDIRECT */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </ErrorBoundary>
     </AppShell>
@@ -119,7 +121,17 @@ export default function App() {
       <TraceStoreProvider>
         <BrowserRouter>
           <AppRoutes />
-          <Toaster position="bottom-right" richColors closeButton />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            toastOptions={{
+              style: {
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: '12px',
+              },
+            }}
+          />
         </BrowserRouter>
       </TraceStoreProvider>
     </QueryClientProvider>

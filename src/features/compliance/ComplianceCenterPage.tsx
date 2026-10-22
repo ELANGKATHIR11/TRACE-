@@ -193,7 +193,7 @@ export const ComplianceCenterPage: React.FC = () => {
                       <td className="py-3 px-3.5">
                         <button
                           onClick={() =>
-                            navigate(`/rules?clause=${encodeURIComponent(req.clauseId)}`)
+                            navigate(`/compliance?tab=rules&clause=${encodeURIComponent(req.clauseId)}`)
                           }
                           className="font-mono font-medium text-[#0F766E] hover:underline flex items-center gap-1"
                         >
@@ -208,7 +208,7 @@ export const ComplianceCenterPage: React.FC = () => {
                         {req.evidenceDocumentId ? (
                           <button
                             onClick={() =>
-                              navigate(`/document-intelligence?docId=${req.evidenceDocumentId}`)
+                              navigate(`/verification?tab=studio&docId=${req.evidenceDocumentId}`)
                             }
                             className="text-left hover:underline text-slate-800 font-medium"
                           >

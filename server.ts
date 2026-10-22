@@ -24,6 +24,7 @@ import { copilotRouter } from './server/routes/copilot';
 import { stateRouter } from './server/routes/state';
 import { reviewQueueRouter } from './server/routes/review-queue';
 import { provenanceRouter } from './server/routes/provenance';
+import { settingsRouter } from './server/routes/settings';
 
 dotenv.config();
 
@@ -134,6 +135,9 @@ export async function createExpressApp() {
   app.use('/api/state', stateRouter);
   app.use('/api/review-queue', reviewQueueRouter);
   app.use('/api/provenance', provenanceRouter);
+  app.use('/api/settings', settingsRouter);
+  app.use('/api/ml', settingsRouter);
+  app.use('/api/system', settingsRouter);
   app.use('/api/assessments', provenanceRouter);
 
   return app;

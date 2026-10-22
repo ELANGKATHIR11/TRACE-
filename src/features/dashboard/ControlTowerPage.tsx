@@ -234,7 +234,7 @@ export const ControlTowerPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => navigate('/verification-queue')}
+          onClick={() => navigate('/verification?tab=queue')}
           className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-left hover:border-[#0F766E] transition-colors"
         >
           <div className="flex items-center justify-between text-xs text-slate-500">
@@ -250,7 +250,7 @@ export const ControlTowerPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => navigate('/verification-queue?filter=mandatory')}
+          onClick={() => navigate('/verification?tab=queue&filter=mandatory')}
           className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-left hover:border-red-600 transition-colors"
         >
           <div className="flex items-center justify-between text-xs text-slate-500">
@@ -266,7 +266,7 @@ export const ControlTowerPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => navigate('/document-intelligence')}
+          onClick={() => navigate('/verification?tab=studio')}
           className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-left hover:border-amber-600 transition-colors"
         >
           <div className="flex items-center justify-between text-xs text-slate-500">
@@ -282,7 +282,7 @@ export const ControlTowerPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => navigate('/workflows?filter=overdue')}
+          onClick={() => navigate('/tasks?tab=board&filter=overdue')}
           className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-left hover:border-red-600 transition-colors"
         >
           <div className="flex items-center justify-between text-xs text-slate-500">
@@ -328,7 +328,7 @@ export const ControlTowerPage: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate('/verification-queue')}
+              onClick={() => navigate('/verification?tab=queue')}
               className="text-xs font-medium text-[#0F766E] hover:underline whitespace-nowrap"
             >
               View Full Queue →
@@ -381,7 +381,7 @@ export const ControlTowerPage: React.FC = () => {
                       <button
                         onClick={() =>
                           navigate(
-                            `/document-intelligence?docId=${finding.documentId}&page=${
+                            `/verification?tab=studio&docId=${finding.documentId}&page=${
                               finding.pageNumber || 1
                             }`
                           )
@@ -530,7 +530,7 @@ export const ControlTowerPage: React.FC = () => {
               Institution Checklist Completeness
             </h2>
             <button
-              onClick={() => navigate('/institutions')}
+              onClick={() => navigate('/applications?tab=institutions')}
               className="text-xs font-medium text-[#0F766E] hover:underline"
             >
               Registry →
@@ -543,7 +543,7 @@ export const ControlTowerPage: React.FC = () => {
             {state.institutions.map((inst) => (
               <div
                 key={inst.id}
-                onClick={() => navigate(`/institutions?id=${inst.id}`)}
+                onClick={() => navigate(`/applications?tab=institutions&id=${inst.id}`)}
                 className="cursor-pointer rounded border border-slate-200 p-3 hover:border-[#0F766E] transition-colors"
               >
                 <div className="flex items-center justify-between text-xs">
@@ -578,7 +578,7 @@ export const ControlTowerPage: React.FC = () => {
               Upcoming Deadlines & Overdue Tasks
             </h2>
             <button
-              onClick={() => navigate('/calendar')}
+              onClick={() => navigate('/tasks?tab=calendar')}
               className="text-xs font-medium text-[#0F766E] hover:underline"
             >
               Calendar →
@@ -588,7 +588,7 @@ export const ControlTowerPage: React.FC = () => {
             {state.tasks.map((task) => (
               <div
                 key={task.id}
-                onClick={() => navigate(`/workflows?taskId=${task.id}`)}
+                onClick={() => navigate(`/tasks?tab=board&taskId=${task.id}`)}
                 className="cursor-pointer rounded border border-slate-200 p-3 hover:bg-slate-50 text-xs"
               >
                 <div className="flex items-center justify-between">
@@ -622,7 +622,7 @@ export const ControlTowerPage: React.FC = () => {
               Recent Workflow & Audit Activity
             </h2>
             <button
-              onClick={() => navigate('/audit')}
+              onClick={() => navigate('/reports?tab=audit')}
               className="text-xs font-medium text-[#0F766E] hover:underline"
             >
               Full Audit Trail →

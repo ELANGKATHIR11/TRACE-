@@ -13,14 +13,20 @@ import {
   ShieldAlert,
   CheckCircle2,
   SlidersHorizontal,
+  Building2,
+  FolderKanban,
+  ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ApplicationIntakePage } from './ApplicationIntakePage';
+import { InstitutionsPage } from '../institutions/InstitutionsPage';
 
 export const ApplicationsPage: React.FC = () => {
   const { state, openFindingDrawer, transitionApplicationStage } = useTraceStore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const activeTab = searchParams.get('tab') || 'registry';
   const initialAppId = searchParams.get('appId') || state.applications[0]?.id;
   const initialStage = searchParams.get('stage') || 'ALL';
 
@@ -33,6 +39,12 @@ export const ApplicationsPage: React.FC = () => {
     'Ready for authorized review'
   );
   const [transitionNote, setTransitionNote] = useState('');
+
+  const setTab = (tab: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', tab);
+    setSearchParams(nextParams);
+  };
 
   const filteredApplications = useMemo(() => {
     return state.applications.filter((app) => {
@@ -90,6 +102,8 @@ export const ApplicationsPage: React.FC = () => {
     toast.success('Exported filtered applications table to CSV.');
   };
 
+  const selectedInst = state.institutions.find((i) => i.id === selectedApp?.institutionId);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -112,7 +126,7 @@ export const ApplicationsPage: React.FC = () => {
             Export CSV
           </button>
           <button
-            onClick={() => navigate('/intake')}
+            onClick={() => setTab('intake')}
             className="inline-flex items-center gap-1.5 rounded-md bg-[#0F766E] px-3.5 py-2 text-xs font-medium text-white hover:bg-[#0d645d]"
           >
             <FilePlus2 className="h-3.5 w-3.5" />
@@ -121,18 +135,60 @@ export const ApplicationsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search & Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 rounded-lg border border-slate-200 bg-white p-3.5 text-xs">
-        <div className="md:col-span-5 relative flex items-center">
-          <Search className="h-3.5 w-3.5 text-slate-400 absolute left-3" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by Application ID (APP-2026-0842), Institution, or Program..."
-            className="w-full rounded border border-slate-300 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:border-[#0F766E] focus:bg-white focus:outline-none"
-          />
-        </div>
+      {/* 3 Unified Tabs for Page 2: Applications */}
+      <div className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-100 p-1 text-xs w-fit">
+        <button
+          onClick={() => setTab('registry')}
+          className={`inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 font-medium transition-colors ${
+            activeTab === 'registry'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <FolderKanban className="h-3.5 w-3.5 text-[#0F766E]" />
+          Application Registry & Dossiers
+        </button>
+        <button
+          onClick={() => setTab('intake')}
+          className={`inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 font-medium transition-colors ${
+            activeTab === 'intake'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <FilePlus2 className="h-3.5 w-3.5 text-[#0F766E]" />
+          New Application Intake Wizard (8 Stages)
+        </button>
+        <button
+          onClick={() => setTab('institutions')}
+          className={`inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 font-medium transition-colors ${
+            activeTab === 'institutions'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Building2 className="h-3.5 w-3.5 text-[#0F766E]" />
+          Technical Institutions Directory
+        </button>
+      </div>
+
+      {activeTab === 'intake' && <ApplicationIntakePage />}
+      {activeTab === 'institutions' && <InstitutionsPage />}
+
+      {activeTab === 'registry' && (
+        <div className="space-y-6">
+          {/* Search & Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 rounded-lg border border-slate-200 bg-white p-3.5 text-xs">
+            <div className="md:col-span-5 relative flex items-center">
+              <Search className="h-3.5 w-3.5 text-slate-400 absolute left-3" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by Application ID (APP-2026-0842), Institution, or Program..."
+                className="w-full rounded border border-slate-300 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:border-[#0F766E] focus:bg-white focus:outline-none"
+              />
+            </div>
         <div className="md:col-span-3">
           <select
             aria-label="Filter by Category"
@@ -273,7 +329,7 @@ export const ApplicationsPage: React.FC = () => {
               </div>
               <button
                 onClick={() =>
-                  navigate(`/document-intelligence?appId=${selectedApp.id}`)
+                  navigate(`/verification?tab=studio&appId=${selectedApp.id}`)
                 }
                 className="inline-flex items-center gap-1 rounded bg-[#0F766E] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0d645d] shrink-0"
               >
@@ -281,6 +337,60 @@ export const ApplicationsPage: React.FC = () => {
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </button>
             </div>
+
+            {/* Embedded Institution Information Card */}
+            {selectedInst && (
+              <div className="rounded-lg border border-teal-200/80 bg-teal-50/40 p-3.5 text-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                    <Building2 className="h-4 w-4 text-[#0F766E]" />
+                    <span>Institution Profile & Verification Norms</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const nextParams = new URLSearchParams(searchParams);
+                      nextParams.set('tab', 'institutions');
+                      nextParams.set('id', selectedInst.id);
+                      setSearchParams(nextParams);
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0F766E] hover:underline"
+                  >
+                    Inspect Institution
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-slate-500">Permanent ID:</span>{' '}
+                    <span className="font-mono font-semibold text-slate-900">{selectedInst.permanentId}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Location:</span>{' '}
+                    <span className="font-medium text-slate-900">{selectedInst.city}, {selectedInst.state}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Authorized Head:</span>{' '}
+                    <span className="text-slate-800">
+                      {selectedInst.complianceContacts?.[0]?.name || 'Dr. Principal / Head'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Institution Category:</span>{' '}
+                    <span className="text-slate-800 truncate block">{selectedInst.type}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Sanctioned Intake:</span>{' '}
+                    <span className="font-mono font-semibold text-slate-900">
+                      {selectedInst.programs.reduce((sum, p) => sum + p.sanctionedIntake, 0)} seats ({selectedInst.programs.length} programs)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">Checklist Ready:</span>{' '}
+                    <span className="font-mono font-semibold text-[#0F766E]">{selectedInst.checklistCompletionPct}%</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Distinction between Saved, Submitted, and Official Outcome */}
             <div className="grid grid-cols-2 gap-2.5 text-xs">
@@ -351,7 +461,7 @@ export const ApplicationsPage: React.FC = () => {
                 {appDocuments.map((doc) => (
                   <div
                     key={doc.id}
-                    onClick={() => navigate(`/document-intelligence?docId=${doc.id}`)}
+                    onClick={() => navigate(`/verification?tab=studio&docId=${doc.id}`)}
                     className="cursor-pointer flex items-center justify-between rounded border border-slate-200 px-3 py-2 hover:bg-slate-50 text-xs"
                   >
                     <div className="truncate pr-2">
@@ -441,5 +551,7 @@ export const ApplicationsPage: React.FC = () => {
         )}
       </div>
     </div>
-  );
+  )}
+</div>
+);
 };

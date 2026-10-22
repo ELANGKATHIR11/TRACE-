@@ -365,5 +365,128 @@ export const api = {
       message: string;
     }>(`/provenance/${id}/verify`, { method: 'POST' });
   },
+
+  // ==========================================
+  // FEATURE 7: Settings & System Control Center
+  // ==========================================
+  async getSettings() {
+    return request<{ settings: any; runtimeMetadata: any }>('/settings');
+  },
+
+  async updateGeneralSettings(data: any) {
+    return request<{ success: boolean; settings: any; message: string }>('/settings/general', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getProcessingSettings() {
+    return request<any>('/settings/processing');
+  },
+
+  async updateProcessingSettings(data: any) {
+    return request<{ success: boolean; processing: any; message: string }>('/settings/processing', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateRetentionSettings(data: any) {
+    return request<{ success: boolean; settings: any; message: string }>('/settings/retention', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getMlModels() {
+    return request<{ models: any[]; hardware: any }>('/ml/models');
+  },
+
+  async updateModelConfig(modelId: string, data: any) {
+    return request<{ success: boolean; model: any }>(`/ml/models/${modelId}/config`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async enableModel(modelId: string) {
+    return request<{ success: boolean; model: any; message: string }>(`/ml/models/${modelId}/enable`, {
+      method: 'POST',
+    });
+  },
+
+  async disableModel(modelId: string) {
+    return request<{ success: boolean; model: any; message: string }>(`/ml/models/${modelId}/disable`, {
+      method: 'POST',
+    });
+  },
+
+  async reloadModel(modelId: string) {
+    return request<{ success: boolean; reloadResult: any; message: string }>(`/ml/models/${modelId}/reload`, {
+      method: 'POST',
+    });
+  },
+
+  async evaluateModel(modelId: string) {
+    return request<{ success: boolean; evaluation: any }>(`/ml/models/${modelId}/evaluate`, {
+      method: 'POST',
+    });
+  },
+
+  async activateModel(modelId: string, version: string, metrics?: any) {
+    return request<{ success: boolean; model: any; message: string }>(`/ml/models/${modelId}/activate`, {
+      method: 'POST',
+      body: JSON.stringify({ version, metrics }),
+    });
+  },
+
+  async restoreModel(modelId: string) {
+    return request<{ success: boolean; model: any; message: string }>(`/ml/models/${modelId}/restore`, {
+      method: 'POST',
+    });
+  },
+
+  async getDatasets() {
+    return request<{ datasets: any[] }>('/ml/datasets');
+  },
+
+  async startTraining(data: { modelId: string; datasetId: string; epochs?: number; learningRate?: number; batchSize?: number }) {
+    return request<{ success: boolean; jobId: string; job: any; message: string }>('/ml/training', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getTrainingJob(jobId: string) {
+    return request<{ job: any }>(`/ml/training/${jobId}`);
+  },
+
+  async cancelTrainingJob(jobId: string) {
+    return request<{ success: boolean; job: any }>(`/ml/training/${jobId}/cancel`, {
+      method: 'POST',
+    });
+  },
+
+  async getTrainingHistory() {
+    return request<{ jobs: any[] }>('/ml/training-history');
+  },
+
+  async getSystemHealth() {
+    return request<{
+      status: string;
+      checkedAt: string;
+      totalLatencyMs: number;
+      services: Record<string, any>;
+      storage: any;
+    }>('/system/health');
+  },
+
+  async getSystemStorage() {
+    return request<any>('/system/storage');
+  },
+
+  async getSettingsAudit() {
+    return request<{ events: any[] }>('/settings/audit');
+  },
 };
 

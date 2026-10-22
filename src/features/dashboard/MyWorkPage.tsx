@@ -50,7 +50,7 @@ export const MyWorkPage: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/document-intelligence?docId=DOC-2026-101&page=2')}
+            onClick={() => navigate('/verification?tab=studio&docId=DOC-2026-101&page=2')}
             className="rounded-md bg-[#0F766E] px-3.5 py-2 text-xs font-medium text-white hover:bg-[#0d645d]"
           >
             Open Document Intelligence Workbench

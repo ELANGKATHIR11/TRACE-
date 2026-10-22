@@ -167,4 +167,32 @@ export const fastApiClient = {
 
   verifyManifestChain: (data: { manifestChain: any[] }) =>
     callFastApi<any>('/proofline/verify-chain', 'POST', data),
+
+  // Feature 7: System ML & Control Center
+  getModels: () => callFastApi<any>('/system_ml/models', 'GET'),
+
+  reloadModel: (modelId: string, version?: string) =>
+    callFastApi<any>(`/system_ml/models/${modelId}/reload`, 'POST', { version: version || 'v2.1' }),
+
+  evaluateModel: (modelId: string) =>
+    callFastApi<any>(`/system_ml/models/${modelId}/evaluate`, 'POST'),
+
+  startTraining: (data: {
+    jobId: string;
+    modelId: string;
+    datasetName: string;
+    datasetVersion: string;
+    epochs?: number;
+    learningRate?: number;
+    batchSize?: number;
+  }) => callFastApi<any>('/system_ml/training/start', 'POST', data),
+
+  getTrainingStatus: (jobId: string) =>
+    callFastApi<any>(`/system_ml/training/${jobId}/status`, 'GET'),
+
+  cancelTraining: (jobId: string) =>
+    callFastApi<any>(`/system_ml/training/${jobId}/cancel`, 'POST'),
+
+  getSystemMlHealth: () =>
+    callFastApi<any>('/system_ml/system/health', 'GET'),
 };

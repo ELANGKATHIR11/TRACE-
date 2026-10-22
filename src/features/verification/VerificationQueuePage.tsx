@@ -277,7 +277,7 @@ export const VerificationQueuePage: React.FC = () => {
                         <button
                           onClick={() =>
                             navigate(
-                              `/document-intelligence?docId=${f.documentId}&page=${
+                              `/verification?tab=studio&docId=${f.documentId}&page=${
                                 f.pageNumber || 1
                               }`
                             )
