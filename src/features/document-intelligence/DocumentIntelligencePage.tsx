@@ -162,7 +162,7 @@ export const DocumentIntelligencePage: React.FC = () => {
 
   const handleDownloadSyntheticSummary = () => {
     const text = [
-      `TRACE SYNTHETIC DOCUMENT DOSSIER EXPORT`,
+      `TRACE DOCUMENT DOSSIER EXPORT`,
       `Document ID: ${currentDoc.id} (${currentDoc.currentVersion})`,
       `Title: ${currentDoc.title}`,
       `Validation State: ${currentDoc.validationState}`,
@@ -184,7 +184,7 @@ export const DocumentIntelligencePage: React.FC = () => {
     a.download = `${currentDoc.id}_${currentDoc.currentVersion}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`Downloaded synthetic evidence transcript for ${currentDoc.id}`);
+    toast.success(`Exported evidence transcript for ${currentDoc.id}`);
   };
 
   return (
@@ -205,24 +205,29 @@ export const DocumentIntelligencePage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Upload Corrected Synthetic Document Action */}
-          <button
-            onClick={handleUploadSyntheticCorrected}
-            disabled={!perms.canUploadRemediationDocument}
+          {/* Real Document Upload Action */}
+          <label
             title={
               perms.canUploadRemediationDocument
-                ? 'Upload corrected synthetic Addendum v2.0 (01-May-2026)'
-                : 'Switch to Institution Compliance Officer (Prof. Meera Krishnan) in the top bar to upload remediation documents'
+                ? 'Upload real document through GPU OCR pipeline'
+                : 'Switch to Institution Compliance Officer (Prof. Meera Krishnan) in the top bar to upload documents'
             }
             className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              perms.canUploadRemediationDocument
-                ? 'bg-[#101B2D] text-white hover:bg-slate-800'
+              perms.canUploadRemediationDocument && !isUploadingReal
+                ? 'bg-[#101B2D] text-white hover:bg-slate-800 cursor-pointer'
                 : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
             }`}
           >
             <Upload className="h-3.5 w-3.5" />
-            Upload Corrected Synthetic Doc (v2.0)
-          </button>
+            {isUploadingReal ? 'Processing with GPU OCR...' : 'Upload Real Document'}
+            <input
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg,.tiff,.tif"
+              disabled={!perms.canUploadRemediationDocument || isUploadingReal}
+              onChange={handleFileInputUpload}
+              className="sr-only"
+            />
+          </label>
 
           {/* Run Validation Action */}
           <button
@@ -563,13 +568,13 @@ export const DocumentIntelligencePage: React.FC = () => {
                 transform: `scale(${zoomPct / 100})`,
               }}
             >
-              {/* Synthetic Demonstration Watermark Banner */}
+              {/* Document Header & Authenticity Banner */}
               <div className="mb-3 flex items-center justify-between border-b-2 border-slate-800 pb-2 text-[10px] font-mono">
                 <span className="font-bold text-slate-900">
-                  {currentPageData.headerAuthority}
+                  {currentPageData.headerAuthority || 'Statutory / Institutional Document'}
                 </span>
-                <span className="rounded bg-amber-100 px-1.5 py-0.5 font-bold text-amber-900">
-                  SYNTHETIC DEMO DOCUMENT
+                <span className="rounded bg-teal-100 px-1.5 py-0.5 font-bold text-teal-900">
+                  {currentDoc.fileType} · {currentDoc.currentVersion}
                 </span>
               </div>
 
