@@ -110,25 +110,32 @@ export const AnalyticsReportsPage: React.FC = () => {
           <h2 className="text-sm font-bold text-slate-900 mb-3">
             Document Validation Outcomes Breakdown
           </h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={docOutcomeData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={85}
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {docOutcomeData.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="h-64 flex items-center justify-center">
+            {docOutcomeData.length === 0 ? (
+              <div className="text-center text-xs text-slate-400">
+                <p className="font-semibold text-slate-700">No Document Outcomes Yet</p>
+                <p className="mt-1">Upload documents to see live validation breakdown.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={docOutcomeData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={85}
+                    label={({ name, value }) => `${name}: ${value}`}
+                  >
+                    {docOutcomeData.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>

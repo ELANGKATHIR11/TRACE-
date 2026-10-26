@@ -32,6 +32,7 @@ export const DocumentIntelligencePage: React.FC = () => {
     state,
     openFindingDrawer,
     uploadCorrectedDocumentVersion,
+    uploadRealDocument,
     runDocumentValidation,
     confirmOrCorrectExtractedField,
     recordIndependentIssuerVerification,
@@ -48,14 +49,16 @@ export const DocumentIntelligencePage: React.FC = () => {
   const initialDoc =
     state.documents.find((d) => d.id === paramDocId) ||
     state.documents.find((d) => d.applicationId === paramAppId) ||
-    state.documents[0];
+    state.documents[0] ||
+    null;
 
-  const [selectedDocId, setSelectedDocId] = useState<string>(initialDoc.id);
+  const [selectedDocId, setSelectedDocId] = useState<string>(initialDoc?.id || '');
   const [selectedPage, setSelectedPage] = useState<number>(paramPage);
-  const [selectedVersion, setSelectedVersion] = useState<string>(initialDoc.currentVersion);
+  const [selectedVersion, setSelectedVersion] = useState<string>(initialDoc?.currentVersion || 'v1.0');
   const [zoomPct, setZoomPct] = useState<number>(100);
   const [activeBboxId, setActiveBboxId] = useState<string>(paramBbox);
   const [isValidating, setIsValidating] = useState<boolean>(false);
+  const [isUploadingReal, setIsUploadingReal] = useState<boolean>(false);
 
   // Field editing & note state
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
@@ -80,26 +83,29 @@ export const DocumentIntelligencePage: React.FC = () => {
   }, [paramDocId, paramPage, paramBbox, state.documents]);
 
   const currentDoc =
-    state.documents.find((d) => d.id === selectedDocId) || state.documents[0];
+    state.documents.find((d) => d.id === selectedDocId) || state.documents[0] || null;
 
   useEffect(() => {
-    setSelectedVersion(currentDoc.currentVersion);
-    if (selectedPage > currentDoc.pages.length) {
-      setSelectedPage(1);
+    if (currentDoc) {
+      setSelectedVersion(currentDoc.currentVersion);
+      if (selectedPage > currentDoc.pages.length) {
+        setSelectedPage(1);
+      }
     }
-  }, [currentDoc.id, currentDoc.currentVersion, currentDoc.pages.length, selectedPage]);
+  }, [currentDoc?.id, currentDoc?.currentVersion, currentDoc?.pages?.length, selectedPage]);
 
   const currentPageData =
-    currentDoc.pages.find((p) => p.pageNumber === selectedPage) || currentDoc.pages[0];
+    currentDoc?.pages?.find((p) => p.pageNumber === selectedPage) || currentDoc?.pages?.[0] || null;
 
-  const pageBoundingBoxes = currentDoc.boundingBoxes.filter(
-    (b) => b.pageNumber === currentPageData.pageNumber
-  );
+  const pageBoundingBoxes = currentDoc?.boundingBoxes?.filter(
+    (b) => b.pageNumber === currentPageData?.pageNumber
+  ) || [];
 
-  const linkedFinding = state.findings.find((f) => f.documentId === currentDoc.id);
+  const linkedFinding = currentDoc ? state.findings.find((f) => f.documentId === currentDoc.id) : null;
   const perms = getPermissions(state.currentUser.role);
 
   const handleUploadSyntheticCorrected = () => {
+    if (!currentDoc) return;
     uploadCorrectedDocumentVersion({
       documentId: currentDoc.id,
       fileName: 'VIEPS_BlockC_Structural_Addendum_v2_Rectified.pdf',
@@ -111,20 +117,39 @@ export const DocumentIntelligencePage: React.FC = () => {
     setSelectedPage(2);
   };
 
-  const handleFileInputUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    uploadCorrectedDocumentVersion({
-      documentId: currentDoc.id,
-      fileName: file.name,
-      fileSize: `${Math.max(0.2, file.size / (1024 * 1024)).toFixed(1)} MB`,
-      correctedDateValue: '01-May-2026',
-      changeNote: `Uploaded replacement file "${file.name}" reconciling commissioning date to 01-May-2026.`,
-    });
-    setSelectedPage(currentDoc.pages.length > 1 ? 2 : 1);
+
+    setIsUploadingReal(true);
+    try {
+      // If we have an existing document, we upload it as real replacement or new document
+      const targetApp = currentDoc?.applicationId || state.applications[0]?.id || 'APP-2026-0842';
+      const targetInst = currentDoc?.institutionId || state.currentUser?.institutionId || state.institutions[0]?.id || 'INST-VIEPS-01';
+
+      const uploadRes = await uploadRealDocument({
+        file,
+        applicationId: targetApp,
+        institutionId: targetInst,
+        title: file.name.replace(/\.[^/.]+$/, ''),
+        category: currentDoc?.category || 'Infrastructure',
+        clauseId: currentDoc?.requiredByClauseId || 'APH-2026-CL-4.2.b',
+      });
+
+      if (uploadRes?.document?.id) {
+        setSelectedDocId(uploadRes.document.id);
+        setSelectedPage(1);
+      }
+    } catch {
+      // Toast already shown in store
+    } finally {
+      setIsUploadingReal(false);
+      e.target.value = '';
+    }
   };
 
   const handleRunValidation = async () => {
+    if (!currentDoc) return;
     setIsValidating(true);
     try {
       await runDocumentValidation(currentDoc.id);
@@ -302,7 +327,7 @@ export const DocumentIntelligencePage: React.FC = () => {
         </button>
       </div>
 
-      {activeViewTab === 'chronograph' ? (
+      {activeViewTab === 'chronograph' && currentDoc ? (
         <ChronoGraphView
           applicationId={currentDoc.applicationId}
           onNavigateToEvidence={(claimId, page) => {
@@ -310,13 +335,49 @@ export const DocumentIntelligencePage: React.FC = () => {
             setActiveViewTab('dossier');
           }}
         />
-      ) : activeViewTab === 'deltascan' ? (
+      ) : activeViewTab === 'deltascan' && currentDoc ? (
         <DeltaScanView
           documentId={currentDoc.id}
           documentTitle={currentDoc.title}
           currentVersion={currentDoc.currentVersion}
           totalPages={currentDoc.pages.length}
         />
+      ) : !currentDoc ? (
+        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-[#0F766E]">
+            <Upload className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-800">No Documents Uploaded Yet</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              You are in manual testing mode. Drop a real PDF or certificate image below to run it through the Python GPU OCR and deterministic AICTE validation pipeline.
+            </p>
+          </div>
+          <div className="max-w-md mx-auto">
+            <label
+              className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
+                isUploadingReal
+                  ? 'border-teal-500 bg-teal-50 animate-pulse'
+                  : 'border-[#0F766E] bg-teal-50/20 hover:bg-teal-50/50'
+              }`}
+            >
+              <Upload className="h-6 w-6 text-[#0F766E] mb-2" />
+              <span className="text-sm font-semibold text-slate-800">
+                {isUploadingReal ? 'Processing with Python GPU OCR...' : 'Click to Browse or Drag Real Document Here'}
+              </span>
+              <span className="text-xs text-slate-500 mt-1">
+                Supports PDF, PNG, JPG, JPEG, TIFF (Up to 25 MB)
+              </span>
+              <input
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.tiff,.tif"
+                disabled={isUploadingReal}
+                onChange={handleFileInputUpload}
+                className="sr-only"
+              />
+            </label>
+          </div>
+        </div>
       ) : (
       /* 3 SYNCHRONIZED PANELS: LEFT (3 cols) + CENTER (5 cols) + RIGHT (4 cols) */
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
@@ -405,31 +466,35 @@ export const DocumentIntelligencePage: React.FC = () => {
             ))}
           </div>
 
-          {/* Drag and Drop Replacement Upload */}
+          {/* Real Document Upload Dropzone */}
           <div className="border-t border-slate-100 pt-3 text-xs">
             <label className="block font-bold text-slate-800 mb-1.5">
-              Upload Replacement / Corrected Version
+              Upload Document for Testing (Real OCR Pipeline)
             </label>
             <label
               className={`flex flex-col items-center justify-center rounded-md border border-dashed p-3 text-center transition-colors ${
-                perms.canUploadRemediationDocument
+                isUploadingReal
+                  ? 'border-teal-500 bg-teal-50 animate-pulse cursor-wait'
+                  : perms.canUploadRemediationDocument
                   ? 'border-[#0F766E] bg-teal-50/30 cursor-pointer hover:bg-teal-50/60'
                   : 'border-slate-200 bg-slate-50 cursor-not-allowed text-slate-400'
               }`}
             >
               <Upload className="h-4 w-4 text-[#0F766E] mb-1" />
               <span className="font-medium text-slate-800">
-                Drop synthetic PDF or click to browse
+                {isUploadingReal ? 'Processing with GPU OCR & Python...' : 'Drop Real PDF / Image or Click to Browse'}
               </span>
               <span className="text-[10px] text-slate-500 mt-0.5">
-                {perms.canUploadRemediationDocument
-                  ? `Active Role: ${state.currentUser.roleLabel}`
+                {isUploadingReal
+                  ? 'Extracting text, bounding boxes & certificates...'
+                  : perms.canUploadRemediationDocument
+                  ? `Accepts PDF, PNG, JPG, TIFF (Max 25 MB)`
                   : 'Switch to Institution Compliance Officer role to upload'}
               </span>
               <input
                 type="file"
-                accept=".pdf,.png,.jpg,.tiff"
-                disabled={!perms.canUploadRemediationDocument}
+                accept=".pdf,.png,.jpg,.jpeg,.tiff,.tif"
+                disabled={!perms.canUploadRemediationDocument || isUploadingReal}
                 onChange={handleFileInputUpload}
                 className="sr-only"
               />

@@ -18,14 +18,14 @@ export const RegulatoryRulebookPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const highlightedClause = searchParams.get('clause') || '';
 
-  const [selectedRuleSetId, setSelectedRuleSetId] = useState<string>(state.ruleSets[0].id);
+  const [selectedRuleSetId, setSelectedRuleSetId] = useState<string>(state.ruleSets[0]?.id || '');
   const [showDiffComparison, setShowDiffComparison] = useState<boolean>(true);
   const [approvalNote, setApprovalNote] = useState<string>(
     'Reviewed clause diffs and impact analysis for AY 2026-27.'
   );
 
   const activeRuleSet =
-    state.ruleSets.find((r) => r.id === selectedRuleSetId) || state.ruleSets[0];
+    state.ruleSets.find((r) => r.id === selectedRuleSetId) || state.ruleSets[0] || null;
   const perms = getPermissions(state.currentUser.role);
 
   return (

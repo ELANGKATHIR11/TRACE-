@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTraceStore } from '../../lib/store';
 import {
@@ -6,19 +6,24 @@ import {
   ScanSearch,
   Sparkles,
   ShieldAlert,
+  FileCheck,
+  Building2,
 } from 'lucide-react';
 import { VerificationQueuePage } from './VerificationQueuePage';
 import { DocumentIntelligencePage } from '../document-intelligence/DocumentIntelligencePage';
+import { ManualDocumentVerificationModal } from './ManualDocumentVerificationModal';
+import { IssuerInstitutionalVerificationPanel } from './IssuerInstitutionalVerificationPanel';
 
 export const VerificationPage: React.FC = () => {
   const { state } = useTraceStore();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   // If a docId or bbox is present in searchParams, default to studio unless explicitly requesting queue
   const hasDocParam = Boolean(searchParams.get('docId') || searchParams.get('page') || searchParams.get('bbox'));
   const currentTab = searchParams.get('tab') || (hasDocParam ? 'studio' : 'queue');
 
-  const setTab = (tab: 'queue' | 'studio') => {
+  const setTab = (tab: 'queue' | 'studio' | 'issuer') => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('tab', tab);
     setSearchParams(nextParams);
@@ -70,20 +75,48 @@ export const VerificationPage: React.FC = () => {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setTab('issuer')}
+            className={`inline-flex items-center gap-1.5 rounded px-3.5 py-1.5 font-medium transition-colors ${
+              currentTab === 'issuer'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Building2 className="h-3.5 w-3.5 text-[#0F766E]" />
+            <span>Issuer & Institutional Verification (LangGraph Stages 0–8)</span>
+          </button>
         </div>
 
-        <div className="text-[11px] text-slate-500 hidden sm:flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-          <span>Local OCR & Trained Inference Pipeline Active</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsManualModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-[#0F766E] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#0d645d] transition-colors cursor-pointer"
+          >
+            <FileCheck className="h-3.5 w-3.5" />
+            <span>Manual Input & Verify File</span>
+          </button>
+          <div className="text-[11px] text-slate-500 hidden sm:flex items-center gap-2">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+            <span>Native Local Ollama VLM + LangGraph + Qdrant Active</span>
+          </div>
         </div>
       </div>
 
       {/* Render active view tab */}
       {currentTab === 'queue' ? (
         <VerificationQueuePage />
+      ) : currentTab === 'issuer' ? (
+        <IssuerInstitutionalVerificationPanel />
       ) : (
         <DocumentIntelligencePage />
       )}
+
+      {/* Manual Document Verification Modal */}
+      <ManualDocumentVerificationModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+      />
     </div>
   );
 };

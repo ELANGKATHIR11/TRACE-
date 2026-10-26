@@ -97,6 +97,13 @@ export const SettingsPage: React.FC = () => {
   const [hardwareInfo, setHardwareInfo] = useState<any>(null);
   const [selectedModelForEval, setSelectedModelForEval] = useState<any>(null);
 
+  // Centralized Ollama Gateway & Qdrant VRAG/MRAG State
+  const [ollamaStatus, setOllamaStatus] = useState<any>(null);
+  const [vragStatus, setVragStatus] = useState<any>(null);
+  const [pullModelName, setPullModelName] = useState<string>('nomic-embed-text');
+  const [pullLoading, setPullLoading] = useState<boolean>(false);
+  const [reindexLoading, setReindexLoading] = useState<boolean>(false);
+
   // Training & Dataset State
   const [datasetsList, setDatasetsList] = useState<any[]>([]);
   const [cliManifest, setCliManifest] = useState<any>(null);
@@ -166,15 +173,59 @@ export const SettingsPage: React.FC = () => {
   const loadModels = useCallback(async () => {
     try {
       setModelsLoading(true);
-      const res = await api.getMlModels();
+      const [res, ollamaRes, vragRes] = await Promise.all([
+        api.getMlModels(),
+        api.getOllamaGatewayStatus(false).catch(() => null),
+        api.getVragMragStatus().catch(() => null),
+      ]);
       setModelsList(res.models || []);
       setHardwareInfo(res.hardware || null);
+      if (ollamaRes) setOllamaStatus(ollamaRes);
+      if (vragRes) setVragStatus(vragRes);
     } catch (err: any) {
       toast.error(`Failed to load ML models: ${err.message}`);
     } finally {
       setModelsLoading(false);
     }
   }, []);
+
+  const handlePullOllamaModel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isReadOnly || !pullModelName.trim()) return;
+    try {
+      setPullLoading(true);
+      toast.info(`User-initiated Ollama pull started for '${pullModelName}'...`);
+      const res = await api.pullOllamaModel(pullModelName.trim());
+      if (res.success) {
+        toast.success(`Successfully pulled '${pullModelName}' into local Ollama.`);
+        const updatedOllama = await api.getOllamaGatewayStatus(true);
+        setOllamaStatus(updatedOllama);
+      } else {
+        toast.error(`Ollama pull failed: ${res.error}`);
+      }
+    } catch (err: any) {
+      toast.error(`Ollama pull failed: ${err.message}`);
+    } finally {
+      setPullLoading(false);
+    }
+  };
+
+  const handleReindexQdrant = async () => {
+    if (isReadOnly) return;
+    try {
+      setReindexLoading(true);
+      toast.info('Re-indexing regulatory clauses, documents, and authorized records in Qdrant...');
+      const res = await api.reindexVragMrag();
+      if (res.status) setVragStatus(res.status);
+      toast.success(
+        `Indexed ${res.clausesIndexed} clauses, ${res.documentsIndexed} documents, and ${res.authorizedRecordsIndexed} institutional records.`
+      );
+    } catch (err: any) {
+      toast.error(`Qdrant re-indexing failed: ${err.message}`);
+    } finally {
+      setReindexLoading(false);
+    }
+  };
 
   // Fetch training & datasets
   const loadTrainingData = useCallback(async () => {
@@ -697,6 +748,229 @@ export const SettingsPage: React.FC = () => {
           {/* TAB 2: ML/DL MODEL MANAGEMENT */}
           {currentTab === 'models' && (
             <div className="space-y-6">
+              {/* Centralized Native Local Ollama Gateway & Capability Matrix */}
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F766E]">
+                      <Sparkles className="h-4 w-4" />
+                      <span>CENTRALIZED NATIVE OLLAMA GATEWAY (SIH 26261 OLLAMA-ONLY AI RUNTIME)</span>
+                    </div>
+                    <h2 className="text-base font-bold text-slate-900 mt-0.5">
+                      Discovered Local Ollama Models, Capability Routing & User-Controlled Model Pull
+                    </h2>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      All operational AI/ML/DL inference, scanned-page VLM OCR, document classification, and RAG synthesis execute strictly through local Ollama (`http://localhost:11434`). Never silently downloads models.
+                    </p>
+                  </div>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-bold ${
+                      ollamaStatus?.online
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}
+                  >
+                    {ollamaStatus?.online
+                      ? `Ollama Online (${ollamaStatus.installedModels?.length || 0} Models)`
+                      : 'Ollama Unreachable'}
+                  </span>
+                </div>
+
+                {/* Capability Status Banner (Text, Vision VLM, Dense Embeddings) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3.5 space-y-1">
+                    <div className="font-bold text-emerald-950 flex items-center justify-between">
+                      <span>Structured Text & Reasoning</span>
+                      <span className="font-mono text-[10px] bg-emerald-100 px-2 py-0.5 rounded text-emerald-800">
+                        ACTIVE
+                      </span>
+                    </div>
+                    <div className="font-mono text-xs font-semibold text-[#0F766E]">
+                      {ollamaStatus?.assignedRouting?.text || 'qwen2.5:1.5b-instruct'}
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Fast Fallback: {ollamaStatus?.assignedRouting?.fast_text || 'qwen2.5:0.5b-instruct'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3.5 space-y-1">
+                    <div className="font-bold text-emerald-950 flex items-center justify-between">
+                      <span>Vision / Scanned-Page VLM (VRAG)</span>
+                      <span className="font-mono text-[10px] bg-emerald-100 px-2 py-0.5 rounded text-emerald-800">
+                        {ollamaStatus?.capabilitiesAvailable?.vision ? 'ACTIVE' : 'MODEL_UNAVAILABLE'}
+                      </span>
+                    </div>
+                    <div className="font-mono text-xs font-semibold text-[#0F766E]">
+                      {ollamaStatus?.assignedRouting?.vision || 'riven/smolvlm:latest'}
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      {ollamaStatus?.visionStatus?.message || 'Used for scanned-page OCR & VRAG visual page descriptions.'}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`rounded-lg border p-3.5 space-y-1 ${
+                      ollamaStatus?.capabilitiesAvailable?.embedding
+                        ? 'border-emerald-200 bg-emerald-50/50'
+                        : 'border-amber-200 bg-amber-50/60'
+                    }`}
+                  >
+                    <div className="font-bold text-slate-900 flex items-center justify-between">
+                      <span>Semantic Vector Embeddings (MRAG)</span>
+                      <span
+                        className={`font-mono text-[10px] px-2 py-0.5 rounded font-bold ${
+                          ollamaStatus?.capabilitiesAvailable?.embedding
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-amber-200 text-amber-900'
+                        }`}
+                      >
+                        {ollamaStatus?.capabilitiesAvailable?.embedding ? 'ACTIVE' : 'MODEL_UNAVAILABLE'}
+                      </span>
+                    </div>
+                    <div className="font-mono text-[11px] font-semibold text-amber-900">
+                      {ollamaStatus?.assignedRouting?.embedding ||
+                        ollamaStatus?.embeddingStatus?.blockerCode ||
+                        'EMBEDDING_CAPABILITY_UNAVAILABLE'}
+                    </div>
+                    <p className="text-[11px] text-slate-700">
+                      {ollamaStatus?.embeddingStatus?.message ||
+                        'Hybrid lexical/clause/identifier retrieval in Qdrant remains active.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Discovered Installed Ollama Models Table */}
+                {ollamaStatus?.installedModels?.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold text-slate-600">
+                          <th className="py-2 px-3">Installed Model Name</th>
+                          <th className="py-2 px-3">Family / Params</th>
+                          <th className="py-2 px-3">Quantization</th>
+                          <th className="py-2 px-3">Size</th>
+                          <th className="py-2 px-3">Discovered Capabilities</th>
+                          <th className="py-2 px-3">Context Window</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {ollamaStatus.installedModels.map((om: any) => (
+                          <tr key={om.name} className="hover:bg-slate-50/80">
+                            <td className="py-2 px-3 font-mono font-bold text-slate-900">{om.name}</td>
+                            <td className="py-2 px-3 font-mono text-slate-700">
+                              {om.family} · {om.parameterSize}
+                            </td>
+                            <td className="py-2 px-3 font-mono text-slate-600">{om.quantizationLevel}</td>
+                            <td className="py-2 px-3 font-mono text-slate-700">{om.sizeFormatted}</td>
+                            <td className="py-2 px-3">
+                              <div className="flex flex-wrap gap-1">
+                                {(om.capabilities || []).map((cap: string) => (
+                                  <span
+                                    key={cap}
+                                    className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold ${
+                                      cap === 'vision'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : 'bg-teal-50 text-[#0F766E]'
+                                    }`}
+                                  >
+                                    {cap}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-2 px-3 font-mono text-slate-600">
+                              {om.contextLength?.toLocaleString()} tokens
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* User-Controlled Model Installation Option */}
+                {!isReadOnly && (
+                  <form
+                    onSubmit={handlePullOllamaModel}
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-slate-900">
+                        User-Controlled Ollama Model Pull (Never Triggered Automatically)
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        Recommended command if dense embeddings are needed:{' '}
+                        <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                          {ollamaStatus?.embeddingStatus?.userInstallCommand || 'ollama pull nomic-embed-text'}
+                        </code>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <input
+                        type="text"
+                        value={pullModelName}
+                        onChange={(e) => setPullModelName(e.target.value)}
+                        placeholder="e.g. nomic-embed-text"
+                        className="rounded border border-slate-300 bg-white px-3 py-1.5 font-mono text-xs text-slate-900"
+                      />
+                      <button
+                        type="submit"
+                        disabled={pullLoading}
+                        className="rounded bg-[#0F766E] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0d645d] disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {pullLoading ? 'Pulling Model...' : 'User-Initiated Pull'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Local Persistent Qdrant VRAG & MRAG Collection Status */}
+                {vragStatus && (
+                  <div className="border-t border-slate-200 pt-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                          <Database className="h-4 w-4 text-[#0F766E]" />
+                          <span>Local Persistent Qdrant Vector Store (VRAG + MRAG Collections)</span>
+                        </h3>
+                        <p className="text-[11px] text-slate-500 font-mono">
+                          Storage Path: {vragStatus.storagePath} · VLM: {vragStatus.vragVisionModel || 'riven/smolvlm:latest'}
+                        </p>
+                      </div>
+                      {!isReadOnly && (
+                        <button
+                          onClick={handleReindexQdrant}
+                          disabled={reindexLoading}
+                          className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          <RefreshCw className={`h-3.5 w-3.5 ${reindexLoading ? 'animate-spin' : ''}`} />
+                          <span>Re-Index All 4 Qdrant Collections</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      {Object.values(vragStatus.collections || {}).map((col: any) => (
+                        <div
+                          key={col.collectionName}
+                          className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 space-y-1"
+                        >
+                          <div className="font-mono text-[11px] font-bold text-[#0F766E]">
+                            {col.collectionName}
+                          </div>
+                          <div className="text-base font-bold text-slate-900 font-mono">
+                            {col.indexedRecordsCount} records
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono truncate">
+                            {col.embeddingModel}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
@@ -1005,7 +1279,8 @@ export const SettingsPage: React.FC = () => {
                         onChange={(e) => setTrainingConfig({ ...trainingConfig, modelId: e.target.value })}
                         className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 text-xs focus:border-[#0F766E] focus:outline-hidden disabled:bg-slate-50"
                       >
-                        <option value="doc-layout-cnn">DocumentLayoutCNN (PyTorch CNN)</option>
+                        <option value="funsd-entity-mlp">FunsdEntityMLP (PyTorch, real FUNSD data, GPU)</option>
+                        <option value="doc-layout-cnn">DocumentLayoutCNN (PyTorch CNN, synthetic data)</option>
                         <option value="compliance-risk-gbdt">ComplianceRiskGBDT (scikit-learn GBDT)</option>
                         <option value="doc-text-tfidf-logreg">DocTextTFIDFClassifier (TF-IDF + LogisticRegression)</option>
                       </select>

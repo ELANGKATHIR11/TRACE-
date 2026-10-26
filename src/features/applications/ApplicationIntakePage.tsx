@@ -58,20 +58,7 @@ export const ApplicationIntakePage: React.FC = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [uploadedFiles, setUploadedFiles] = useState<
     { title: string; fileName: string; fileSize: string; clauseId: string; isDuplicate?: boolean }[]
-  >([
-    {
-      title: 'Building Completion & Structural Stability Certificate',
-      fileName: 'Block_Completion_Cert_2026.pdf',
-      fileSize: '2.1 MB',
-      clauseId: 'APH-2026-CL-4.1.a',
-    },
-    {
-      title: 'Sworn Notarized Affidavit (Form-A)',
-      fileName: 'Notarized_Affidavit_FormA.pdf',
-      fileSize: '1.4 MB',
-      clauseId: 'APH-2026-CL-4.2.b',
-    },
-  ]);
+  >([]);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [preValidationRun, setPreValidationRun] = useState(true);
 
@@ -83,47 +70,47 @@ export const ApplicationIntakePage: React.FC = () => {
   } = useForm<IntakeFormValues>({
     resolver: zodResolver(intakeSchema),
     defaultValues: {
-      institutionId: state.institutions[0].id,
+      institutionId: state.institutions[0]?.id || '',
       category: 'Increase in Intake',
       academicYear: '2026-27',
       programName: 'B.Tech — Artificial Intelligence & Cyber-Physical Engineering',
       currentIntake: 120,
       requestedIntake: 180,
-      ruleSetId: state.ruleSets[0].id,
+      ruleSetId: state.ruleSets[0]?.id || '',
       nodalDeclarationAccepted: true,
     },
   });
 
   const watchedValues = watch();
   const activeRuleSet =
-    state.ruleSets.find((r) => r.id === watchedValues.ruleSetId) || state.ruleSets[0];
+    state.ruleSets.find((r) => r.id === watchedValues.ruleSetId) || state.ruleSets[0] || null;
 
   // Filter clauses dynamically by the selected category (Screen B requirement: do not hard-code legal requirements)
-  const applicableClauses = activeRuleSet.clauses.filter((c) =>
+  const applicableClauses = activeRuleSet?.clauses ? activeRuleSet.clauses.filter((c) =>
     c.applicableCategories.includes(watchedValues.category)
-  );
+  ) : [];
 
-  const handleSimulatedUpload = (clauseId: string, reqDocTitle: string) => {
-    const fileName = `${reqDocTitle.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 32)}_2026.pdf`;
-    const alreadyExists = uploadedFiles.some((f) => f.fileName === fileName);
+  const handleRealFileUpload = (clauseId: string, reqDocTitle: string, file: File) => {
+    const alreadyExists = uploadedFiles.some((f) => f.fileName === file.name);
     if (alreadyExists) {
       setDuplicateWarning(
-        `Duplicate Upload Warning: "${fileName}" is already attached to this intake session.`
+        `Duplicate Upload Warning: "${file.name}" is already attached to this intake session.`
       );
-      toast.warning(`Duplicate file detected: ${fileName}`);
+      toast.warning(`Duplicate file detected: ${file.name}`);
       return;
     }
     setDuplicateWarning(null);
+    const sizeStr = file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
     setUploadedFiles((prev) => [
       ...prev,
       {
         title: reqDocTitle,
-        fileName,
-        fileSize: '1.7 MB',
+        fileName: file.name,
+        fileSize: sizeStr,
         clauseId,
       },
     ]);
-    toast.success(`Uploaded "${fileName}" (100% complete)`);
+    toast.success(`Attached real document "${file.name}" (${sizeStr})`);
   };
 
   const missingMandatoryDocs = applicableClauses.filter(
@@ -413,16 +400,20 @@ export const ApplicationIntakePage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleSimulatedUpload(clause.id, clause.requiredEvidence[0])
-                      }
-                      className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-800 hover:bg-slate-100 shrink-0"
-                    >
+                    <label className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-800 hover:bg-slate-100 shrink-0 cursor-pointer">
                       <Upload className="h-3.5 w-3.5 text-[#0F766E]" />
-                      {attached ? 'Test Duplicate Upload' : 'Attach Synthetic PDF'}
-                    </button>
+                      <span>{attached ? 'Replace File' : 'Browse Document'}</span>
+                      <input
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.tiff,.tif"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleRealFileUpload(clause.id, clause.requiredEvidence[0], f);
+                          e.target.value = '';
+                        }}
+                        className="sr-only"
+                      />
+                    </label>
                   </div>
                 );
               })}

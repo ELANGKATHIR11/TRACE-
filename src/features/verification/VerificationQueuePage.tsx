@@ -30,7 +30,7 @@ export const VerificationQueuePage: React.FC = () => {
   const initialFilter = searchParams.get('filter') || 'ALL';
   const [search, setSearch] = useState('');
   const [queueFilter, setQueueFilter] = useState(initialFilter);
-  const [selectedAppId, setSelectedAppId] = useState(state.applications[0].id);
+  const [selectedAppId, setSelectedAppId] = useState(state.applications[0]?.id || '');
   const [stageSelect, setStageSelect] = useState<WorkflowStage>('Ready for authorized review');
   const [reviewActionNote, setReviewActionNote] = useState(
     'Verified rectified completion date (01-May-2026) and multi-layer checks.'

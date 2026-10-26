@@ -219,6 +219,16 @@ ${JSON.stringify(docEvidence, null, 2)}`;
     }
 
     if (localAiSuccess && localAiData) {
+      // The input-guard warning must survive regardless of which engine produced the answer.
+      const existingWarnings: string[] = Array.isArray(localAiData.uncertaintyWarnings)
+        ? localAiData.uncertaintyWarnings.filter((w: unknown) => typeof w === 'string')
+        : [];
+      localAiData.uncertaintyWarnings = [
+        ...(injectionDetected
+          ? ['Prompt-injection or instruction-override pattern detected in query input and neutralized by TRACE input guard.']
+          : []),
+        ...existingWarnings,
+      ];
       res.json({
         mode: 'local_offline_llm',
         model: LOCAL_LLM_MODEL,

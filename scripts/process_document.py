@@ -1,58 +1,125 @@
+"""
+TRACE 2.0 — Standalone Document Processor Script (Ollama-Only AI + Deterministic PyMuPDF/Forensics)
+Strictly removes EasyOCR and non-Ollama ML models from operational document processing.
+Uses PyMuPDF for native PDF text extraction and digital signature inspection,
+OpenCV + perceptual hashing (pHash) for classical image forensics,
+and native local Ollama Vision-Language Model (`riven/smolvlm:latest`) for scanned pages / images.
+"""
+
 import os
 import sys
 import json
 import hashlib
+import base64
 import re
-from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import pymupdf  # PyMuPDF
-import torch
 import cv2
 import numpy as np
+import requests
 
-try:
-    import easyocr
-    EASYOCR_AVAILABLE = True
-except Exception:
-    EASYOCR_AVAILABLE = False
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434").rstrip("/")
 
-_easyocr_reader = None
-
-def get_ocr_reader():
-    global _easyocr_reader
-    if _easyocr_reader is None and EASYOCR_AVAILABLE:
-        use_gpu = torch.cuda.is_available()
-        _easyocr_reader = easyocr.Reader(['en'], gpu=use_gpu)
-    return _easyocr_reader
 
 def compute_sha256(filepath: str) -> str:
     hasher = hashlib.sha256()
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         while chunk := f.read(65536):
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
+def compute_perceptual_phash(img_bytes: bytes) -> str:
+    try:
+        arr = np.frombuffer(img_bytes, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            return hashlib.sha256(img_bytes).hexdigest()[:16]
+        resized = cv2.resize(img, (32, 32), interpolation=cv2.INTER_AREA)
+        dct = cv2.dct(np.float32(resized))
+        dct_low = dct[:8, :8]
+        med = np.median(dct_low)
+        bits = (dct_low > med).flatten()
+        val = 0
+        for b in bits:
+            val = (val << 1) | int(b)
+        return f"{val:016x}"
+    except Exception:
+        return hashlib.sha256(img_bytes).hexdigest()[:16]
+
+
+def discover_ollama_vision_model() -> Optional[str]:
+    override = os.environ.get("TRACE_OLLAMA_VISION_MODEL")
+    if override == "NONE":
+        return None
+    if override:
+        return override
+    try:
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=3.0)
+        if not resp.ok:
+            return None
+        models = resp.json().get("models", [])
+        for m in models:
+            name = m.get("name", "")
+            if any(k in name.lower() for k in ["smolvlm", "vlm", "llava", "vision", "minicpm"]):
+                return name
+            try:
+                s = requests.post(f"{OLLAMA_BASE_URL}/api/show", json={"name": name}, timeout=2.5)
+                if s.ok and "vision" in s.json().get("capabilities", []):
+                    return name
+            except Exception:
+                pass
+    except Exception:
+        return None
+    return None
+
+
+def run_ollama_vision_ocr(img_bytes: bytes, vlm_model: str) -> Optional[str]:
+    try:
+        b64 = base64.b64encode(img_bytes).decode("utf-8")
+        resp = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json={
+                "model": vlm_model,
+                "prompt": (
+                    "Transcribe all visible text on this regulatory document page accurately. "
+                    "Include certificate numbers, dates, authority headers, area measurements, and stamps."
+                ),
+                "images": [b64],
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": 400},
+            },
+            timeout=35.0,
+        )
+        if resp.ok:
+            return (resp.json().get("response") or "").strip()
+    except Exception:
+        pass
+    return None
+
+
 def parse_date(text: str) -> Optional[str]:
     patterns = [
-        r'\b(\d{4}[-/]\d{2}[-/]\d{2})\b',
-        r'\b(\d{2}[-/]\d{2}[-/]\d{4})\b',
-        r'\b(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,]+\d{4})\b',
+        r"\b(\d{4}[-/]\d{2}[-/]\d{2})\b",
+        r"\b(\d{2}[-/]\d{2}[-/]\d{4})\b",
+        r"\b(\d{1,2}[\s\-]+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,\-]+\d{4})\b",
     ]
     for pattern in patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
-            raw = match.group(1).replace('/', '-')
-            parts = raw.split('-')
-            if len(parts) == 3:
+            raw = match.group(1).replace("/", "-")
+            parts = raw.split("-")
+            if len(parts) == 3 and parts[1].isdigit():
                 if len(parts[0]) == 4:
                     return f"{parts[0]}-{parts[1].zfill(2)}-{parts[2].zfill(2)}"
                 elif len(parts[2]) == 4:
                     return f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
             return raw
     return None
+
 
 def check_digital_signatures(doc: pymupdf.Document) -> Dict[str, Any]:
     sig_count = 0
@@ -72,7 +139,7 @@ def check_digital_signatures(doc: pymupdf.Document) -> Dict[str, Any]:
                         "page": pno + 1,
                         "name": w.field_name or f"Signature_{sig_count}",
                         "isSigned": bool(w.is_signed),
-                        "contents": str(w.field_value)[:64] if w.field_value else None
+                        "contents": str(w.field_value)[:64] if w.field_value else None,
                     })
     except Exception as e:
         signatures.append({"error": str(e)})
@@ -90,8 +157,9 @@ def check_digital_signatures(doc: pymupdf.Document) -> Dict[str, Any]:
         "signatureCount": sig_count,
         "signatures": signatures,
         "summary": summary,
-        "limitations": "Cryptographic presence verifies bitstream integrity; does not certify institutional mandate."
+        "limitations": "Cryptographic presence verifies bitstream integrity; does not certify institutional mandate.",
     }
+
 
 def triage_visual_tampering(img_np: np.ndarray) -> Dict[str, Any]:
     try:
@@ -111,7 +179,7 @@ def triage_visual_tampering(img_np: np.ndarray) -> Dict[str, Any]:
         variances = []
         for y in range(0, h - patch_size, patch_size):
             for x in range(0, w - patch_size, patch_size):
-                patch = gray[y:y+patch_size, x:x+patch_size]
+                patch = gray[y : y + patch_size, x : x + patch_size]
                 variances.append(patch.var())
 
         if len(variances) > 4:
@@ -136,23 +204,28 @@ def triage_visual_tampering(img_np: np.ndarray) -> Dict[str, Any]:
             "suspicionScore": suspicion_score,
             "globalSharpness": round(variance, 2),
             "anomalousRegionRatio": round(outlier_ratio, 4),
-            "method": "Multi-Scale Noise & Edge Variance Consistency",
-            "limitations": "Heuristic triage indicator. Does not certify document authenticity."
+            "method": "Multi-Scale Noise & Edge Variance Consistency + pHash",
+            "limitations": "Heuristic triage indicator. Does not certify document authenticity.",
         }
     except Exception as e:
         return {
             "status": "INCONCLUSIVE",
             "suspicionScore": 0.0,
             "error": str(e),
-            "limitations": "Error during visual tampering triage"
+            "limitations": "Error during visual tampering triage",
         }
+
 
 def process_file(filepath: str) -> Dict[str, Any]:
     if not os.path.exists(filepath):
         return {"success": False, "error": f"File not found: {filepath}"}
 
     file_size_bytes = os.path.getsize(filepath)
-    file_size_str = f"{(file_size_bytes / 1024):.1f} KB" if file_size_bytes < 1024 * 1024 else f"{(file_size_bytes / (1024 * 1024)):.2f} MB"
+    file_size_str = (
+        f"{(file_size_bytes / 1024):.1f} KB"
+        if file_size_bytes < 1024 * 1024
+        else f"{(file_size_bytes / (1024 * 1024)):.2f} MB"
+    )
     file_hash = compute_sha256(filepath)
     ext = os.path.splitext(filepath)[1].lower()
 
@@ -161,20 +234,21 @@ def process_file(filepath: str) -> Dict[str, Any]:
     extracted_fields = []
     box_id_counter = 1
     ocr_engine_used = "PyMuPDF Native Text Parser"
+    processing_status = "EXTRACTED"
     sig_verification = {"status": "NOT_ASSESSED", "signatureCount": 0, "summary": "Unchecked"}
     forensic_triage = {"status": "NOT_ASSESSED", "suspicionScore": 0.0}
 
-    if ext == '.pdf':
+    if ext == ".pdf":
         doc = pymupdf.open(filepath)
         total_pages = len(doc)
         sig_verification = check_digital_signatures(doc)
 
-        # Inspect first page with OpenCV for tampering triage
         if total_pages > 0:
             p0 = doc[0]
             pix0 = p0.get_pixmap(dpi=150)
             img0 = np.frombuffer(pix0.samples, dtype=np.uint8).reshape((pix0.height, pix0.width, pix0.n))
             forensic_triage = triage_visual_tampering(img0)
+            forensic_triage["pHash"] = compute_perceptual_phash(pix0.tobytes("png"))
 
         for page_idx in range(total_pages):
             page = doc[page_idx]
@@ -182,44 +256,41 @@ def process_file(filepath: str) -> Dict[str, Any]:
             rect = page.rect
             page_w, page_h = rect.width, rect.height
 
-            # Extract native text blocks
             blocks = page.get_text("blocks")
             raw_text = page.get_text()
             body_lines = [b[4].strip() for b in blocks if len(b) > 4 and b[4].strip()]
 
-            # If page has very little native text, perform GPU-accelerated EasyOCR
-            if len(raw_text.strip()) < 40 and EASYOCR_AVAILABLE:
-                ocr_engine_used = "EasyOCR (PyTorch CUDA GPU on RTX 5060)"
-                pix = page.get_pixmap(dpi=200)
+            # Scanned PDF page (< 40 chars native text): strictly use Ollama VLM
+            if len(raw_text.strip()) < 40:
+                pix = page.get_pixmap(dpi=150)
                 img_bytes = pix.tobytes("png")
-                reader = get_ocr_reader()
-                if reader:
-                    ocr_results = reader.readtext(img_bytes)
-                    for bbox, text, conf in ocr_results:
-                        if text.strip():
-                            body_lines.append(text.strip())
-                            xs = [pt[0] for pt in bbox]
-                            ys = [pt[1] for pt in bbox]
-                            x_min, x_max = min(xs), max(xs)
-                            y_min, y_max = min(ys), max(ys)
-                            bx = round((x_min / pix.width) * 100, 2)
-                            by = round((y_min / pix.height) * 100, 2)
-                            bw = round(((x_max - x_min) / pix.width) * 100, 2)
-                            bh = round(((y_max - y_min) / pix.height) * 100, 2)
-
-                            b_id = f"BOX-P{page_num}-{box_id_counter}"
-                            box_id_counter += 1
-                            bounding_boxes.append({
-                                "id": b_id,
-                                "pageNumber": page_num,
-                                "x": bx,
-                                "y": by,
-                                "width": max(bw, 5.0),
-                                "height": max(bh, 2.0),
-                                "label": text[:40],
-                                "category": "clause_value",
-                                "status": "valid"
-                            })
+                vlm_model = discover_ollama_vision_model()
+                if vlm_model:
+                    vlm_text = run_ollama_vision_ocr(img_bytes, vlm_model)
+                    if vlm_text:
+                        ocr_engine_used = f"Ollama VLM ({vlm_model})"
+                        for line in vlm_text.splitlines():
+                            if line.strip():
+                                body_lines.append(line.strip())
+                                b_id = f"BOX-P{page_num}-{box_id_counter}"
+                                box_id_counter += 1
+                                bounding_boxes.append({
+                                    "id": b_id,
+                                    "pageNumber": page_num,
+                                    "x": 10.0,
+                                    "y": min(90.0, 10.0 + box_id_counter * 5.0),
+                                    "width": 80.0,
+                                    "height": 4.5,
+                                    "label": line.strip()[:50],
+                                    "category": "clause_value",
+                                    "status": "valid",
+                                })
+                    else:
+                        ocr_engine_used = f"MODEL_UNAVAILABLE (Ollama VLM {vlm_model} returned empty)"
+                        processing_status = "MODEL_UNAVAILABLE"
+                else:
+                    ocr_engine_used = "MODEL_UNAVAILABLE (No Ollama Vision Model Installed)"
+                    processing_status = "MODEL_UNAVAILABLE"
             else:
                 for b in blocks:
                     if len(b) >= 5 and b[4].strip():
@@ -227,11 +298,11 @@ def process_file(filepath: str) -> Dict[str, Any]:
                         by = round((b[1] / page_h) * 100, 2)
                         bw = round(((b[2] - b[0]) / page_w) * 100, 2)
                         bh = round(((b[3] - b[1]) / page_h) * 100, 2)
-                        text_snippet = b[4].strip().replace('\n', ' ')
-                        
+                        text_snippet = b[4].strip().replace("\n", " ")
+
                         b_id = f"BOX-P{page_num}-{box_id_counter}"
                         box_id_counter += 1
-                        
+
                         cat = "clause_value"
                         if any(k in text_snippet.lower() for k in ["date", "valid", "expire", "issued", "validity"]):
                             cat = "date"
@@ -251,7 +322,7 @@ def process_file(filepath: str) -> Dict[str, Any]:
                             "height": max(bh, 2.0),
                             "label": text_snippet[:50],
                             "category": cat,
-                            "status": "valid"
+                            "status": "valid",
                         })
 
             header_auth = "Competent Regulatory / Statutory Authority"
@@ -259,10 +330,14 @@ def process_file(filepath: str) -> Dict[str, Any]:
             issue_date = ""
 
             full_page_str = " ".join(body_lines)
-            cert_match = re.search(r'(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})', full_page_str, re.IGNORECASE)
+            cert_match = re.search(
+                r"(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})",
+                full_page_str,
+                re.IGNORECASE,
+            )
             if cert_match:
                 cert_no = cert_match.group(1)
-            
+
             p_date = parse_date(full_page_str)
             if p_date:
                 issue_date = p_date
@@ -279,40 +354,54 @@ def process_file(filepath: str) -> Dict[str, Any]:
                 "stampText": "Digital & Physical Verification Pending",
                 "stampStatus": "needs_manual_review",
                 "signatory": "Statutory Authority / Nodal Officer",
-                "signatoryStatus": "needs_manual_review"
+                "signatoryStatus": "needs_manual_review",
             })
 
         doc.close()
     else:
-        # Image file (PNG, JPG, TIFF)
-        ocr_engine_used = "EasyOCR (PyTorch CUDA GPU on RTX 5060)"
+        # Image file -> strictly use Ollama VLM
         img_mat = cv2.imread(filepath)
         if img_mat is not None:
             forensic_triage = triage_visual_tampering(img_mat)
+        with open(filepath, "rb") as f:
+            img_bytes = f.read()
+        forensic_triage["pHash"] = compute_perceptual_phash(img_bytes)
 
-        reader = get_ocr_reader()
+        vlm_model = discover_ollama_vision_model()
         body_lines = []
-        if reader:
-            results = reader.readtext(filepath)
-            for bbox, text, conf in results:
-                if text.strip():
-                    body_lines.append(text.strip())
-                    b_id = f"BOX-P1-{box_id_counter}"
-                    box_id_counter += 1
-                    bounding_boxes.append({
-                        "id": b_id,
-                        "pageNumber": 1,
-                        "x": 10.0,
-                        "y": 10.0,
-                        "width": 80.0,
-                        "height": 5.0,
-                        "label": text[:40],
-                        "category": "clause_value",
-                        "status": "valid"
-                    })
-        
+        if vlm_model:
+            vlm_text = run_ollama_vision_ocr(img_bytes, vlm_model)
+            if vlm_text:
+                ocr_engine_used = f"Ollama VLM ({vlm_model})"
+                for line in vlm_text.splitlines():
+                    if line.strip():
+                        body_lines.append(line.strip())
+                        b_id = f"BOX-P1-{box_id_counter}"
+                        box_id_counter += 1
+                        bounding_boxes.append({
+                            "id": b_id,
+                            "pageNumber": 1,
+                            "x": 10.0,
+                            "y": 10.0,
+                            "width": 80.0,
+                            "height": 5.0,
+                            "label": line.strip()[:40],
+                            "category": "clause_value",
+                            "status": "valid",
+                        })
+            else:
+                ocr_engine_used = f"MODEL_UNAVAILABLE (Ollama VLM {vlm_model} failed)"
+                processing_status = "MODEL_UNAVAILABLE"
+        else:
+            ocr_engine_used = "MODEL_UNAVAILABLE (No Ollama Vision Model Installed)"
+            processing_status = "MODEL_UNAVAILABLE"
+
         full_img_str = " ".join(body_lines)
-        cert_match = re.search(r'(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})', full_img_str, re.IGNORECASE)
+        cert_match = re.search(
+            r"(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})",
+            full_img_str,
+            re.IGNORECASE,
+        )
         img_cert = cert_match.group(1) if cert_match else None
         img_date = parse_date(full_img_str)
 
@@ -324,18 +413,20 @@ def process_file(filepath: str) -> Dict[str, Any]:
             "certificateNumberStatus": "extracted" if img_cert else "missing",
             "issueDate": img_date if img_date else "NOT_EXTRACTED",
             "issueDateStatus": "extracted" if img_date else "missing",
-            "bodyLines": body_lines or ["Scanned Image Loaded Successfully"],
-            "stampText": "Visual seal detected",
+            "bodyLines": body_lines or ["[MODEL_UNAVAILABLE: Image OCR requires local Ollama vision model]"],
+            "stampText": "Visual seal inspection pending",
             "stampStatus": "needs_manual_review",
             "signatory": "Unverified signatory",
-            "signatoryStatus": "needs_manual_review"
+            "signatoryStatus": "needs_manual_review",
         })
 
-    # Domain field extraction heuristics
     combined_text = " ".join([" ".join(p["bodyLines"]) for p in pages_data])
-    
-    # 1. Fire NOC Validity / Expiry Date
-    fire_match = re.search(r'(?:valid|expiry|upto|till|period)\s*(?:up\s*to|date|till)?\s*[:\-]?\s*([0-9]{1,4}[-/\.][0-9]{1,2}[-/\.][0-9]{1,4}|[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4})', combined_text, re.IGNORECASE)
+
+    fire_match = re.search(
+        r"(?:valid|expiry|upto|till|period)\s*(?:up\s*to|date|till)?\s*[:\-]?\s*([0-9]{1,4}[-/\.][0-9]{1,2}[-/\.][0-9]{1,4}|[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4})",
+        combined_text,
+        re.IGNORECASE,
+    )
     if fire_match:
         extracted_val = parse_date(fire_match.group(1)) or fire_match.group(1)
         extracted_fields.append({
@@ -346,11 +437,14 @@ def process_file(filepath: str) -> Dict[str, Any]:
             "confidenceBand": "High (>=95%)",
             "pageNumber": 1,
             "boundingBoxId": bounding_boxes[0]["id"] if bounding_boxes else "BOX-1",
-            "ruleClauseId": "APH-2026-CL-4.2.b"
+            "ruleClauseId": "APH-2026-CL-4.2.b",
         })
 
-    # 2. Land / Built-Up Area
-    area_match = re.search(r'([0-9]+(?:\.[0-9]+)?)\s*(?:acres|sq\.?\s*m|sq\.?\s*ft|hectares|square\s*meters)', combined_text, re.IGNORECASE)
+    area_match = re.search(
+        r"([0-9]+(?:\.[0-9]+)?)\s*(?:acres|sq\.?\s*m|sq\.?\s*ft|hectares|square\s*meters)",
+        combined_text,
+        re.IGNORECASE,
+    )
     if area_match:
         extracted_fields.append({
             "key": "total_built_up_area",
@@ -360,11 +454,14 @@ def process_file(filepath: str) -> Dict[str, Any]:
             "confidenceBand": "High (>=95%)",
             "pageNumber": 1,
             "boundingBoxId": bounding_boxes[0]["id"] if bounding_boxes else "BOX-1",
-            "ruleClauseId": "APH-2026-CL-4.1.a"
+            "ruleClauseId": "APH-2026-CL-4.1.a",
         })
 
-    # 3. Sanctioned / Approved Intake
-    intake_match = re.search(r'(?:intake|capacity|seats)\s*(?:of|is|sanctioned|approved)?\s*[:\-]?\s*([0-9]{2,4})', combined_text, re.IGNORECASE)
+    intake_match = re.search(
+        r"(?:intake|capacity|seats)\s*(?:of|is|sanctioned|approved)?\s*[:\-]?\s*([0-9]{2,4})",
+        combined_text,
+        re.IGNORECASE,
+    )
     if intake_match:
         extracted_fields.append({
             "key": "approved_intake",
@@ -374,11 +471,12 @@ def process_file(filepath: str) -> Dict[str, Any]:
             "confidenceBand": "Moderate (80-94%)",
             "pageNumber": 1,
             "boundingBoxId": bounding_boxes[0]["id"] if bounding_boxes else "BOX-1",
-            "ruleClauseId": "APH-2026-CL-3.1"
+            "ruleClauseId": "APH-2026-CL-3.1",
         })
 
     return {
         "success": True,
+        "processingStatus": processing_status,
         "filePath": filepath,
         "fileName": os.path.basename(filepath),
         "fileSize": file_size_str,
@@ -390,8 +488,9 @@ def process_file(filepath: str) -> Dict[str, Any]:
         "extractedFields": extracted_fields,
         "integrityScreening": "Signature & hash structure intact",
         "digitalSignature": sig_verification,
-        "visualForensics": forensic_triage
+        "visualForensics": forensic_triage,
     }
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

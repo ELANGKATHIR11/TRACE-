@@ -236,7 +236,7 @@ describe('Feature 7: Settings & System Control Center', () => {
     expect(res.body).toHaveProperty('services');
     expect(res.body.services.expressApi.status).toBe('Available');
     expect(res.body.services.postgresDb.status).toBe('Available');
-    expect(res.body.services.ocrEngine.accelerator).toContain('PyTorch CUDA 13.0');
+    expect(res.body.services.ocrEngine.accelerator).toContain('Ollama');
     expect(res.body.storage.isUnderBudget).toBe(true);
   });
 

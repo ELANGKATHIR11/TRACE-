@@ -123,11 +123,11 @@ export const ControlTowerPage: React.FC = () => {
 
         <div className="flex items-center gap-2.5 shrink-0">
           <button
-            onClick={() => navigate('/document-intelligence?docId=DOC-2026-101&page=2')}
+            onClick={() => navigate('/verification')}
             className="inline-flex items-center gap-1.5 rounded-md bg-[#0F766E] px-3.5 py-2 text-xs font-medium text-white hover:bg-[#0d645d] transition-colors whitespace-nowrap"
           >
             <Play className="h-3.5 w-3.5" />
-            Inspect Demo Inconsistency (APP-2026-0842)
+            Upload & Verify Document
           </button>
           <button
             onClick={() => navigate('/intake')}
@@ -336,7 +336,16 @@ export const ControlTowerPage: React.FC = () => {
           </div>
 
           <div className="mt-3 divide-y divide-slate-100">
-            {state.findings.map((finding) => {
+            {state.findings.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-500 space-y-2">
+                <CheckCircle2 className="h-6 w-6 text-emerald-600 mx-auto" />
+                <p className="font-semibold text-slate-800">No Open Deficiencies or Findings</p>
+                <p className="text-[11px] text-slate-400">
+                  All mock findings have been cleared. Upload documents in Verification Studio to evaluate regulatory rules and generate real findings.
+                </p>
+              </div>
+            ) : (
+              state.findings.map((finding) => {
               const isResolved = finding.status === 'Resolved';
               return (
                 <div
@@ -401,7 +410,7 @@ export const ControlTowerPage: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
 

@@ -112,6 +112,40 @@ export const api = {
     );
   },
 
+  async uploadDocument(formData: FormData) {
+    const url = `${BASE_URL}/documents/upload`;
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.detail || `Upload failed: HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async verifyManualFile(formData: FormData) {
+    const url = `${BASE_URL}/documents/verify-file`;
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.detail || `Verification failed: HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async wipeDatabase() {
+    return request<{ success: boolean; message: string }>('/settings/wipe-all', {
+      method: 'POST',
+    });
+  },
+
   async verifyIssuer(documentId: string, status: IssuerVerificationStatus, note: string) {
     return request<{ success: boolean; document: any }>(`/documents/${documentId}/verify-issuer`, {
       method: 'POST',
@@ -536,6 +570,73 @@ export const api = {
       textLineDiffs: any[];
       findingsImpact: any[];
     }>(`/documents/${documentId}/version-diff`);
+  },
+
+  // ==========================================
+  // Centralized Ollama Gateway, Qdrant VRAG/MRAG, LangGraph & Longitudinal Comparison
+  // ==========================================
+  async getOllamaGatewayStatus(refresh: boolean = false) {
+    return request<any>(`/settings/ollama?refresh=${refresh}`);
+  },
+
+  async pullOllamaModel(modelName: string) {
+    return request<{ success: boolean; modelName: string; status?: string; error?: string }>(
+      '/settings/ollama/pull',
+      {
+        method: 'POST',
+        body: JSON.stringify({ modelName }),
+      }
+    );
+  },
+
+  async updateOllamaRouting(task: 'text' | 'vision' | 'embedding', modelName: string) {
+    return request<{ success: boolean; assignedRouting: Record<string, string | null> }>(
+      '/settings/ollama/routing',
+      {
+        method: 'POST',
+        body: JSON.stringify({ task, modelName }),
+      }
+    );
+  },
+
+  async getVragMragStatus() {
+    return request<any>('/settings/vrag-mrag');
+  },
+
+  async reindexVragMrag() {
+    return request<any>('/settings/vrag-mrag/reindex', { method: 'POST' });
+  },
+
+  async executeLangGraphWorkflow(applicationId: string, runId: string = 'latest') {
+    return request<any>(`/applications/${applicationId}/workflow/execute`, {
+      method: 'POST',
+      body: JSON.stringify({ runId }),
+    });
+  },
+
+  async getLangGraphCheckpointState(applicationId: string, runId: string = 'latest') {
+    return request<any>(`/applications/${applicationId}/workflow/state?runId=${encodeURIComponent(runId)}`);
+  },
+
+  async resumeLangGraphHumanReview(
+    applicationId: string,
+    params: { decision: string; rationale: string; runId?: string }
+  ) {
+    return request<any>(`/applications/${applicationId}/workflow/resume`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  async getLongitudinalComparison(applicationId: string) {
+    return request<any>(`/applications/${applicationId}/longitudinal-comparison`);
+  },
+
+  async searchApplicationVragMrag(applicationId: string, query: string, topK: number = 8) {
+    return request<any>(`/applications/${applicationId}/vrag-mrag-search`, {
+      method: 'POST',
+      body: JSON.stringify({ query, topK }),
+    });
   },
 };
 

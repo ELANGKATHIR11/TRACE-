@@ -296,4 +296,238 @@ describe('Master Prompt Mandatory End-to-End Scenarios (Scenarios A through J)',
       .set('Cookie', auditorCookie);
     expect(auditorReadRes.status).toBe(200);
   });
+
+  it('Scenario K: Near-duplicate text content detector identifies textual overlap between sibling documents with cautious anomaly indicator', async () => {
+    // Ensure clean state before creation in case of previous run
+    await prisma.documentPage.deleteMany({ where: { documentId: 'DOC-2026-NEAR-DUP' } });
+    await prisma.document.deleteMany({ where: { id: 'DOC-2026-NEAR-DUP' } });
+
+    // DOC-2026-101 has body lines describing Block-C completion
+    // We create a sibling document with near-duplicate textual lines
+    const nearDupDoc = await prisma.document.create({
+      data: {
+        id: 'DOC-2026-NEAR-DUP',
+        applicationId: 'APP-2026-0842',
+        institutionId: 'INST-VIEPS-01',
+        title: 'Building Completion & Structural Stability Certificate — Block C Copy',
+        category: 'Infrastructure Readiness',
+        fileType: 'PDF',
+        fileName: 'VIEPS_BlockC_Duplicate_Scan.pdf',
+        fileSize: '2.4 MB',
+        sha256: 'different-hash-77192847a9b0c12847192847bc192847192847ab192847cb1928',
+        uploadedBy: 'Prof. Meera Krishnan',
+        requiredByClauseId: 'APH-2026-CL-4.2.b',
+      },
+    });
+
+    await prisma.documentPage.create({
+      data: {
+        id: 'DPAGE-NEAR-DUP-1',
+        documentId: nearDupDoc.id,
+        pageNumber: 1,
+        title: 'Building Completion & Structural Stability Certificate — Block C Copy',
+        headerAuthority: 'Pune Municipal Corporation & Licensed Structural Engineer',
+        certificateNumber: 'PMC-STR-2026-8841-DUP',
+        issueDate: '2026-08-14',
+        bodyLines: JSON.stringify([
+          'Certified that Academic Block-C (AI & Data Engineering Lab Wing) has been inspected.',
+          'Total Instructional Carpet Area Certified: 4,250 sq.m.',
+          'Final Handover / Commissioning Completion Date: 14-Aug-2026.',
+        ]),
+        stampText: 'Er. R. Kulkarni — Reg. Structural Engineer',
+        signatory: 'Er. R. Kulkarni',
+      },
+    });
+
+    // Run validation on nearDupDoc
+    const valRes = await request(app)
+      .post(`/api/documents/${nearDupDoc.id}/validate`)
+      .set('Cookie', reviewerCookie);
+
+    expect(valRes.status).toBe(200);
+    expect(valRes.body.success).toBe(true);
+    const anomalies = valRes.body.anomalyIndicators;
+    expect(Array.isArray(anomalies)).toBe(true);
+
+    const nearDupAnomaly = anomalies.find(
+      (a: any) => a.indicator_code === 'NEAR_DUPLICATE_TEXT_CONTENT'
+    );
+    expect(nearDupAnomaly).toBeDefined();
+    expect(nearDupAnomaly.confidence_or_severity).toContain('Medium');
+    expect(nearDupAnomaly.limitations).toContain('Automated bag-of-words token similarity');
+    expect(nearDupAnomaly.recommended_next_action).toContain('Perform manual side-by-side inspection');
+
+    // Clean up temporary test document
+    await prisma.documentPage.deleteMany({ where: { documentId: nearDupDoc.id } });
+    await prisma.document.delete({ where: { id: nearDupDoc.id } });
+  });
+
+  it('Scenario L: Service-restart persistence verifies critical models, configurations, and application state persist in PostgreSQL across server instances', async () => {
+    // 1. Mutate a configuration setting in PostgreSQL
+    const updateRes = await request(app)
+      .patch('/api/settings/general')
+      .set('Cookie', adminCookie)
+      .send({
+        appName: 'TRACE GovTech Engine — Verified Instance',
+      });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.settings.appName).toBe('TRACE GovTech Engine — Verified Instance');
+
+    // 2. Simulate complete Express app shutdown and re-instantiation (new createExpressApp instance)
+    const { createExpressApp } = await import('../../server');
+    const freshApp = await createExpressApp();
+
+    // 3. Query the fresh server instance with new HTTP context
+    const freshSettingsRes = await request(freshApp)
+      .get('/api/settings')
+      .set('Cookie', adminCookie);
+
+    expect(freshSettingsRes.status).toBe(200);
+    expect(freshSettingsRes.body.settings.appName).toBe('TRACE GovTech Engine — Verified Instance');
+
+    // Verify application state persistence across fresh instance
+    const freshAppRes = await request(freshApp)
+      .get('/api/applications/APP-2026-0842')
+      .set('Cookie', reviewerCookie);
+    expect(freshAppRes.status).toBe(200);
+    expect(freshAppRes.body.application.code).toBe('APP-2026-0842');
+  });
+
+  it('Scenario M: Training Job API creates and manages real GPU/CPU training job via HTTP endpoint with live polling and cancellation', async () => {
+    // Dispatches training job via HTTP API
+    const trainRes = await request(app)
+      .post('/api/settings/training')
+      .set('Cookie', adminCookie)
+      .send({
+        modelId: 'funsd-entity-mlp',
+        datasetId: 'funsd-benchmark-v1',
+        epochs: 2,
+        learningRate: 0.001,
+        batchSize: 64,
+      });
+
+    expect(trainRes.status).toBe(200);
+    expect(trainRes.body.success).toBe(true);
+    const jobId = trainRes.body.jobId;
+    expect(jobId).toBeDefined();
+
+    // Query status via HTTP API
+    const statusRes = await request(app)
+      .get(`/api/settings/training/${jobId}`)
+      .set('Cookie', adminCookie);
+
+    expect(statusRes.status).toBe(200);
+    expect(statusRes.body.job.id).toBe(jobId);
+    expect(['Running', 'Queued', 'Completed']).toContain(statusRes.body.job.status);
+
+    // Cancel training via HTTP API to test administrative control
+    const cancelRes = await request(app)
+      .post(`/api/settings/training/${jobId}/cancel`)
+      .set('Cookie', adminCookie);
+
+    expect(cancelRes.status).toBe(200);
+    expect(cancelRes.body.success).toBe(true);
+
+    const postCancelRes = await request(app)
+      .get(`/api/settings/training/${jobId}`)
+      .set('Cookie', adminCookie);
+    expect(postCancelRes.body.job.status).toBe('Cancelled');
+  });
+
+  it('Scenario N: Centralized Ollama Gateway discovers installed models & capabilities, and Longitudinal Comparison detects multi-year deltas', async () => {
+    const ollamaRes = await request(app)
+      .get('/api/settings/ollama?refresh=false')
+      .set('Cookie', reviewerCookie);
+
+    expect(ollamaRes.status).toBe(200);
+    expect(ollamaRes.body.online).toBe(true);
+    expect(Array.isArray(ollamaRes.body.installedModels)).toBe(true);
+    expect(ollamaRes.body.installedModels.length).toBeGreaterThanOrEqual(1);
+    expect(ollamaRes.body.capabilitiesAvailable).toHaveProperty('text');
+    expect(ollamaRes.body.capabilitiesAvailable).toHaveProperty('vision');
+    expect(ollamaRes.body.capabilitiesAvailable).toHaveProperty('embedding');
+
+    // Longitudinal comparison across AY 2024-25, 2025-26, and 2026-27
+    const longRes = await request(app)
+      .get('/api/applications/APP-2026-0842/longitudinal-comparison')
+      .set('Cookie', reviewerCookie);
+
+    expect(longRes.status).toBe(200);
+    expect(longRes.body.success).toBe(true);
+    expect(longRes.body.priorCycles.length).toBeGreaterThanOrEqual(2);
+    expect(longRes.body.currentCycle.academicYear).toBe('2026-27');
+    expect(longRes.body.deltas).toHaveProperty('intakeDeltaPercent');
+  });
+
+  it('Scenario O: Multi-Agent Supervisor-Worker LangGraph executes all 9 stages (0-8), pauses on flagged evidence, and resumes only via authorized reviewer', async () => {
+    const wfExecRes = await request(app)
+      .post('/api/applications/APP-2026-0842/workflow/execute')
+      .set('Cookie', reviewerCookie)
+      .send({ runId: 'vitest-run-01' });
+
+    expect(wfExecRes.status).toBe(200);
+    expect(wfExecRes.body.success).toBe(true);
+    expect(Object.keys(wfExecRes.body.stageStatuses).length).toBe(9);
+    expect(wfExecRes.body.workflowStatus).toBe('PAUSED_FOR_HUMAN_REVIEW');
+    expect(wfExecRes.body.requiresHumanInterrupt).toBe(true);
+
+    // Institution compliance officer cannot resume the Stage 8 human-review interrupt (403 Forbidden)
+    const forbiddenResume = await request(app)
+      .post('/api/applications/APP-2026-0842/workflow/resume')
+      .set('Cookie', complianceCookie)
+      .send({
+        runId: 'vitest-run-01',
+        decision: 'Self-Approve Application',
+        rationale: 'Attempted by institution user',
+      });
+    expect(forbiddenResume.status).toBe(403);
+
+    // Authorized AICTE reviewer resumes the paused checkpoint
+    const validResume = await request(app)
+      .post('/api/applications/APP-2026-0842/workflow/resume')
+      .set('Cookie', reviewerCookie)
+      .send({
+        runId: 'vitest-run-01',
+        decision: 'Require Rectification / Revised Certificate',
+        rationale: 'Reviewed Stage 0-7 findings; assigned corrective task to institution without auto-rejection.',
+      });
+
+    expect(validResume.status).toBe(200);
+    expect(validResume.body.success).toBe(true);
+    expect(validResume.body.workflowStatus).toBe('COMPLETED');
+    expect(validResume.body.stage8.status).toBe('PASS');
+  }, 60000);
+
+  it('Scenario P: Local Persistent Qdrant VRAG & MRAG hybrid retrieval enforces strict tenant isolation across institutions', async () => {
+    const reindexRes = await request(app)
+      .post('/api/settings/vrag-mrag/reindex')
+      .set('Cookie', adminCookie);
+
+    expect(reindexRes.status).toBe(200);
+    expect(reindexRes.body.success).toBe(true);
+    expect(reindexRes.body.clausesIndexed).toBeGreaterThanOrEqual(1);
+    expect(reindexRes.body.documentsIndexed).toBeGreaterThanOrEqual(1);
+
+    // Search VRAG/MRAG for APP-2026-0842 as reviewer
+    const searchRes = await request(app)
+      .post('/api/applications/APP-2026-0842/vrag-mrag-search')
+      .set('Cookie', reviewerCookie)
+      .send({
+        query: 'Clause 4.2(b) completion handover date',
+        topK: 6,
+      });
+
+    expect(searchRes.status).toBe(200);
+    expect(searchRes.body.resultsCount).toBeGreaterThanOrEqual(1);
+
+    // Institution user of INST-VIEPS-01 cannot run VRAG/MRAG search on another institution's application (APP-2026-0775)
+    const tenantBlockedRes = await request(app)
+      .post('/api/applications/APP-2026-0775/vrag-mrag-search')
+      .set('Cookie', complianceCookie)
+      .send({
+        query: 'Fire NOC',
+        topK: 5,
+      });
+    expect(tenantBlockedRes.status).toBe(403);
+  }, 60000);
 });

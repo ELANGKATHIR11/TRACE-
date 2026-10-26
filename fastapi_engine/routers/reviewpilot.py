@@ -63,7 +63,7 @@ def prioritize_review_queue(req: PrioritizeQueueRequest):
 
         # 4. Deadline / Statutory Time Proximity (Max 15 pts)
         # Check upcoming obligations
-        deadline_score = 5.0
+        deadline_score = 0.0
         for ob in obligations:
             if ob.get("status") in ["Awaiting evidence", "Overdue", "Upcoming"]:
                 deadline_score = 15.0 if ob.get("status") == "Overdue" else 10.0

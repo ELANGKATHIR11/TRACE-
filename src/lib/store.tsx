@@ -11,7 +11,6 @@ import {
 } from '../types/domain';
 import { api } from './api-client';
 import { toast } from 'sonner';
-import { INITIAL_TRACE_STORE } from '../tests/fixtures/demo-data';
 
 export interface CreateTaskInput {
   findingId: string;
@@ -55,6 +54,14 @@ interface TraceStoreContextValue {
     correctedDateValue: string;
     changeNote: string;
   }) => void;
+  uploadRealDocument: (params: {
+    file: File;
+    applicationId: string;
+    institutionId: string;
+    title?: string;
+    category?: string;
+    clauseId?: string;
+  }) => Promise<any>;
   runDocumentValidation: (documentId: string) => Promise<{
     passed: boolean;
     mode: EngineMode;
@@ -120,14 +127,14 @@ const emptyState: TraceStateStore = {
 const TraceStoreContext = createContext<TraceStoreContextValue | undefined>(undefined);
 
 export const TraceStoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<TraceStateStore>(INITIAL_TRACE_STORE);
+  const [state, setState] = useState<TraceStateStore>(emptyState);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeFindingDrawerId, setActiveFindingDrawerId] = useState<string | null>(null);
 
   const refreshState = useCallback(async () => {
     try {
       const serverState = await api.getState();
-      if (serverState && serverState.applications && serverState.applications.length > 0) {
+      if (serverState) {
         setState((prev) => ({
           ...prev,
           ...serverState,
@@ -221,6 +228,36 @@ export const TraceStoreProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         .catch((err) => {
           toast.error(`Remediation upload failed: ${err.message}`);
         });
+    },
+    [refreshState]
+  );
+
+  const uploadRealDocument = useCallback(
+    async (params: {
+      file: File;
+      applicationId: string;
+      institutionId: string;
+      title?: string;
+      category?: string;
+      clauseId?: string;
+    }) => {
+      try {
+        const formData = new FormData();
+        formData.append('file', params.file);
+        formData.append('applicationId', params.applicationId);
+        formData.append('institutionId', params.institutionId);
+        if (params.title) formData.append('title', params.title);
+        if (params.category) formData.append('category', params.category);
+        if (params.clauseId) formData.append('clauseId', params.clauseId);
+
+        const res = await api.uploadDocument(formData);
+        toast.success(`Uploaded "${params.file.name}" — Processed via OCR pipeline!`);
+        await refreshState();
+        return res;
+      } catch (err: any) {
+        toast.error(`Upload failed: ${err.message}`);
+        throw err;
+      }
     },
     [refreshState]
   );
@@ -469,6 +506,7 @@ export const TraceStoreProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         resetDemoDataset,
         createCorrectiveTask,
         uploadCorrectedDocumentVersion,
+        uploadRealDocument,
         runDocumentValidation,
         confirmOrCorrectExtractedField,
         recordIndependentIssuerVerification,

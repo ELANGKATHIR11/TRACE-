@@ -21,9 +21,11 @@ import {
   Menu,
   X,
   Settings,
+  FileCheck,
 } from 'lucide-react';
 import { EvidenceToActionDrawer } from '../traceability/EvidenceToActionDrawer';
 import { AdministrationPage } from '../../features/administration/AdministrationPage';
+import { ManualDocumentVerificationModal } from '../../features/verification/ManualDocumentVerificationModal';
 
 interface PrimaryNavItem {
   label: string;
@@ -48,7 +50,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showDemoWalkthrough, setShowDemoWalkthrough] = useState(true);
+  const [showDemoWalkthrough, setShowDemoWalkthrough] = useState(false);
+  const [isManualVerificationOpen, setIsManualVerificationOpen] = useState(false);
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(
     searchParams.get('openSettings') === 'true'
   );
@@ -416,6 +419,16 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
               <span className="hidden xl:inline">Reset Demo</span>
             </button>
+
+            {/* Manual Document Input & Verify Button */}
+            <button
+              onClick={() => setIsManualVerificationOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md bg-[#0F766E] px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#0d645d] whitespace-nowrap cursor-pointer transition-colors"
+              title="Select any file from your computer and test verification against AICTE rules"
+            >
+              <FileCheck className="h-3.5 w-3.5" />
+              <span>Verify File</span>
+            </button>
           </div>
         </header>
 
@@ -616,6 +629,12 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
       {/* Signature Evidence-to-Action Traceability Drawer */}
       <EvidenceToActionDrawer />
+
+      {/* Manual Input & Verification Modal */}
+      <ManualDocumentVerificationModal
+        isOpen={isManualVerificationOpen}
+        onClose={() => setIsManualVerificationOpen(false)}
+      />
     </div>
   );
 };

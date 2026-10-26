@@ -27,6 +27,27 @@ export interface ValidationOutcome {
   summary: string;
 }
 
+export function computeNormalizedTextSimilarity(text1: string, text2: string): number {
+  if (!text1 || !text2) return 0;
+  const tokenize = (t: string) =>
+    new Set(
+      t
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter((w) => w.length > 2)
+    );
+  const set1 = tokenize(text1);
+  const set2 = tokenize(text2);
+  if (set1.size === 0 || set2.size === 0) return 0;
+  let intersection = 0;
+  for (const item of set1) {
+    if (set2.has(item)) intersection++;
+  }
+  const union = new Set([...set1, ...set2]).size;
+  return union > 0 ? intersection / union : 0;
+}
+
 export function parseStrictDate(input: string | null | undefined): Date | null {
   if (!input) return null;
   // Try standard parsing
@@ -55,10 +76,16 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
     include: {
       application: {
         include: {
-          documents: true,
+          documents: {
+            include: {
+              pages: true,
+              extractedFields: true,
+            },
+          },
         },
       },
       extractedFields: true,
+      pages: true,
     },
   });
 
@@ -88,6 +115,54 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
       limitations: 'Identical file hashes indicate duplicate submission; does not prove fraudulent intent if same document covers multiple clauses.',
       recommended_next_action: 'Verify whether distinct supporting certificates are required for each regulatory clause.',
     });
+  }
+
+  // Check 0b: Near-Duplicate Text Content Detection across sibling documents
+  const docTextLines: string[] = [];
+  if (document.pages && document.pages.length > 0) {
+    for (const p of document.pages) {
+      if (p.bodyLines) {
+        try {
+          const parsed = JSON.parse(p.bodyLines);
+          if (Array.isArray(parsed)) docTextLines.push(...parsed);
+          else docTextLines.push(String(p.bodyLines));
+        } catch {
+          docTextLines.push(String(p.bodyLines));
+        }
+      }
+    }
+  }
+  const currentDocCorpus = (docTextLines.join(' ') + ' ' + document.title).trim();
+
+  for (const sibling of app.documents) {
+    if (sibling.id === document.id || sibling.sha256 === document.sha256) continue;
+    const sibLines: string[] = [];
+    if (sibling.pages && sibling.pages.length > 0) {
+      for (const sp of sibling.pages) {
+        if (sp.bodyLines) {
+          try {
+            const parsed = JSON.parse(sp.bodyLines);
+            if (Array.isArray(parsed)) sibLines.push(...parsed);
+            else sibLines.push(String(sp.bodyLines));
+          } catch {
+            sibLines.push(String(sp.bodyLines));
+          }
+        }
+      }
+    }
+    const siblingCorpus = (sibLines.join(' ') + ' ' + sibling.title).trim();
+    const sim = computeNormalizedTextSimilarity(currentDocCorpus, siblingCorpus);
+    if (sim >= 0.85) {
+      anomalyIndicators.push({
+        indicator_code: 'NEAR_DUPLICATE_TEXT_CONTENT',
+        reason: `Document '${document.title}' exhibits high textual similarity (${Math.round(sim * 100)}%) with '${sibling.title}' (${sibling.id}).`,
+        evidence_reference: `${document.id} vs ${sibling.id} (Jaccard token similarity: ${(sim * 100).toFixed(1)}%)`,
+        confidence_or_severity: 'Medium (High Textual Overlap)',
+        limitations: 'Automated bag-of-words token similarity. May reflect standard statutory boilerplate or identical template forms without fraudulent intent.',
+        recommended_next_action: 'Perform manual side-by-side inspection to confirm whether distinct schedules or identical filings were submitted.',
+      });
+      break;
+    }
   }
 
   // Check 1: Expiry date check

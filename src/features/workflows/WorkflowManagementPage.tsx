@@ -32,15 +32,15 @@ export const WorkflowManagementPage: React.FC = () => {
   const [showNewTaskModal, setShowNewTaskModal] = useState<boolean>(false);
 
   // New Task Form State
-  const [newTaskFindingId, setNewTaskFindingId] = useState<string>(state.findings[0].id);
+  const [newTaskFindingId, setNewTaskFindingId] = useState<string>(state.findings[0]?.id || '');
   const [newTaskTitle, setNewTaskTitle] = useState<string>(
-    'Upload Counter-Signed Block-C Date Rectification Addendum (v2.0)'
+    'Upload Counter-Signed Date Rectification Addendum'
   );
   const [newTaskAssignee, setNewTaskAssignee] = useState<string>('Prof. Meera Krishnan');
   const [newTaskDueDate, setNewTaskDueDate] = useState<string>('2026-10-26');
   const [newTaskPriority, setNewTaskPriority] = useState<'Urgent' | 'High' | 'Medium'>('Urgent');
   const [newTaskAction, setNewTaskAction] = useState<string>(
-    'Submit signed Municipal/Structural Addendum confirming commissioning date 01-May-2026'
+    'Submit signed Municipal/Structural Addendum confirming commissioning date'
   );
 
   const perms = getPermissions(state.currentUser.role);
@@ -53,7 +53,8 @@ export const WorkflowManagementPage: React.FC = () => {
 
   const handleCreateTaskSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finding = state.findings.find((f) => f.id === newTaskFindingId) || state.findings[0];
+    const finding = state.findings.find((f) => f.id === newTaskFindingId) || state.findings[0] || null;
+    if (!finding) return;
     createCorrectiveTask({
       findingId: finding.id,
       applicationId: finding.applicationId,

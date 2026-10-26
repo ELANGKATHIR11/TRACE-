@@ -24,7 +24,7 @@ export const RegulatoryCopilotPage: React.FC = () => {
   const { state, sendCopilotQuery, setEngineMode, openFindingDrawer } = useTraceStore();
   const navigate = useNavigate();
 
-  const [selectedAppId, setSelectedAppId] = useState<string>(state.applications[0].id);
+  const [selectedAppId, setSelectedAppId] = useState<string>(state.applications[0]?.id || '');
   const [questionInput, setQuestionInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorState, setErrorState] = useState<string | null>(null);

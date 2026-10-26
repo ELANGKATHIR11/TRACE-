@@ -325,14 +325,24 @@ def evaluate_model(model_id: str):
     else:
         raise HTTPException(status_code=404, detail=f"Unknown model '{model_id}'")
 
+from ..services.ollama_gateway import ollama_gateway
+from ..services.qdrant_vrag_mrag import qdrant_vrag_mrag
+
+
 class ClassifyTextRequest(BaseModel):
     text: str
     confidenceThreshold: float = 0.55
 
+
+class ClassifyOutputSchema(BaseModel):
+    predictedCategory: str = Field(default="unknown / needs_review")
+    confidence: float = Field(default=0.75)
+    reason: str = Field(default="Classified via local Ollama model.")
+
+
 @router.post("/classify-document")
 def classify_document_text(payload: ClassifyTextRequest):
-    """Classifies document text using the TF-IDF + LogisticRegression baseline and returns 'unknown / needs_review' if confidence < threshold."""
-    artifact = os.path.join(MODELS_DIR, "doc_text_tfidf_logreg.joblib")
+    """Classifies document text strictly using the centralized local Ollama gateway and returns 'unknown / needs_review' if confidence < threshold or text is insufficient."""
     class_names = [
         "Infrastructure & Completion Certificate",
         "Fire & Safety NOC",
@@ -346,105 +356,157 @@ def classify_document_text(payload: ClassifyTextRequest):
             "confidence": 0.0,
             "needsHumanReview": True,
             "reason": "Insufficient extracted text for classification.",
-            "modelUsed": "DocTextTFIDFClassifier (v1.0-baseline)",
+            "modelUsed": "Ollama Gateway (Pre-check)",
         }
 
-    if os.path.exists(artifact):
-        try:
-            import joblib
-            clf = joblib.load(artifact)
-            probs = clf.predict_proba([payload.text])[0]
-            max_idx = int(probs.argmax())
-            max_prob = float(probs[max_idx])
-            if max_prob < payload.confidenceThreshold:
-                return {
-                    "predictedCategory": "unknown / needs_review",
-                    "topCandidate": class_names[max_idx],
-                    "confidence": round(max_prob, 4),
-                    "needsHumanReview": True,
-                    "reason": f"Top class probability ({max_prob:.2f}) is below threshold ({payload.confidenceThreshold:.2f}). Routed to human review.",
-                    "modelUsed": "DocTextTFIDFClassifier (v1.0-baseline)",
-                }
+    prompt = (
+        f"Classify the following regulatory document text into EXACTLY ONE of these categories: "
+        f"{json.dumps(class_names)}, or 'unknown / needs_review' if unrelated or ambiguous.\n"
+        f"Document text:\n\"\"\"{payload.text[:1500]}\"\"\"\n\n"
+        f"Return JSON with keys: predictedCategory (string), confidence (float between 0.0 and 1.0), reason (string)."
+    )
+
+    res = ollama_gateway.generate_json(
+        task_name="document_classification",
+        prompt=prompt,
+        schema_model=ClassifyOutputSchema,
+        prefer_fast=True,
+    )
+
+    if res["status"] == "SUCCESS" and res.get("data"):
+        data = res["data"]
+        pred_cat = data.get("predictedCategory", "unknown / needs_review")
+        conf = float(data.get("confidence", 0.0))
+        model_used = res.get("provenance", {}).get("modelName", "Ollama Local LLM")
+
+        # Validate category is in allowed list
+        matched_cat = next(
+            (c for c in class_names if c.lower() in pred_cat.lower() or pred_cat.lower() in c.lower()),
+            None,
+        )
+        if not matched_cat or conf < payload.confidenceThreshold:
             return {
-                "predictedCategory": class_names[max_idx],
-                "confidence": round(max_prob, 4),
-                "needsHumanReview": False,
-                "reason": "Classified via TF-IDF + LogisticRegression baseline.",
-                "modelUsed": "DocTextTFIDFClassifier (v1.0-baseline)",
+                "predictedCategory": "unknown / needs_review",
+                "topCandidate": matched_cat or pred_cat,
+                "confidence": round(conf, 4),
+                "needsHumanReview": True,
+                "reason": data.get("reason") or f"Confidence ({conf:.2f}) below threshold ({payload.confidenceThreshold:.2f}); routed to human review.",
+                "modelUsed": f"Ollama ({model_used})",
+                "provenance": res.get("provenance"),
             }
-        except Exception as e:
-            pass
+        return {
+            "predictedCategory": matched_cat,
+            "confidence": round(conf, 4),
+            "needsHumanReview": False,
+            "reason": data.get("reason", "Classified via local Ollama model."),
+            "modelUsed": f"Ollama ({model_used})",
+            "provenance": res.get("provenance"),
+        }
 
     return {
         "predictedCategory": "unknown / needs_review",
         "confidence": 0.0,
         "needsHumanReview": True,
-        "reason": "Classifier artifact not loaded; routed to manual review.",
-        "modelUsed": "Rule-based fallback",
+        "reason": f"Ollama classification status={res['status']}; routed to manual review.",
+        "modelUsed": "Ollama Gateway Fallback",
+        "provenance": res.get("provenance"),
     }
 
-def _run_background_training(job_id: str, model_id: str, dataset_name: str, epochs_total: int):
-    """Executes bounded background training with genuine epoch steps, loss updates, and artifact verification."""
-    time_str = lambda: time.strftime("%H:%M:%S", time.localtime())
-    
+
+class OllamaPullRequest(BaseModel):
+    modelName: str
+
+
+class OllamaRoutingRequest(BaseModel):
+    task: str
+    modelName: str
+
+
+@router.get("/ollama/status")
+def get_ollama_gateway_status(refresh: bool = False):
+    """Discovers installed local Ollama models, capabilities, task routing, and provenance logs."""
+    status = ollama_gateway.discover_models(force_refresh=refresh)
+    return status.model_dump()
+
+
+@router.post("/ollama/pull")
+def pull_ollama_model(payload: OllamaPullRequest):
+    """Explicit user-controlled model pull in local Ollama. Never triggered silently."""
+    return ollama_gateway.user_initiated_pull(payload.modelName)
+
+
+@router.post("/ollama/routing")
+def update_ollama_routing(payload: OllamaRoutingRequest):
+    """Updates task-to-model assignment in the centralized Ollama gateway."""
+    return ollama_gateway.set_routing_override(payload.task, payload.modelName)
+
+
+@router.get("/vrag_mrag/status")
+def get_vrag_mrag_status():
+    """Returns persistent Qdrant collection counts and VRAG/MRAG readiness."""
+    return qdrant_vrag_mrag.get_status()
+
+
+def _run_background_training(job_id: str, model_id: str, dataset_name: str, epochs_total: int, lr: float = 0.001, batch_size: int = 32):
+    """Runs REAL training (GPU when available) via fastapi_engine.training; metrics are measured on held-out splits."""
+    from fastapi_engine.training import TRAINERS
+
+    stamp = lambda: time.strftime("%H:%M:%S", time.localtime())
+
+    def log(msg: str):
+        with JOBS_LOCK:
+            ACTIVE_JOBS[job_id]["logs"].append(f"[{stamp()}] {msg}")
+
+    def progress(ep: int, total: int, loss: float, extra: Dict[str, Any]):
+        with JOBS_LOCK:
+            j = ACTIVE_JOBS[job_id]
+            j["currentEpoch"] = ep
+            j["loss"] = round(float(loss), 4)
+            j["progressPercent"] = round(ep / total * 100.0, 1)
+            j["currentStage"] = f"Training epoch {ep}/{total}"
+
+    def cancelled() -> bool:
+        with JOBS_LOCK:
+            return bool(ACTIVE_JOBS[job_id].get("cancelRequested"))
+
     with JOBS_LOCK:
         job = ACTIVE_JOBS[job_id]
         job["status"] = "Running"
         job["startedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        job["logs"].append(f"[{time_str()}] [INIT] Initializing training worker for {model_id} on {job['device']}")
-        job["logs"].append(f"[{time_str()}] [DATA] Loading dataset manifest '{dataset_name}'")
+    log(f"[INIT] Job {job_id}: model={model_id} dataset={dataset_name}")
 
+    trainer = TRAINERS.get(model_id)
+    if trainer is None:
+        with JOBS_LOCK:
+            job["status"] = "Failed"
+            job["failedReason"] = f"No real trainer for '{model_id}'. Use train_models.py for sklearn models."
+            job["currentStage"] = "Failed"
+        log(f"[ERROR] {job['failedReason']}")
+        return
     try:
-        time.sleep(0.5)
+        result = trainer(job_id, epochs_total, lr, batch_size, log, progress, cancelled)
         with JOBS_LOCK:
-            job["currentStage"] = "Batch mini-batch tensorization"
-            job["logs"].append(f"[{time_str()}] [LOAD] Held-out validation split configured (70/15/15)")
-
-        for ep in range(1, epochs_total + 1):
-            with JOBS_LOCK:
-                if job.get("cancelRequested", False):
-                    job["status"] = "Cancelled"
-                    job["currentStage"] = "Cancelled by authorized administrator"
-                    job["logs"].append(f"[{time_str()}] [CANCEL] Job cancelled by administrator request at Epoch {ep}")
-                    return
-
-            time.sleep(0.4)
-            current_loss = round(max(0.045, 0.45 * (0.75 ** ep) + 0.015), 4)
-            progress = round((ep / epochs_total) * 100.0, 1)
-
-            with JOBS_LOCK:
-                job["currentEpoch"] = ep
-                job["loss"] = current_loss
-                job["progressPercent"] = progress
-                job["currentStage"] = f"Training Epoch {ep}/{epochs_total}"
-                job["logs"].append(f"[{time_str()}] [EPOCH {ep:02d}/{epochs_total:02d}] Train Loss: {current_loss:.4f} | Validation Acc: {round(85.0 + (ep * 0.92), 2)}%")
-
-        # Final evaluation and artifact saving
-        time.sleep(0.5)
-        with JOBS_LOCK:
-            job["currentStage"] = "Final Model Checkpoint & Lineage Validation"
-            job["logs"].append(f"[{time_str()}] [EVAL] Held-out validation complete. Measured Macro-F1: 0.941")
             job["status"] = "Completed"
             job["progressPercent"] = 100.0
+            job["currentStage"] = "Completed (held-out test evaluation done)"
             job["completedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            job["metrics"] = {
-                "accuracy": 0.945,
-                "precision": 0.942,
-                "recall": 0.940,
-                "macroF1": 0.941,
-                "finalLoss": job["loss"],
-                "status": "Experimental Prototype"
-            }
-            job["artifactPath"] = f"fastapi_engine/models/{model_id}_trained.pt"
-            job["artifactSizeBytes"] = 2203032
-            job["logs"].append(f"[{time_str()}] [SUCCESS] Model artifact registered ({job['artifactSizeBytes'] / 1024 / 1024:.2f} MB). Labeled as Experimental Prototype.")
-
+            job["metrics"] = result["metrics"]
+            job["artifactPath"] = result["artifactPath"]
+            job["artifactSizeBytes"] = result["artifactSizeBytes"]
+        m = result["metrics"]
+        log(f"[TEST] held-out accuracy={m['accuracy']} macroF1={m['f1']} n={m['evaluatedSamples']}")
+        log(f"[SAVED] {result['artifactPath']} ({result['artifactSizeBytes']/1024:.1f} KiB)")
+    except InterruptedError:
+        with JOBS_LOCK:
+            job["status"] = "Cancelled"
+            job["currentStage"] = "Cancelled by authorized administrator"
+        log("[CANCEL] Training stopped by request")
     except Exception as exc:
         with JOBS_LOCK:
             job["status"] = "Failed"
             job["failedReason"] = str(exc)
-            job["logs"].append(f"[{time_str()}] [ERROR] Training failed: {str(exc)}")
-
+            job["currentStage"] = "Failed"
+        log(f"[ERROR] Training failed: {exc}")
 @router.post("/training/start")
 def start_training(payload: TrainingStartRequest, background_tasks: BackgroundTasks):
     """Starts a non-blocking bounded background training job."""
@@ -475,7 +537,7 @@ def start_training(payload: TrainingStartRequest, background_tasks: BackgroundTa
     # Dispatch to background thread
     t = threading.Thread(
         target=_run_background_training,
-        args=(payload.jobId, payload.modelId, payload.datasetName, payload.epochs),
+        args=(payload.jobId, payload.modelId, payload.datasetName, payload.epochs, payload.learningRate, payload.batchSize),
         daemon=True,
     )
     t.start()

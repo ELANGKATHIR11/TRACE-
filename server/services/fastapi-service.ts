@@ -195,4 +195,57 @@ export const fastApiClient = {
 
   getSystemMlHealth: () =>
     callFastApi<any>('/system_ml/system/health', 'GET'),
+
+  // Centralized Ollama Gateway & Qdrant VRAG/MRAG + LangGraph Workflow
+  getOllamaStatus: (refresh: boolean = false) =>
+    callFastApi<any>(`/system_ml/ollama/status?refresh=${refresh}`, 'GET'),
+
+  pullOllamaModel: (modelName: string) =>
+    callFastApi<any>('/system_ml/ollama/pull', 'POST', { modelName }),
+
+  updateOllamaRouting: (task: string, modelName: string) =>
+    callFastApi<any>('/system_ml/ollama/routing', 'POST', { task, modelName }),
+
+  getVragMragStatus: () =>
+    callFastApi<any>('/workflow/vrag_mrag/status', 'GET'),
+
+  searchVragMrag: (data: {
+    query: string;
+    institutionId?: string;
+    applicationId?: string;
+    collections?: string[];
+    topK?: number;
+  }) => callFastApi<any>('/workflow/vrag_mrag/search', 'POST', data),
+
+  indexDocumentVragMrag: (data: {
+    documentId: string;
+    applicationId: string;
+    institutionId: string;
+    title: string;
+    version?: string;
+    filePath?: string;
+    pages?: any[];
+    runVlmOnPages?: boolean;
+  }) => callFastApi<any>('/workflow/vrag_mrag/index-document', 'POST', data),
+
+  indexRegulatoryClauses: (clauses: any[]) =>
+    callFastApi<any>('/workflow/vrag_mrag/index-clauses', 'POST', { clauses }),
+
+  indexAuthorizedRecords: (records: any[]) =>
+    callFastApi<any>('/workflow/vrag_mrag/index-authorized-records', 'POST', { records }),
+
+  executeLangGraphWorkflow: (data: any) =>
+    callFastApi<any>('/workflow/execute', 'POST', data),
+
+  getLangGraphCheckpointState: (threadId: string) =>
+    callFastApi<any>(`/workflow/state/${encodeURIComponent(threadId)}`, 'GET'),
+
+  resumeLangGraphWorkflow: (data: {
+    threadId: string;
+    reviewerId: string;
+    reviewerName: string;
+    reviewerRole: string;
+    decision: string;
+    rationale: string;
+  }) => callFastApi<any>('/workflow/resume', 'POST', data),
 };

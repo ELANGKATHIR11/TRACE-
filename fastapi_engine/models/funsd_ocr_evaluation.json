@@ -1,0 +1,45 @@
+{
+  "benchmark": "FUNSD (Form Understanding in Noisy Scanned Documents)",
+  "datasetSplit": "Held-Out Test Split (Forms not seen in training)",
+  "evaluatedDocumentsCount": 3,
+  "hardwareAccelerator": "CPU Host",
+  "cudaEnabled": false,
+  "overallCER": 0.5961,
+  "overallWER": 0.7771,
+  "characterAccuracy": 0.4039,
+  "wordAccuracy": 0.2229,
+  "totalReferenceChars": 3194,
+  "totalReferenceWords": 498,
+  "evaluationDurationSec": 15.03,
+  "sampleBreakdown": [
+    {
+      "file": "0060000813.png",
+      "cer": 0.7309,
+      "wer": 0.8857,
+      "refChars": 706,
+      "refWords": 105,
+      "recognizedWords": 86,
+      "inferenceTimeSec": 4.41
+    },
+    {
+      "file": "0001477983.png",
+      "cer": 0.5461,
+      "wer": 0.7163,
+      "refChars": 1853,
+      "refWords": 289,
+      "recognizedWords": 272,
+      "inferenceTimeSec": 5.92
+    },
+    {
+      "file": "0060165115.png",
+      "cer": 0.5921,
+      "wer": 0.8365,
+      "refChars": 635,
+      "refWords": 104,
+      "recognizedWords": 90,
+      "inferenceTimeSec": 3.46
+    }
+  ],
+  "status": "Measured on Real Noisy Scanned Forms",
+  "statutoryCaveat": "Benchmarked on historical noisy forms; performance will vary on clean digital vector PDF submissions."
+}

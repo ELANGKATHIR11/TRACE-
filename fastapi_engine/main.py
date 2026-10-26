@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 
-from .routers import chronograph, deltascan, rulereplay, reviewpilot, proofline, document_ai, system_ml
+from .routers import chronograph, deltascan, rulereplay, reviewpilot, proofline, document_ai, system_ml, workflow
 
 app = FastAPI(
     title="TRACE 2.0 Document-AI & Regulatory Intelligence Engine",
@@ -40,6 +40,7 @@ app.include_router(rulereplay.router, prefix="/rulereplay", tags=["RuleReplay"])
 app.include_router(reviewpilot.router, prefix="/reviewpilot", tags=["ReviewPilot"])
 app.include_router(proofline.router, prefix="/proofline", tags=["Proofline"])
 app.include_router(system_ml.router, prefix="/system_ml", tags=["System ML"])
+app.include_router(workflow.router, prefix="/workflow", tags=["LangGraph Workflow & Qdrant VRAG/MRAG"])
 
 @app.get("/health")
 def health_check():

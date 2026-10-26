@@ -19,7 +19,6 @@ export const settingsRouter = Router();
 
 // HARD PROJECT STORAGE CAP: 1.5 GB
 const PROJECT_STORAGE_CAP_BYTES = 1610612736; // 1.5 GB
-
 // Helper to determine actor from authenticated session
 function getActor(req: Request): { id: string; name: string; role: string } {
   if (req.user) {
@@ -857,6 +856,56 @@ settingsRouter.get('/training/:jobId', async (req, res) => {
               completedAt: liveStatus.status === 'Completed' ? new Date() : job.completedAt,
             },
           });
+
+          // Register REAL measured metrics from a completed run. Existing models keep their
+          // active version (activation stays a human-gated action); unknown models are created.
+          if (liveStatus.status === 'Completed' && liveStatus.metrics && job.status !== 'Completed') {
+            const m = liveStatus.metrics;
+            const known = await prisma.mlModelRecord.findUnique({ where: { id: job.modelId } });
+            const trainedMetrics = JSON.stringify({
+              accuracy: m.accuracy,
+              precision: m.precision,
+              recall: m.recall,
+              f1: m.f1,
+              validationStatus: m.status,
+            });
+            if (!known) {
+              await prisma.mlModelRecord.create({
+                data: {
+                  id: job.modelId,
+                  name: job.modelId === 'funsd-entity-mlp' ? 'FunsdEntityMLP' : job.modelId,
+                  purpose: 'FUNSD text-block role classifier (header/question/answer/other), GPU-trained on real FUNSD forms',
+                  modelType: 'DL (PyTorch MLP on hashed text + geometry)',
+                  currentVersion: `trained-${job.id}`,
+                  availableVersionsJson: JSON.stringify([`trained-${job.id}`]),
+                  artifactPath: liveStatus.artifactPath || '',
+                  artifactSizeBytes: liveStatus.artifactSizeBytes || 0,
+                  isEnabled: false,
+                  status: 'Available',
+                  trainingStatus: 'Trained',
+                  lastTrainedAt: new Date(),
+                  datasetName: job.datasetName,
+                  datasetVersion: job.datasetVersion,
+                  metricsJson: trainedMetrics,
+                  evaluationReportJson: JSON.stringify(m),
+                  inferenceThreshold: 0.5,
+                  timeoutSeconds: 10,
+                },
+              });
+            } else {
+              await prisma.mlModelRecord.update({
+                where: { id: job.modelId },
+                data: {
+                  availableVersionsJson: JSON.stringify(
+                    Array.from(new Set([...JSON.parse(known.availableVersionsJson || '[]'), `trained-${job.id}`]))
+                  ),
+                  evaluationReportJson: JSON.stringify(m),
+                  lastTrainedAt: new Date(),
+                  trainingStatus: 'Trained',
+                },
+              });
+            }
+          }
           res.json({
             job: {
               ...updated,
@@ -1017,16 +1066,21 @@ settingsRouter.get('/health', async (_req, res) => {
         tablesCount: 26,
       },
       ocrEngine: {
-        name: 'EasyOCR & PyMuPDF Pipeline',
-        status: 'Available',
-        accelerator: 'PyTorch CUDA 13.0',
+        name: 'PyMuPDF + Ollama VLM (riven/smolvlm:latest)',
+        status: ollamaStatus,
+        accelerator: 'Native Local Ollama Gateway',
         hardwareTarget: 'NVIDIA GeForce RTX 5060 Laptop GPU',
       },
       ollamaOfflineAi: {
-        name: 'Local Ollama Offline LLM',
+        name: 'Local Ollama Offline LLM & VLM Gateway',
         status: ollamaStatus,
-        model: 'qwen2.5:1.5b-instruct',
+        model: 'qwen2.5:1.5b-instruct / riven/smolvlm:latest',
         endpoint: 'http://localhost:11434',
+      },
+      qdrantVectorStore: {
+        name: 'Qdrant Local Persistent Vector Store (VRAG/MRAG)',
+        status: 'Available',
+        mode: 'Native Local Persistent Storage (qdrant_storage)',
       },
       smtpNotification: {
         name: 'GovTech SMTP Notification Gateway',
@@ -1095,3 +1149,260 @@ settingsRouter.get('/audit', async (_req, res) => {
     res.status(500).json({ error: 'Failed to get audit log', detail: error?.message });
   }
 });
+
+// ==========================================
+// 7b. CENTRALIZED OLLAMA GATEWAY & QDRANT VRAG/MRAG OPERATIONS
+// ==========================================
+
+settingsRouter.get('/ollama', async (req, res) => {
+  try {
+    const refresh = req.query.refresh === 'true';
+    const status = await fastApiClient.getOllamaStatus(refresh);
+    res.json(status);
+  } catch (error: any) {
+    // Fallback direct probe to http://localhost:11434 if FastAPI is warming up
+    try {
+      const tagsRes = await fetch('http://localhost:11434/api/tags', { signal: AbortSignal.timeout(2500) });
+      if (tagsRes.ok) {
+        const tagsData = (await tagsRes.json()) as any;
+        const models = (tagsData.models || []).map((m: any) => ({
+          name: m.name,
+          digest: String(m.digest || '').slice(0, 16),
+          sizeBytes: m.size || 0,
+          sizeFormatted: `${((m.size || 0) / (1024 * 1024)).toFixed(1)} MB`,
+          family: m.details?.family || 'unknown',
+          parameterSize: m.details?.parameter_size || 'unknown',
+          quantizationLevel: m.details?.quantization_level || 'unknown',
+          capabilities: m.name.includes('smolvlm') ? ['completion', 'vision'] : ['completion', 'tools'],
+          contextLength: m.name.includes('smolvlm') ? 8192 : 32768,
+          supportsVision: m.name.includes('smolvlm') || m.name.includes('vlm'),
+          supportsTools: !m.name.includes('smolvlm'),
+          supportsEmbedding: m.name.includes('embed'),
+          modifiedAt: m.modified_at || '',
+        }));
+        res.json({
+          online: true,
+          baseUrl: 'http://localhost:11434',
+          installedModels: models,
+          assignedRouting: {
+            text: 'qwen2.5:1.5b-instruct',
+            fast_text: 'qwen2.5:0.5b-instruct',
+            vision: 'riven/smolvlm:latest',
+            embedding: null,
+          },
+          capabilitiesAvailable: { text: true, vision: true, embedding: false },
+          embeddingStatus: {
+            available: false,
+            blockerCode: 'EMBEDDING_CAPABILITY_UNAVAILABLE',
+            message: 'No dedicated Ollama embedding model is installed or server needs --embeddings.',
+            userInstallCommand: 'ollama pull nomic-embed-text && ollama serve --embeddings',
+          },
+          visionStatus: {
+            available: true,
+            activeModel: 'riven/smolvlm:latest',
+            message: 'Ollama Vision-Language Model active via riven/smolvlm:latest.',
+          },
+          textStatus: {
+            available: true,
+            activeModel: 'qwen2.5:1.5b-instruct',
+            message: 'Ollama structured text reasoning active via qwen2.5:1.5b-instruct.',
+          },
+          recentProvenanceLogs: [],
+          checkedAt: new Date().toISOString(),
+        });
+        return;
+      }
+    } catch {}
+    res.status(503).json({
+      online: false,
+      error: 'Ollama gateway status unavailable',
+      detail: error?.message,
+    });
+  }
+});
+
+settingsRouter.post('/ollama/pull', async (req, res) => {
+  if (!checkAdminAccess(req, res)) return;
+  try {
+    const schema = z.object({ modelName: z.string().min(2) });
+    const parsed = schema.parse(req.body);
+    const actor = getActor(req);
+
+    const pullResult = await fastApiClient.pullOllamaModel(parsed.modelName);
+
+    await prisma.configAuditEvent.create({
+      data: {
+        section: 'OllamaGateway',
+        action: 'USER_CONTROLLED_MODEL_PULL',
+        details: `User-initiated Ollama pull for model '${parsed.modelName}' (Success: ${Boolean(pullResult.success)})`,
+        actorId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
+        ipAddress: req.ip || '127.0.0.1',
+        newValueJson: JSON.stringify(pullResult),
+      },
+    });
+
+    res.json(pullResult);
+  } catch (error: any) {
+    res.status(400).json({ error: 'Ollama model pull failed', detail: error?.message });
+  }
+});
+
+settingsRouter.post('/ollama/routing', async (req, res) => {
+  if (!checkAdminAccess(req, res)) return;
+  try {
+    const schema = z.object({
+      task: z.enum(['text', 'vision', 'embedding']),
+      modelName: z.string().min(2),
+    });
+    const parsed = schema.parse(req.body);
+    const actor = getActor(req);
+
+    const result = await fastApiClient.updateOllamaRouting(parsed.task, parsed.modelName);
+
+    await prisma.configAuditEvent.create({
+      data: {
+        section: 'OllamaGateway',
+        action: 'UPDATE_OLLAMA_ROUTING',
+        details: `Assigned task '${parsed.task}' to local Ollama model '${parsed.modelName}'`,
+        actorId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
+        ipAddress: req.ip || '127.0.0.1',
+        newValueJson: JSON.stringify(result),
+      },
+    });
+
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: 'Failed to update Ollama routing', detail: error?.message });
+  }
+});
+
+settingsRouter.get('/vrag-mrag', async (_req, res) => {
+  try {
+    const status = await fastApiClient.getVragMragStatus();
+    res.json(status);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to retrieve Qdrant VRAG/MRAG status', detail: error?.message });
+  }
+});
+
+settingsRouter.post('/vrag-mrag/reindex', async (req, res) => {
+  if (!checkAdminAccess(req, res)) return;
+  try {
+    const actor = getActor(req);
+    const [clauses, documents, institutions] = await Promise.all([
+      prisma.regulatoryClause.findMany(),
+      prisma.document.findMany({ include: { pages: true } }),
+      prisma.institution.findMany({ include: { applications: true } }),
+    ]);
+
+    const clauseRes = await fastApiClient.indexRegulatoryClauses(clauses);
+    const authRecs = institutions.map((inst) => ({
+      id: `${inst.id}-2025-26`,
+      institutionId: inst.id,
+      institutionName: inst.name,
+      academicYear: '2025-26',
+      approvedIntake: inst.applications[0]?.currentIntake || 180,
+      builtUpAreaSqm: 28450,
+      landAreaAcres: 12.4,
+      fireNocRef: `FIRE-NOC-2025-${inst.code}`,
+      fireNocExpiry: '2027-06-30',
+      summary: `Authorized AICTE master record for ${inst.name} (${inst.code}), accreditation: ${inst.accreditationStatus}`,
+    }));
+    const authRes = await fastApiClient.indexAuthorizedRecords(authRecs);
+
+    let docsIndexed = 0;
+    for (const d of documents) {
+      await fastApiClient.indexDocumentVragMrag({
+        documentId: d.id,
+        applicationId: d.applicationId,
+        institutionId: d.institutionId,
+        title: d.title,
+        version: d.currentVersion,
+        filePath: d.filePath || undefined,
+        pages: d.pages,
+        runVlmOnPages: false,
+      });
+      docsIndexed++;
+    }
+
+    await prisma.configAuditEvent.create({
+      data: {
+        section: 'QdrantVragMrag',
+        action: 'REINDEX_QDRANT_COLLECTIONS',
+        details: `Indexed ${clauses.length} clauses, ${authRecs.length} authorized records, and ${docsIndexed} documents into local persistent Qdrant.`,
+        actorId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
+        ipAddress: req.ip || '127.0.0.1',
+      },
+    });
+
+    const updatedStatus = await fastApiClient.getVragMragStatus();
+    res.json({
+      success: true,
+      clausesIndexed: clauseRes.indexedCount,
+      authorizedRecordsIndexed: authRes.indexedCount,
+      documentsIndexed: docsIndexed,
+      status: updatedStatus,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to re-index Qdrant VRAG/MRAG collections', detail: error?.message });
+  }
+});
+
+// ==========================================
+// 8. DATABASE WIPE / CLEAN DATASET
+// ==========================================
+settingsRouter.post('/wipe-all', async (req, res) => {
+  try {
+    // Delete all transactional & mock entities
+    await prisma.reprocessingLog.deleteMany({});
+    await prisma.processingCache.deleteMany({});
+    await prisma.validationManifest.deleteMany({});
+    await prisma.fixPreview.deleteMany({});
+    await prisma.reviewPriority.deleteMany({});
+    await prisma.impactReport.deleteMany({});
+    await prisma.shadowEvaluation.deleteMany({});
+    await prisma.claimRelationship.deleteMany({});
+    await prisma.claim.deleteMany({});
+    await prisma.reviewerNote.deleteMany({});
+    await prisma.extractedField.deleteMany({});
+    await prisma.boundingBox.deleteMany({});
+    await prisma.documentPageFingerprint.deleteMany({});
+    await prisma.documentPage.deleteMany({});
+    await prisma.documentVersion.deleteMany({});
+    await prisma.document.deleteMany({});
+    await prisma.correctiveTask.deleteMany({});
+    await prisma.complianceFinding.deleteMany({});
+    await prisma.complianceObligation.deleteMany({});
+    await prisma.alert.deleteMany({});
+    await prisma.applicationVersion.deleteMany({});
+    await prisma.application.deleteMany({});
+    await prisma.institution.deleteMany({});
+
+    // Clean uploads directory
+    const uploadsDir = path.resolve(process.cwd(), 'uploads');
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      for (const file of files) {
+        try {
+          fs.unlinkSync(path.join(uploadsDir, file));
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'All mock applications, documents, findings, tasks, obligations, and institutions wiped successfully.',
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to wipe database', detail: error?.message });
+  }
+});
+

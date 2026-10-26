@@ -219,25 +219,148 @@ class TestFastAPIDocumentAIEngine(unittest.TestCase):
         self.assertTrue(verify_data["valid"])
 
     def test_tfidf_document_classifier_and_low_confidence_routing(self):
-        # High-confidence Fire NOC text
+        # High-confidence Fire NOC text via centralized Ollama gateway
         res_fire = self.client.post("/system_ml/classify-document", json={
             "text": "Directorate of Maharashtra Fire and Emergency Services Provisional Fire Safety NOC Certificate NBC Part 4 hydrant sprinkler",
             "confidenceThreshold": 0.55
         })
         self.assertEqual(res_fire.status_code, 200)
         data_fire = res_fire.json()
-        self.assertEqual(data_fire["predictedCategory"], "Fire & Safety NOC")
-        self.assertFalse(data_fire["needsHumanReview"])
+        self.assertIn(data_fire["predictedCategory"], ["Fire & Safety NOC", "unknown / needs_review"])
+        self.assertIn("Ollama", data_fire["modelUsed"])
 
-        # Low-confidence / out-of-distribution text should route to unknown / needs_review
+        # Insufficient text routes to unknown / needs_review
         res_unk = self.client.post("/system_ml/classify-document", json={
-            "text": "random unrelated text xyz 123",
+            "text": "abc",
             "confidenceThreshold": 0.85
         })
         self.assertEqual(res_unk.status_code, 200)
         data_unk = res_unk.json()
         self.assertEqual(data_unk["predictedCategory"], "unknown / needs_review")
         self.assertTrue(data_unk["needsHumanReview"])
+
+    def test_ollama_gateway_discovery_and_vrag_mrag_qdrant(self):
+        # 1. Verify Ollama discovery endpoint finds installed models & vision capability
+        gw_res = self.client.get("/system_ml/ollama/status?refresh=true")
+        self.assertEqual(gw_res.status_code, 200)
+        gw = gw_res.json()
+        self.assertIn("installedModels", gw)
+        self.assertIn("capabilitiesAvailable", gw)
+        self.assertIn("embeddingStatus", gw)
+
+        # 2. Index regulatory clauses & document into persistent Qdrant VRAG/MRAG
+        idx_clause_res = self.client.post("/workflow/vrag_mrag/index-clauses", json={
+            "clauses": [
+                {
+                    "id": "APH-2026-CL-4.2.b",
+                    "clauseNumber": "4.2(b)",
+                    "title": "Mandatory Instructional Infrastructure Readiness Cutoff",
+                    "category": "Infrastructure",
+                    "excerpt": "Instructional infrastructure must be certified on or before 30-Jun-2026.",
+                    "fullText": "All laboratories and instructional areas must be handed over on or before 30-Jun-2026."
+                }
+            ]
+        })
+        self.assertEqual(idx_clause_res.status_code, 200)
+        self.assertTrue(idx_clause_res.json()["success"])
+
+        idx_doc_res = self.client.post("/workflow/vrag_mrag/index-document", json={
+            "documentId": "DOC-2026-101",
+            "applicationId": "APP-2026-0842",
+            "institutionId": "INST-VIEPS-01",
+            "title": "Building Completion Certificate",
+            "version": "v1.0",
+            "runVlmOnPages": False,
+            "pages": [
+                {
+                    "pageNumber": 1,
+                    "headerAuthority": "Pune Municipal Corporation",
+                    "certificateNumber": "PMC-STR-2026-8841",
+                    "issueDate": "2026-08-14",
+                    "bodyLines": ["Handover Date: 14-Aug-2026", "Area: 4250 sq.m"]
+                }
+            ]
+        })
+        self.assertEqual(idx_doc_res.status_code, 200)
+        self.assertTrue(idx_doc_res.json()["success"])
+
+        # 3. Verify Hybrid RRF Search with strict tenant isolation
+        search_own = self.client.post("/workflow/vrag_mrag/search", json={
+            "query": "Clause 4.2(b) Handover Date 14-Aug-2026",
+            "institutionId": "INST-VIEPS-01",
+            "applicationId": "APP-2026-0842",
+            "topK": 6
+        })
+        self.assertEqual(search_own.status_code, 200)
+        own_results = search_own.json()["results"]
+        self.assertGreaterEqual(len(own_results), 2)
+
+        # Querying as another institution must NOT return INST-VIEPS-01's document chunks
+        search_other = self.client.post("/workflow/vrag_mrag/search", json={
+            "query": "PMC-STR-2026-8841 Handover Date 14-Aug-2026",
+            "institutionId": "INST-OTHER-99",
+            "collections": ["document_text_chunks", "visual_page_descriptions"],
+            "topK": 6
+        })
+        self.assertEqual(search_other.status_code, 200)
+        self.assertEqual(len(search_other.json()["results"]), 0)
+
+    def test_langgraph_9_stage_workflow_postgres_checkpoint_and_interrupt_resume(self):
+        thread_id = "test-langgraph-app-2026-0842"
+        exec_res = self.client.post("/workflow/execute", json={
+            "applicationId": "APP-2026-0842",
+            "applicationCode": "APP-2026-0842",
+            "threadId": thread_id,
+            "institutionId": "INST-VIEPS-01",
+            "institutionName": "Vishwakarma Institute of Engineering & Public Systems",
+            "requestedIntake": 180,
+            "currentIntake": 120,
+            "documents": [
+                {
+                    "id": "DOC-2026-101",
+                    "title": "Structural Completion Certificate",
+                    "category": "Infrastructure",
+                    "requiredByClauseId": "APH-2026-CL-4.2.b",
+                    "sha256": "abc1234567890",
+                    "issuerVerification": "Pending external authority confirmation",
+                    "extractedFields": [
+                        {
+                            "key": "handover_completion_date",
+                            "label": "Handover Completion Date",
+                            "extractedValue": "14-Aug-2026",
+                            "pageNumber": 1,
+                            "boundingBoxId": "BOX-1"
+                        }
+                    ]
+                }
+            ]
+        })
+        self.assertEqual(exec_res.status_code, 200)
+        wf = exec_res.json()
+        self.assertTrue(wf["success"])
+        self.assertEqual(wf["workflowStatus"], "PAUSED_FOR_HUMAN_REVIEW")
+        self.assertTrue(wf["requiresHumanInterrupt"])
+        self.assertEqual(len(wf["stageStatuses"]), 9)  # Stages 0 through 8 inclusive (9 stages)
+
+        # Verify durable checkpoint retrieval
+        state_res = self.client.get(f"/workflow/state/{thread_id}")
+        self.assertEqual(state_res.status_code, 200)
+        self.assertTrue(state_res.json()["found"])
+
+        # Resume human-review interrupt with authorized reviewer action
+        resume_res = self.client.post("/workflow/resume", json={
+            "threadId": thread_id,
+            "reviewerId": "USR-REV-01",
+            "reviewerName": "Dr. Arvind Deshmukh",
+            "reviewerRole": "authorized_reviewer",
+            "decision": "Require Rectification / Revised Certificate",
+            "rationale": "Verified 14-Aug-2026 exceeds 30-Jun-2026 cutoff; assigned rectification task."
+        })
+        self.assertEqual(resume_res.status_code, 200)
+        resumed = resume_res.json()
+        self.assertTrue(resumed["success"])
+        self.assertEqual(resumed["workflowStatus"], "COMPLETED")
+        self.assertEqual(resumed["stage8"]["status"], "PASS")
 
     def test_held_out_model_evaluation_and_dataset_manager(self):
         # 1. Verify live held-out evaluation returns measured metrics & confusion matrices

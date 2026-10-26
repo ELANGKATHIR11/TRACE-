@@ -8,7 +8,7 @@ export const InstitutionsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const initialInstId = searchParams.get('id') || state.institutions[0].id;
+  const initialInstId = searchParams.get('id') || state.institutions[0]?.id || '';
   const [search, setSearch] = useState('');
   const [selectedInstId, setSelectedInstId] = useState(initialInstId);
 
@@ -20,7 +20,7 @@ export const InstitutionsPage: React.FC = () => {
   );
 
   const activeInst =
-    state.institutions.find((i) => i.id === selectedInstId) || filteredInstitutions[0];
+    state.institutions.find((i) => i.id === selectedInstId) || filteredInstitutions[0] || null;
 
   const instApps = state.applications.filter((a) => a.institutionId === activeInst?.id);
   const instFindings = state.findings.filter((f) => f.institutionId === activeInst?.id);
