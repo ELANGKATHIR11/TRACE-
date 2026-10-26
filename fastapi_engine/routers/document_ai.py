@@ -164,8 +164,8 @@ def process_document(req: ProcessDocumentRequest):
                             "status": "valid"
                         })
 
-            cert_no = ""
-            issue_date = ""
+            cert_no = None
+            issue_date = None
             full_page_str = " ".join(body_lines)
             cert_match = re.search(r'(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})', full_page_str, re.IGNORECASE)
             if cert_match:
@@ -175,15 +175,29 @@ def process_document(req: ProcessDocumentRequest):
             if p_date:
                 issue_date = p_date
 
+            # Truthful authority and seal detection
+            detected_authority = "Statutory Authority"
+            for line in body_lines[:5]:
+                if any(w in line.lower() for w in ["government", "corporation", "department", "authority", "council", "board", "registrar"]):
+                    detected_authority = line
+                    break
+
+            has_seal_mention = any("seal" in l.lower() or "stamp" in l.lower() for l in body_lines)
+            has_sign_mention = any("sign" in l.lower() or "director" in l.lower() or "officer" in l.lower() for l in body_lines)
+
             pages_data.append({
                 "pageNumber": page_num,
                 "title": f"Page {page_num} of {os.path.basename(filepath)}",
-                "headerAuthority": "Competent Statutory Authority",
-                "certificateNumber": cert_no or f"CERT-{file_hash[:8].upper()}",
-                "issueDate": issue_date or datetime.now().strftime("%Y-%m-%d"),
+                "headerAuthority": detected_authority,
+                "certificateNumber": cert_no if cert_no else "NOT_EXTRACTED",
+                "certificateNumberStatus": "extracted" if cert_no else "missing",
+                "issueDate": issue_date if issue_date else "NOT_EXTRACTED",
+                "issueDateStatus": "extracted" if issue_date else "missing",
                 "bodyLines": body_lines[:30],
-                "stampText": "Digital Stamp & Statutory Seal Intact",
-                "signatory": "Authorized Official"
+                "stampText": "Stamp mentioned in text" if has_seal_mention else "Unverified statutory seal",
+                "stampStatus": "extracted" if has_seal_mention else "needs_manual_review",
+                "signatory": "Signatory mentioned in text" if has_sign_mention else "Unverified signatory",
+                "signatoryStatus": "extracted" if has_sign_mention else "needs_manual_review"
             })
 
             page_fingerprints.append({
@@ -205,15 +219,25 @@ def process_document(req: ProcessDocumentRequest):
             for bbox, text, conf in results:
                 if text.strip():
                     body_lines.append(text.strip())
+        
+        full_img_str = " ".join(body_lines)
+        cert_match = re.search(r'(?:Ref|Certificate|NOC|Order|Reg)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Za-z0-9\/\-_]{5,35})', full_img_str, re.IGNORECASE)
+        img_cert = cert_match.group(1) if cert_match else None
+        img_date = parse_date_str(full_img_str)
+
         pages_data.append({
             "pageNumber": 1,
             "title": f"Image Document: {os.path.basename(filepath)}",
             "headerAuthority": "Document Authority",
-            "certificateNumber": f"IMG-{file_hash[:8].upper()}",
-            "issueDate": datetime.now().strftime("%Y-%m-%d"),
+            "certificateNumber": img_cert if img_cert else "NOT_EXTRACTED",
+            "certificateNumberStatus": "extracted" if img_cert else "missing",
+            "issueDate": img_date if img_date else "NOT_EXTRACTED",
+            "issueDateStatus": "extracted" if img_date else "missing",
             "bodyLines": body_lines or ["Scanned Image Loaded Successfully"],
-            "stampText": "Digital Stamp Intact",
-            "signatory": "Authorized Official"
+            "stampText": "Unverified visual stamp",
+            "stampStatus": "needs_manual_review",
+            "signatory": "Unverified signatory",
+            "signatoryStatus": "needs_manual_review"
         })
         page_fingerprints.append({
             "pageNumber": 1,
@@ -234,5 +258,5 @@ def process_document(req: ProcessDocumentRequest):
         "pages": pages_data,
         "pageFingerprints": page_fingerprints,
         "boundingBoxes": bounding_boxes[:60],
-        "integrityScreening": "Signature & hash structure intact"
+        "integrityScreening": "File hash computed. Cryptographic signature verification unavailable."
     }

@@ -78,8 +78,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 export function AppRoutes() {
   return (
-    <AppShell>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <AppShell>
         <Routes>
           {/* EXACTLY SEVEN PRIMARY CANONICAL APPLICATION ROUTES */}
           <Route path="/dashboard" element={<ControlTowerPage />} />
@@ -110,8 +110,8 @@ export function AppRoutes() {
           {/* CATCH-ALL REDIRECT */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </ErrorBoundary>
-    </AppShell>
+      </AppShell>
+    </ErrorBoundary>
   );
 }
 

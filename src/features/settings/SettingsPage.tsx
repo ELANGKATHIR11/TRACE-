@@ -99,6 +99,8 @@ export const SettingsPage: React.FC = () => {
 
   // Training & Dataset State
   const [datasetsList, setDatasetsList] = useState<any[]>([]);
+  const [cliManifest, setCliManifest] = useState<any>(null);
+  const [datasetCmdLoading, setDatasetCmdLoading] = useState<string | null>(null);
   const [trainingHistory, setTrainingHistory] = useState<any[]>([]);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [activeJobData, setActiveJobData] = useState<any>(null);
@@ -183,6 +185,7 @@ export const SettingsPage: React.FC = () => {
         api.getSystemStorage(),
       ]);
       setDatasetsList(dsRes.datasets || []);
+      setCliManifest(dsRes.cliManifest || null);
       setTrainingHistory(histRes.jobs || []);
       setStorageData(storRes);
 
@@ -866,8 +869,38 @@ export const SettingsPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-[11px] text-slate-600">
-                      Hardware Benchmark: {selectedModelForEval.evaluatedHardware} ({selectedModelForEval.evaluationLatencyMs}ms)
+                      Hardware Benchmark: {selectedModelForEval.evaluatedHardware} ({selectedModelForEval.evaluationLatencyMs}ms) · Samples: {selectedModelForEval.evaluatedSamples}
                     </div>
+                    {Array.isArray(selectedModelForEval.confusionMatrix) && selectedModelForEval.confusionMatrix.length > 0 && (
+                      <div className="pt-2 border-t border-teal-200">
+                        <div className="font-semibold text-slate-800 mb-1 text-[11px]">
+                          Measured Held-Out Confusion Matrix (Rows = Actual, Cols = Predicted):
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="border-collapse font-mono text-[10px] bg-white rounded border border-slate-200">
+                            <tbody>
+                              {selectedModelForEval.confusionMatrix.map((row: number[], rIdx: number) => (
+                                <tr key={rIdx} className="border-b border-slate-100">
+                                  <td className="px-2 py-1 font-semibold bg-slate-50 text-slate-700 border-r border-slate-200">
+                                    {selectedModelForEval.classes?.[rIdx] || `Class ${rIdx}`}
+                                  </td>
+                                  {row.map((cell: number, cIdx: number) => (
+                                    <td
+                                      key={cIdx}
+                                      className={`px-2.5 py-1 text-center ${
+                                        rIdx === cIdx ? 'font-bold text-emerald-700 bg-emerald-50/60' : 'text-slate-500'
+                                      }`}
+                                    >
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -974,6 +1007,7 @@ export const SettingsPage: React.FC = () => {
                       >
                         <option value="doc-layout-cnn">DocumentLayoutCNN (PyTorch CNN)</option>
                         <option value="compliance-risk-gbdt">ComplianceRiskGBDT (scikit-learn GBDT)</option>
+                        <option value="doc-text-tfidf-logreg">DocTextTFIDFClassifier (TF-IDF + LogisticRegression)</option>
                       </select>
                     </div>
 
@@ -1051,10 +1085,82 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               {/* Datasets Table */}
-              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs space-y-3 text-xs">
-                <h3 className="text-base font-bold text-slate-900">
-                  Allowlisted Regulatory Datasets
-                </h3>
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs space-y-4 text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      Executable Dataset Manager & Allowlisted Manifests
+                    </h3>
+                    <p className="text-slate-600 mt-0.5">
+                      Backed by <code className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded">python scripts/datasets.py &#123;list,download,validate,prepare,status&#125;</code>. Enforces the 850 MiB working limit (900 MiB hard cap).
+                    </p>
+                  </div>
+                  {!isReadOnly && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {(['download', 'validate', 'prepare', 'status'] as const).map((act) => (
+                        <button
+                          key={act}
+                          disabled={Boolean(datasetCmdLoading)}
+                          onClick={async () => {
+                            try {
+                              setDatasetCmdLoading(act);
+                              toast.info(`Running scripts/datasets.py ${act}...`);
+                              const res = await api.runDatasetManager(act);
+                              toast.success(
+                                `Dataset manager '${act}' completed (Retained: ${res.result?.retained_size_mib ?? 0} MiB / 850 MiB).`
+                              );
+                              loadTrainingData();
+                            } catch (err: any) {
+                              toast.error(`Dataset manager '${act}' failed: ${err.message}`);
+                            } finally {
+                              setDatasetCmdLoading(null);
+                            }
+                          }}
+                          className="rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 capitalize"
+                        >
+                          {datasetCmdLoading === act ? `Running ${act}...` : `Run ${act}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {cliManifest && (
+                  <div className="rounded-lg border border-teal-200 bg-teal-50/40 p-3.5 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                      <span className="font-bold text-[#0F766E]">
+                        Benchmark & Corpus Discovery Audit (FUNSD, SROIE, CORD, TRACE-Synth)
+                      </span>
+                      <span className="font-mono font-semibold text-slate-800">
+                        Retained Dataset Footprint: {cliManifest.retained_size_mib} MiB / {cliManifest.working_limit_mib} MiB Working Cap ({cliManifest.hard_limit_mib} MiB Hard Cap)
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {Object.values(cliManifest.datasets || {}).map((d: any) => (
+                        <div key={d.id} className="rounded border border-slate-200 bg-white p-2.5 text-[11px] space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold text-slate-900">{d.name}</span>
+                            <span
+                              className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold ${
+                                d.status?.includes('DOWNLOADED') || d.status?.includes('PREPARED')
+                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                  : 'bg-amber-50 text-amber-800 border border-amber-200'
+                              }`}
+                            >
+                              {d.status}
+                            </span>
+                          </div>
+                          <div className="text-slate-600 text-[10px]">
+                            License: {d.license} · Retained Size: <strong className="font-mono">{d.size_mib ?? 0} MiB</strong>
+                            {d.is_synthetic ? ' · [SYNTHETIC LABELED]' : ' · [REAL PUBLIC BENCHMARK]'}
+                          </div>
+                          {d.reason && <div className="text-[10px] text-amber-800">{d.reason}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>

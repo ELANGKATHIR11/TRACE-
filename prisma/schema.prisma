@@ -1,29 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id                     String         @id @default(uuid())
-  email                  String         @unique
+  id                     String       @id @default(uuid())
+  email                  String       @unique
   passwordHash           String
   name                   String
-  role                   String         // 'authorized_reviewer' | 'institution_compliance_officer' | 'institution_administrator' | 'regulatory_system_administrator' | 'auditor'
+  role                   String
   roleLabel              String
   title                  String
   organization           String
   institutionId          String?
-  institution            Institution?   @relation(fields: [institutionId], references: [id])
   badgeCode              String
   permissionsDescription String
-  sessions               Session[]
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
   auditEvents            AuditEvent[]
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  sessions               Session[]
+  institution            Institution? @relation(fields: [institutionId], references: [id])
 
   @@index([email])
   @@index([institutionId])
@@ -34,9 +34,9 @@ model Session {
   id        String   @id @default(uuid())
   token     String   @unique
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([userId])
@@ -46,59 +46,59 @@ model Institution {
   id                  String                 @id @default(uuid())
   name                String
   code                String                 @unique
-  type                String                 // Engineering & Technology, Management, Pharmacy, Architecture, Polytechnic
+  type                String
   region              String
   address             String
   establishedYear     Int
   accreditationStatus String
   contactEmail        String
   contactPhone        String
-  users               User[]
-  applications        Application[]
-  documents           Document[]
-  findings            ComplianceFinding[]
-  tasks               CorrectiveTask[]
-  obligations         ComplianceObligation[]
-  alerts              Alert[]
-  auditEvents         AuditEvent[]
-  claims              Claim[]
-  shadowEvaluations   ShadowEvaluation[]
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
+  alerts              Alert[]
+  applications        Application[]
+  auditEvents         AuditEvent[]
+  claims              Claim[]
+  findings            ComplianceFinding[]
+  obligations         ComplianceObligation[]
+  tasks               CorrectiveTask[]
+  documents           Document[]
+  shadowEvaluations   ShadowEvaluation[]
+  users               User[]
 
   @@index([code])
 }
 
 model Application {
-  id               String                 @id @default(uuid())
-  code             String                 @unique
-  institutionId    String
-  institution      Institution            @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  category         String                 // 'Extension of Approval (EoA)' | 'New Technical Program' | 'Increase in Intake' | 'Closure of Program / Course' | 'ODL / Online Learning Approval'
-  academicYear     String                 // '2026-27' | '2025-26' | '2024-25'
-  programName      String
-  requestedIntake  Int
-  currentIntake    Int
-  ruleSetId        String
-  currentStage     String                 // 'Draft' | 'Validation in progress' | 'Corrections required' | 'Ready for authorized review' | 'Under review' | 'Awaiting additional evidence' | 'Review completed' | 'Authorized outcome recorded'
-  officialOutcome  String                 // 'Not yet issued (Internal workflow active)' | 'EoA Recommended by Scrutiny Committee' | 'Deficiency Notice Issued' | 'Official Approval Recorded (Demo Simulation)'
-  submittedAt      DateTime?
-  lastEvaluatedAt  DateTime?
-  versions         ApplicationVersion[]
-  documents        Document[]
-  findings         ComplianceFinding[]
-  tasks            CorrectiveTask[]
-  obligations         ComplianceObligation[]
+  id                  String                 @id @default(uuid())
+  code                String                 @unique
+  institutionId       String
+  category            String
+  academicYear        String
+  programName         String
+  requestedIntake     Int
+  currentIntake       Int
+  ruleSetId           String
+  currentStage        String
+  officialOutcome     String
+  submittedAt         DateTime?
+  lastEvaluatedAt     DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
   alerts              Alert[]
+  institution         Institution            @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  versions            ApplicationVersion[]
   auditEvents         AuditEvent[]
   claims              Claim[]
   claimRelationships  ClaimRelationship[]
-  shadowEvaluations   ShadowEvaluation[]
+  findings            ComplianceFinding[]
+  obligations         ComplianceObligation[]
+  tasks               CorrectiveTask[]
+  documents           Document[]
   fixPreviews         FixPreview[]
   reviewPriority      ReviewPriority?
+  shadowEvaluations   ShadowEvaluation[]
   validationManifests ValidationManifest[]
-  createdAt           DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
 
   @@index([institutionId])
   @@index([code])
@@ -108,55 +108,55 @@ model Application {
 model ApplicationVersion {
   id            String      @id @default(uuid())
   applicationId String
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   version       String
   snapshotJson  String
   changedBy     String
   changeReason  String
   createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
 }
 
 model Document {
-  id                     String            @id @default(uuid())
-  applicationId          String
-  application            Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  institutionId          String
-  institution            Institution       @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  title                  String
-  category               String            // 'Infrastructure' | 'Safety & NOC' | 'Financial' | 'Faculty & Academic' | 'Legal & Affidavit'
-  fileType               String            // 'PDF' | 'IMAGE_TIFF'
-  fileName               String
-  filePath               String?
-  fileSize               String
-  sha256                 String
-  uploadedAt             DateTime          @default(now())
-  uploadedBy             String
-  expiryDate             DateTime?
-  currentVersion         String            @default("v1.0")
-  requiredByClauseId     String
-  isMandatory            Boolean           @default(true)
-  validationState        String            @default("Needs manual review")
-  ocrConfidenceAvg       Float             @default(0.0)
-  crossDocConsistency    String            @default("Not applicable")
-  integrityScreening     String            @default("Signature & hash structure intact")
-  issuerVerification     String            @default("Pending external authority confirmation")
-  ruleEvaluation         String            @default("Conditional — requires physical scrutiny")
-  humanReviewOutcome     String            @default("Unreviewed")
-  recommendedNextAction  String            @default("Complete independent document verification")
-  versions               DocumentVersion[]
-  pages                  DocumentPage[]
-  boundingBoxes          BoundingBox[]
-  extractedFields        ExtractedField[]
-  reviewerNotes          ReviewerNote[]
-  findings               ComplianceFinding[]
-  claims                 Claim[]
-  fingerprints           DocumentPageFingerprint[]
-  caches                 ProcessingCache[]
-  reprocessingLogs       ReprocessingLog[]
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
+  id                    String                    @id @default(uuid())
+  applicationId         String
+  institutionId         String
+  title                 String
+  category              String
+  fileType              String
+  fileName              String
+  filePath              String?
+  fileSize              String
+  sha256                String
+  uploadedAt            DateTime                  @default(now())
+  uploadedBy            String
+  expiryDate            DateTime?
+  currentVersion        String                    @default("v1.0")
+  requiredByClauseId    String
+  isMandatory           Boolean                   @default(true)
+  validationState       String                    @default("Needs manual review")
+  ocrConfidenceAvg      Float                     @default(0.0)
+  crossDocConsistency   String                    @default("Not applicable")
+  integrityScreening    String                    @default("Signature & hash structure intact")
+  issuerVerification    String                    @default("Pending external authority confirmation")
+  ruleEvaluation        String                    @default("Conditional — requires physical scrutiny")
+  humanReviewOutcome    String                    @default("Unreviewed")
+  recommendedNextAction String                    @default("Complete independent document verification")
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  boundingBoxes         BoundingBox[]
+  claims                Claim[]
+  findings              ComplianceFinding[]
+  application           Application               @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  institution           Institution               @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  pages                 DocumentPage[]
+  fingerprints          DocumentPageFingerprint[]
+  versions              DocumentVersion[]
+  extractedFields       ExtractedField[]
+  caches                ProcessingCache[]
+  reprocessingLogs      ReprocessingLog[]
+  reviewerNotes         ReviewerNote[]
 
   @@index([applicationId])
   @@index([institutionId])
@@ -167,7 +167,6 @@ model Document {
 model DocumentVersion {
   id              String   @id @default(uuid())
   documentId      String
-  document        Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   version         String
   fileName        String
   filePath        String?
@@ -177,6 +176,7 @@ model DocumentVersion {
   changeNote      String
   uploadedBy      String
   uploadedAt      DateTime @default(now())
+  document        Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
@@ -184,31 +184,31 @@ model DocumentVersion {
 model DocumentPage {
   id                String   @id @default(uuid())
   documentId        String
-  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   pageNumber        Int
   title             String
   headerAuthority   String
   certificateNumber String
   issueDate         String
-  bodyLines         String   // JSON stringified array of lines
+  bodyLines         String
   stampText         String
   signatory         String
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
 
 model BoundingBox {
-  id          String   @id @default(uuid())
-  documentId  String
-  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  pageNumber  Int
-  x           Float
-  y           Float
-  width       Float
-  height      Float
-  label       String
-  category    String   // 'date' | 'identifier' | 'name' | 'area' | 'signature' | 'clause_value'
-  status      String   // 'valid' | 'mismatch' | 'warning' | 'info'
+  id         String   @id @default(uuid())
+  documentId String
+  pageNumber Int
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  label      String
+  category   String
+  status     String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
@@ -216,26 +216,26 @@ model BoundingBox {
 model ExtractedField {
   id                      String   @id @default(uuid())
   documentId              String
-  document                Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   key                     String
   label                   String
   extractedValue          String
   matchedApplicationValue String
   expectedRuleValue       String?
   ocrConfidence           Float    @default(0.0)
-  confidenceBand          String   // 'High (>=95%)' | 'Moderate (80-94%)' | 'Low (<80%)' | 'Manual Entry'
+  confidenceBand          String
   pageNumber              Int
   boundingBoxId           String
-  crossDocStatus          String   // 'Consistent across records' | 'Potential inconsistency detected' | 'Missing counterpart document' | 'Not applicable'
+  crossDocStatus          String
   comparedWithDocId       String?
   comparedWithDocName     String?
   comparedWithValue       String?
   ruleClauseId            String
-  validationState         String   // DocumentValidationState
+  validationState         String
   reviewerConfirmed       Boolean  @default(false)
   reviewerComment         String?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
+  document                Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([key])
@@ -244,11 +244,11 @@ model ExtractedField {
 model ReviewerNote {
   id         String   @id @default(uuid())
   documentId String
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   author     String
   role       String
   note       String
   timestamp  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
@@ -265,17 +265,16 @@ model RegulatorySource {
   status          String             @default("Official Published")
   effectiveFrom   DateTime?
   effectiveTo     DateTime?
-  clauses         RegulatoryClause[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
+  clauses         RegulatoryClause[]
 
   @@index([publicationCode])
 }
 
 model RegulatoryClause {
-  id                  String            @id @default(uuid())
+  id                  String           @id @default(uuid())
   sourceId            String
-  source              RegulatorySource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   ruleSetId           String
   clauseNumber        String
   title               String
@@ -284,11 +283,12 @@ model RegulatoryClause {
   pageReference       String
   category            String
   applicability       String
-  isMandatory         Boolean           @default(true)
+  isMandatory         Boolean          @default(true)
   penaltyDescription  String?
   remediationGuidance String?
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  source              RegulatorySource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@index([sourceId])
   @@index([ruleSetId])
@@ -302,7 +302,7 @@ model RuleSet {
   edition       String
   academicYear  String
   version       String
-  status        String    // 'Published' | 'Draft' | 'Under Review' | 'Superseded'
+  status        String
   description   String
   publishedAt   DateTime?
   publishedBy   String?
@@ -318,9 +318,7 @@ model ComplianceFinding {
   id                  String          @id @default(uuid())
   title               String
   applicationId       String
-  application         Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   institutionId       String
-  institution         Institution     @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   requirementId       String
   requirementTitle    String
   ruleSetId           String
@@ -332,7 +330,6 @@ model ComplianceFinding {
   sourceDocumentTitle String
   sourcePageRef       String
   documentId          String?
-  document            Document?       @relation(fields: [documentId], references: [id])
   documentTitle       String?
   pageNumber          Int?
   boundingBoxId       String?
@@ -342,16 +339,19 @@ model ComplianceFinding {
   extractedValue      String?
   expectedValue       String?
   discrepancyNote     String
-  severity            String          // 'Critical' | 'Major' | 'Moderate' | 'Observation'
-  lifecycleStatus     String          // 'Open' | 'Task Assigned' | 'Remediation Uploaded' | 'Re-Validation Passed' | 'Resolved'
+  severity            String
+  lifecycleStatus     String
   assignedTaskId      String?
-  assignedTask        CorrectiveTask?
   resolvedAt          DateTime?
   resolvedBy          String?
   resolutionNote      String?
-  fixPreviews         FixPreview[]
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+  application         Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  document            Document?       @relation(fields: [documentId], references: [id])
+  institution         Institution     @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  assignedTask        CorrectiveTask?
+  fixPreviews         FixPreview[]
 
   @@index([applicationId])
   @@index([institutionId])
@@ -360,26 +360,26 @@ model ComplianceFinding {
 }
 
 model CorrectiveTask {
-  id              String             @id @default(uuid())
-  findingId       String             @unique
-  finding         ComplianceFinding  @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  id              String            @id @default(uuid())
+  findingId       String            @unique
   applicationId   String
-  application     Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   institutionId   String
-  institution     Institution        @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  taskCode        String             @unique
+  taskCode        String            @unique
   title           String
   description     String
   assigneeName    String
   assigneeRole    String
-  priority        String             // 'Urgent' | 'High' | 'Medium' | 'Low'
-  status          String             // 'Open' | 'In Progress' | 'Awaiting Verification' | 'Completed' | 'Overdue'
+  priority        String
+  status          String
   dueDate         DateTime
   requiredAction  String
   responseComment String?
   completedAt     DateTime?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  application     Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  finding         ComplianceFinding @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  institution     Institution       @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
   @@index([findingId])
   @@index([applicationId])
@@ -391,9 +391,7 @@ model ComplianceObligation {
   id                String      @id @default(uuid())
   title             String
   institutionId     String
-  institution       Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   applicationId     String
-  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   clauseId          String
   clauseNumber      String
   regulationRef     String
@@ -401,13 +399,15 @@ model ComplianceObligation {
   category          String
   dueDate           DateTime
   frequency         String
-  status            String      // 'Satisfied' | 'Upcoming' | 'Awaiting evidence' | 'Overdue' | 'Under remediation'
+  status            String
   evidenceRequired  String
   evidenceSubmitted String?
   penaltyRisk       String
   lastAssessedAt    DateTime    @default(now())
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  institution       Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
   @@index([institutionId])
   @@index([applicationId])
@@ -417,12 +417,10 @@ model ComplianceObligation {
 model Alert {
   id             String       @id @default(uuid())
   applicationId  String?
-  application    Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   institutionId  String
-  institution    Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   code           String       @unique
   type           String
-  severity       String       // 'Critical' | 'Major' | 'Moderate' | 'Observation'
+  severity       String
   title          String
   message        String
   sourceClauseId String
@@ -431,9 +429,11 @@ model Alert {
   acknowledged   Boolean      @default(false)
   acknowledgedAt DateTime?
   acknowledgedBy String?
-  channels       String       // JSON stringified array of delivery channels
+  channels       String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  application    Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  institution    Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
   @@index([institutionId])
   @@index([acknowledged])
@@ -444,14 +444,11 @@ model AuditEvent {
   actorId           String
   actorName         String
   actorRole         String
-  user              User?        @relation(fields: [actorId], references: [id])
   action            String
   entityType        String
   entityId          String
   applicationId     String?
-  application       Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   institutionId     String?
-  institution       Institution? @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   previousState     String?
   newState          String?
   ruleVersion       String?
@@ -460,6 +457,9 @@ model AuditEvent {
   userAgent         String?
   outcome           String       @default("Success")
   timestamp         DateTime     @default(now())
+  user              User         @relation(fields: [actorId], references: [id])
+  application       Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  institution       Institution? @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
   @@index([actorId])
   @@index([applicationId])
@@ -470,11 +470,11 @@ model AuditEvent {
 
 model BackgroundJob {
   id          String    @id @default(uuid())
-  type        String    // 'DOCUMENT_PROCESSING' | 'OCR' | 'VALIDATION' | 'SCHEDULED_COMPLIANCE_CHECK' | 'NOTIFICATION_DELIVERY'
-  payload     String    // JSON stringified payload
-  status      String    @default("PENDING") // 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'
+  type        String
+  payload     String
+  status      String    @default("PENDING")
   error       String?
-  result      String?   // JSON stringified result
+  result      String?
   attempts    Int       @default(0)
   maxAttempts Int       @default(3)
   createdAt   DateTime  @default(now())
@@ -485,36 +485,32 @@ model BackgroundJob {
   @@index([type])
 }
 
-// ==========================================
-// FEATURE 1: ChronoGraph — Claim & Contradiction Graph
-// ==========================================
-
 model Claim {
-  id                   String              @id @default(uuid())
-  applicationId        String
-  application          Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  institutionId        String
-  institution          Institution         @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  documentId           String
-  document             Document            @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  documentVersion      String              @default("v1.0")
-  claimType            String              // 'date' | 'identifier' | 'area' | 'intake' | 'entity_name' | 'statutory_noc'
-  claimKey             String              // e.g. 'fire_noc_validity', 'land_title_area', 'sanctioned_intake'
-  rawValue             String
-  normalizedValue      String
-  pageNumber           Int                 @default(1)
-  boundingBoxId        String?
-  extractionModel      String              @default("PyMuPDF+EasyOCR")
-  modelVersion         String              @default("2.0.0")
-  confidence           Float               @default(0.95)
-  relevantDate         DateTime?
-  timePeriod           String?
-  ruleReferences       String?             // JSON stringified array or rule id
-  reviewStatus         String              @default("Unreviewed") // 'Unreviewed' | 'Confirmed' | 'Disputed' | 'Superseded'
-  sourceRelationships  ClaimRelationship[] @relation("SourceClaim")
-  targetRelationships  ClaimRelationship[] @relation("TargetClaim")
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  id                  String              @id @default(uuid())
+  applicationId       String
+  institutionId       String
+  documentId          String
+  documentVersion     String              @default("v1.0")
+  claimType           String
+  claimKey            String
+  rawValue            String
+  normalizedValue     String
+  pageNumber          Int                 @default(1)
+  boundingBoxId       String?
+  extractionModel     String              @default("PyMuPDF+EasyOCR")
+  modelVersion        String              @default("2.0.0")
+  confidence          Float               @default(0.95)
+  relevantDate        DateTime?
+  timePeriod          String?
+  ruleReferences      String?
+  reviewStatus        String              @default("Unreviewed")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  application         Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  document            Document            @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  institution         Institution         @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  sourceRelationships ClaimRelationship[] @relation("SourceClaim")
+  targetRelationships ClaimRelationship[] @relation("TargetClaim")
 
   @@index([applicationId])
   @@index([documentId])
@@ -523,25 +519,25 @@ model Claim {
 }
 
 model ClaimRelationship {
-  id                    String      @id @default(uuid())
-  applicationId         String
-  application           Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  sourceClaimId         String
-  sourceClaim           Claim       @relation("SourceClaim", fields: [sourceClaimId], references: [id], onDelete: Cascade)
-  targetClaimId         String
-  targetClaim           Claim       @relation("TargetClaim", fields: [targetClaimId], references: [id], onDelete: Cascade)
-  relationType          String      // 'SAME_ENTITY' | 'CONCURRENT_FACT' | 'VALUE_MISMATCH' | 'TEMPORAL_CONTRADICTION' | 'SUPERSEDED' | 'STALE_EXPIRED' | 'SUPPORTS_REQUIREMENT' | 'CONTRADICTS_REQUIREMENT'
-  severity              String      @default("Moderate") // 'Critical' | 'Major' | 'Moderate' | 'Informational'
-  explanation           String
-  sourceValueSummary    String
-  targetValueSummary    String
-  status                String      @default("Open") // 'Open' | 'Under Review' | 'Resolved' | 'Acknowledged'
+  id                     String      @id @default(uuid())
+  applicationId          String
+  sourceClaimId          String
+  targetClaimId          String
+  relationType           String
+  severity               String      @default("Moderate")
+  explanation            String
+  sourceValueSummary     String
+  targetValueSummary     String
+  status                 String      @default("Open")
   sourceEvidenceDocTitle String?
-  sourceEvidencePage    Int?
+  sourceEvidencePage     Int?
   targetEvidenceDocTitle String?
-  targetEvidencePage    Int?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  targetEvidencePage     Int?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  application            Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sourceClaim            Claim       @relation("SourceClaim", fields: [sourceClaimId], references: [id], onDelete: Cascade)
+  targetClaim            Claim       @relation("TargetClaim", fields: [targetClaimId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
   @@index([sourceClaimId])
@@ -550,20 +546,16 @@ model ClaimRelationship {
   @@index([status])
 }
 
-// ==========================================
-// FEATURE 3: DeltaScan — Incremental Document Reprocessing
-// ==========================================
-
 model DocumentPageFingerprint {
   id               String   @id @default(uuid())
   documentId       String
-  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   pageNumber       Int
-  pageHash         String   // SHA-256 fingerprint
+  pageHash         String
   textHash         String
   hasVisualChanges Boolean  @default(false)
   lastProcessedAt  DateTime @default(now())
   extractorVersion String   @default("v2.0.0")
+  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([pageHash])
@@ -572,10 +564,9 @@ model DocumentPageFingerprint {
 model ProcessingCache {
   id               String   @id @default(uuid())
   documentId       String
-  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   pageNumber       Int
   cacheKey         String   @unique
-  cachedResultJson String   // Extracted OCR text and bounding boxes
+  cachedResultJson String
   hitCount         Int      @default(0)
   extractorVersion String   @default("v2.0.0")
   modelVersion     String   @default("2.0.0")
@@ -583,6 +574,7 @@ model ProcessingCache {
   isValid          Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([isValid])
@@ -591,7 +583,6 @@ model ProcessingCache {
 model ReprocessingLog {
   id                      String   @id @default(uuid())
   documentId              String
-  document                Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   previousVersion         String
   newVersion              String
   totalPages              Int
@@ -602,13 +593,10 @@ model ReprocessingLog {
   estimatedSavingsPercent Float
   planJson                String
   createdAt               DateTime @default(now())
+  document                Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
-
-// ==========================================
-// FEATURE 2: RuleReplay — Regulatory Change Simulator
-// ==========================================
 
 model RulesetComparison {
   id                     String   @id @default(uuid())
@@ -631,16 +619,16 @@ model ShadowEvaluation {
   id                      String      @id @default(uuid())
   rulesetVersion          String
   targetApplicationId     String
-  application             Application @relation(fields: [targetApplicationId], references: [id], onDelete: Cascade)
   institutionId           String
-  institution             Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   oldOutcome              String
   newOutcome              String
   diffReportJson          String
   affectedObligationsJson String
-  status                  String      @default("Shadow Complete") // 'Shadow Complete' | 'Review Pending' | 'Rejected' | 'Approved For Publication'
+  status                  String      @default("Shadow Complete")
   conductedBy             String
   createdAt               DateTime    @default(now())
+  institution             Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  application             Application @relation(fields: [targetApplicationId], references: [id], onDelete: Cascade)
 
   @@index([targetApplicationId])
   @@index([institutionId])
@@ -655,7 +643,7 @@ model ImpactReport {
   totalApplicationsImpacted Int
   criticalFindingsDelta     Int
   majorFindingsDelta        Int
-  impactedApplicationIds    String    // JSON array
+  impactedApplicationIds    String
   remediationTasksJson      String
   isPublished               Boolean   @default(false)
   publishedBy               String?
@@ -666,61 +654,48 @@ model ImpactReport {
   @@index([isPublished])
 }
 
-// ==========================================
-// FEATURE 4: FixPreview — Sandbox Correction Previews
-// ==========================================
-
 model FixPreview {
   id                        String            @id @default(uuid())
   findingId                 String
-  finding                   ComplianceFinding @relation(fields: [findingId], references: [id], onDelete: Cascade)
   applicationId             String
-  application               Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   proposedFieldKey          String
   originalValue             String
   proposedValue             String
   isHypothetical            Boolean           @default(true)
-  hypotheticalFindingStatus String            // 'Would Resolve' | 'Partially Resolved' | 'Conflict Remains'
+  hypotheticalFindingStatus String
   remainingConflictsJson    String
   requiredEvidenceGuidance  String
   previewOutcomeSummary     String
   createdBy                 String
   createdAt                 DateTime          @default(now())
+  application               Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  finding                   ComplianceFinding @relation(fields: [findingId], references: [id], onDelete: Cascade)
 
   @@index([findingId])
   @@index([applicationId])
 }
 
-// ==========================================
-// FEATURE 5: ReviewPilot — Prioritization Scoring
-// ==========================================
-
 model ReviewPriority {
   id                   String      @id @default(uuid())
   applicationId        String      @unique
-  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   priorityScore        Float
   rank                 Int
-  urgencyBand          String      // 'Immediate' | 'High' | 'Normal' | 'Low'
-  scoringFactorsJson   String      // Breakdown of factors
+  urgencyBand          String
+  scoringFactorsJson   String
   explanationText      String
   assignedReviewerId   String?
   assignedReviewerName String?
   reviewerWorkload     Int         @default(1)
   calculatedAt         DateTime    @default(now())
+  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([priorityScore])
   @@index([rank])
 }
 
-// ==========================================
-// FEATURE 6: Proofline — Reproducible Manifest & Lineage
-// ==========================================
-
 model ValidationManifest {
   id                   String      @id @default(uuid())
   applicationId        String
-  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   assessmentId         String
   documentHashesJson   String
   claimReferencesJson  String
@@ -728,21 +703,18 @@ model ValidationManifest {
   pipelineVersionsJson String
   normalizedInputsJson String
   ruleEvaluationsJson  String
-  manifestHash         String      // SHA-256 of payload
-  previousManifestHash String      // Blockchain-like lineage pointer
+  manifestHash         String
+  previousManifestHash String
   signedBy             String
   signedAt             DateTime    @default(now())
   verifiedAt           DateTime?
-  verificationStatus   String      @default("Valid Chain") // 'Valid Chain' | 'Tampered' | 'Unverified'
+  verificationStatus   String      @default("Valid Chain")
+  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
   @@index([assessmentId])
   @@index([manifestHash])
 }
-
-// ==========================================
-// FEATURE 7: Settings & System Control Center
-// ==========================================
 
 model SystemSetting {
   id                          String   @id @default("CURRENT")
@@ -751,11 +723,11 @@ model SystemSetting {
   defaultAcademicYear         String   @default("2026-27")
   defaultLanguage             String   @default("en-IN")
   timezone                    String   @default("Asia/Kolkata")
-  maxUploadSizeBytes          Int      @default(26214400) // 25 MB
+  maxUploadSizeBytes          Int      @default(26214400)
   maxPagesPerDoc              Int      @default(50)
   allowedDocFormats           String   @default("[\"PDF\",\"PNG\",\"JPEG\",\"TIFF\"]")
   docProcessingTimeoutSeconds Int      @default(60)
-  documentRetentionDays       Int      @default(1825) // 5 Years
+  documentRetentionDays       Int      @default(1825)
   maintenanceMode             Boolean  @default(false)
   ocrLanguages                String   @default("[\"eng\",\"hin\"]")
   ocrTimeoutSeconds           Int      @default(45)
@@ -770,7 +742,7 @@ model SystemSetting {
   escalationIntervalHours     Int      @default(48)
   notificationRetryLimit      Int      @default(3)
   processingJobRetentionDays  Int      @default(90)
-  auditLogRetentionDays       Int      @default(3650) // 10 Years Statutory Hold
+  auditLogRetentionDays       Int      @default(3650)
   updatedBy                   String?
   updatedAt                   DateTime @updatedAt
   version                     Int      @default(1)
@@ -779,7 +751,7 @@ model SystemSetting {
 model SystemSettingVersion {
   id                 String   @id @default(uuid())
   versionNumber      Int
-  configSnapshotJson String   // Full serialized JSON snapshot
+  configSnapshotJson String
   changedBy          String
   changeReason       String?
   createdAt          DateTime @default(now())
@@ -788,21 +760,21 @@ model SystemSettingVersion {
 }
 
 model MlModelRecord {
-  id                    String    @id // 'doc-layout-cnn' | 'compliance-risk-gbdt'
+  id                    String    @id
   name                  String
   purpose               String
-  modelType             String    // 'DL (PyTorch CNN)' | 'ML (Gradient Boosting Decision Trees)'
-  currentVersion        String    // 'v2.1'
-  availableVersionsJson String    // '["v2.0","v2.1"]'
+  modelType             String
+  currentVersion        String
+  availableVersionsJson String
   artifactPath          String
   artifactSizeBytes     Int
   isEnabled             Boolean   @default(true)
-  status                String    @default("Available") // 'Available' | 'Disabled' | 'Training' | 'Degraded'
+  status                String    @default("Available")
   trainingStatus        String    @default("Trained")
   lastTrainedAt         DateTime?
   datasetName           String
   datasetVersion        String
-  metricsJson           String    // '{"accuracy":0.998,"precision":0.998,"recall":0.997,"f1":0.997}'
+  metricsJson           String
   inferenceThreshold    Float     @default(0.85)
   timeoutSeconds        Int       @default(30)
   lastInferenceAt       DateTime?
@@ -823,14 +795,14 @@ model TrainingJob {
   modelId           String
   datasetName       String
   datasetVersion    String
-  status            String    @default("Queued") // 'Queued' | 'Running' | 'Completed' | 'Failed' | 'Cancelled'
+  status            String    @default("Queued")
   progressPercent   Float     @default(0)
   currentStage      String    @default("Initializing")
   epochsTotal       Int       @default(10)
   currentEpoch      Int       @default(0)
   loss              Float?
   metricsJson       String?
-  logsJson          String    @default("[]") // Array of timestamped log entries
+  logsJson          String    @default("[]")
   artifactPath      String?
   artifactSizeBytes Int?
   startedAt         DateTime?
@@ -845,7 +817,7 @@ model TrainingJob {
 }
 
 model DatasetManifest {
-  id             String   @id // 'dataset-doclayout-v2' | 'dataset-riskvector-v1'
+  id             String   @id
   name           String
   source         String
   version        String
@@ -865,7 +837,7 @@ model DatasetManifest {
 
 model ConfigAuditEvent {
   id                String   @id @default(uuid())
-  section           String   // 'General' | 'Models' | 'Training' | 'Processing' | 'Retention' | 'Security'
+  section           String
   action            String
   details           String
   actorId           String
@@ -880,5 +852,3 @@ model ConfigAuditEvent {
   @@index([actorId])
   @@index([createdAt])
 }
-
-

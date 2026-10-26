@@ -1,0 +1,2623 @@
+{
+  "packageName": "TRACE_Repaired_Analysis_Package.zip",
+  "generatedAt": "2026-10-25T21:42:14.3032019+05:30",
+  "totalFiles": 521,
+  "totalSizeBytes": 28843483,
+  "totalSizeMB": 27.51,
+  "excludedCategories": [
+    ".env actual secrets and environment files",
+    "node_modules directory",
+    ".postgres_data and database cluster backups",
+    "dist build artifacts and caches",
+    ".pytest_cache and Python cache artifacts",
+    "uploads directory containing user uploaded documents",
+    ".git revision history"
+  ],
+  "files": [
+    {
+      "path": ".env.example",
+      "sizeBytes": 931,
+      "sha256": "2a2dc2d822e058f1c5c8dd5c280e37b8f624318e1813dfb3d8b07a0b27b7544a"
+    },
+    {
+      "path": ".gitignore",
+      "sizeBytes": 194,
+      "sha256": "9ee5abb3b809387ec7a476b3672e7d2d731772245f7c27db20d07cd6552456ba"
+    },
+    {
+      "path": "AI.md",
+      "sizeBytes": 16403,
+      "sha256": "eb71a77364abf30c14c88da4acc2c7080bba688031bac4a7dd6b2e598b7cb4da"
+    },
+    {
+      "path": "bun.lock",
+      "sizeBytes": 102830,
+      "sha256": "ae9ac8580a26db30c0148cd800f0fecebda33abd7bb666691913ac598331dbc7"
+    },
+    {
+      "path": "index.html",
+      "sizeBytes": 1158,
+      "sha256": "9d002e5e1aea683e8e6c0218eb893ab7ba8bcdf34b2e5b76d16de37337cbfba0"
+    },
+    {
+      "path": "metadata.json",
+      "sizeBytes": 399,
+      "sha256": "6a52911589b0c856fc6689e682695d7bd9d248ef96b42608d663f97d34b51753"
+    },
+    {
+      "path": "package-lock.json",
+      "sizeBytes": 176535,
+      "sha256": "c522462a6fb975df9896947985f5459c3b0aa8540efc6d8a45f57f3b3308578e"
+    },
+    {
+      "path": "package.json",
+      "sizeBytes": 2558,
+      "sha256": "e80a2a4d2e342c07d4a3715fbca1bf974e22c05e10fe28d6109409f4c6b7729b"
+    },
+    {
+      "path": "README.md",
+      "sizeBytes": 18006,
+      "sha256": "993b817b7442982912d2d68acde37352c374a264dbe8aba435626e5f201ada7c"
+    },
+    {
+      "path": "requirements.txt",
+      "sizeBytes": 134,
+      "sha256": "6af8000110c7d973a69cb89fcefc33f78746d2e782490dbebede385b3d634c12"
+    },
+    {
+      "path": "server.ts",
+      "sizeBytes": 10545,
+      "sha256": "e8a555b2490137443b00c8e65b6f89524ec33436b55d1a69d83e0aa1929ea348"
+    },
+    {
+      "path": "TRACE_Analysis_Manifest.json",
+      "sizeBytes": 116330,
+      "sha256": "ce5a2b4e658965a8ddf8a2c270c5e5ca381d48f016335a817fa86f6cf06a5ba4"
+    },
+    {
+      "path": "TRACE_Audit_Report.md",
+      "sizeBytes": 4453,
+      "sha256": "9db9718acefebfd51f2968a4547b945df1660df85ecd2eb9942e784b9746710e"
+    },
+    {
+      "path": "TRACE_Fix_Report.md",
+      "sizeBytes": 6746,
+      "sha256": "11033d3d0934e5c4958b3a94622d32177e830978fbd99495468430f645945f31"
+    },
+    {
+      "path": "TRACE_Security_Test_Report.md",
+      "sizeBytes": 5015,
+      "sha256": "f7b9a5bf79a430940d4d0cef807db2c56d26555a5f390ee53445c8ad4267fe2a"
+    },
+    {
+      "path": "train_models.py",
+      "sizeBytes": 11828,
+      "sha256": "2e5509b6ffa693afea553cadcc9e1fb0805afca96e9df0d14bffb343c6e6e9dd"
+    },
+    {
+      "path": "tsconfig.json",
+      "sizeBytes": 630,
+      "sha256": "5fcbc69bda9813207b4304ef40fc6438938dac453a0470b6f3c1c2dcb2f0d0fe"
+    },
+    {
+      "path": "vite.config.ts",
+      "sizeBytes": 705,
+      "sha256": "a7aa711292e5ad7eb10f7a17f5f34fbbf75c7b7c24d59cb0212c60bc493c3208"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sizeBytes": 389,
+      "sha256": "d5328525d5465d281657ff243e6a28170139fb355cfdf970ffee6047a84e7bdb"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/f79eb2c0-8ae6-48b9-9187-fa141ac5a76d/implementation_plan.md",
+      "sizeBytes": 18225,
+      "sha256": "ff89bb9d2b4c6d3a382e462d760ba4efce6880c29552c8ccaa09e1c5eb6c4ffc"
+    },
+    {
+      "path": ".aistudio/artifacts/brain/f79eb2c0-8ae6-48b9-9187-fa141ac5a76d/implementation_plan.md.metadata.json",
+      "sizeBytes": 540,
+      "sha256": "8e47c83b73f8ac7c73ad801f7fb96ddccfe0b4e2763cb1be4f5bce75cc15f798"
+    },
+    {
+      "path": "aicte_doc_verification-master/README.md",
+      "sizeBytes": 7363,
+      "sha256": "5423be2acfda3e4f3e8af413d8131d66eecd8f5767f900a954399c944eec2ac0"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/.gitignore",
+      "sizeBytes": 26,
+      "sha256": "c39fd40cf1c4b92a94ad1109ba9066af9c527eabc1e5262591bbd5f2ec9a0056"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/bun.lockb",
+      "sizeBytes": 64956,
+      "sha256": "73afbfa2232eacd6ce363931b920ee299f2272dc0dccf705b16af90dd2667c57"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/errorsLog.log",
+      "sizeBytes": 1539,
+      "sha256": "0a5b90d1715eecb1cfd67e97a5735caa6fb5fdb4947bdfeaed4b85bfe0c66fed"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/outputLog.log",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/package-lock.json",
+      "sizeBytes": 67424,
+      "sha256": "75ea281c32ad92f846c612d4f9b8f980517b50dd7af84dfa3000e8057fccd1ff"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/package.json",
+      "sizeBytes": 882,
+      "sha256": "8916b9a22a0f6c339f5b7b786c9737f6f04543353d80c6357755b231971835d1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/vercel.json",
+      "sizeBytes": 78,
+      "sha256": "2a98f53c2b24e9f2f144809b66e51ae4d3ff60185d9076386a4b19e3798e082f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/.vscode/settings.json",
+      "sizeBytes": 427,
+      "sha256": "13c703c3cc3ba645700f9d519d0ea3fe5dad1849aa70f4975df2f4051b57b852"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/index.js",
+      "sizeBytes": 1146,
+      "sha256": "8b700c8b5c6a2ae678586e0d0335a42fc6a7207c8a754a0f46000c7c848f236f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/admin/data/index.js",
+      "sizeBytes": 667,
+      "sha256": "79f2feedaf5d40c07692993dfac51952c4352b934601430455362c93b9934d24"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/evaluator/auth/auth.controller.js",
+      "sizeBytes": 3301,
+      "sha256": "e22585eaf628fc8aaafef1696713f2b9548e2e01f3c5fe1cfb71a5e727cde2ea"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/evaluator/data/data.controller.js",
+      "sizeBytes": 4001,
+      "sha256": "866380e19bd13dadb8d7fdf279c3f079cdbbd60e0f6264978f135758a7a030fc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/institute/auth/index.js",
+      "sizeBytes": 7161,
+      "sha256": "b7daf474756d60ff2fb8269f916284e6d9409f3b171d994cde47306415b5ee8c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/institute/data/index.js",
+      "sizeBytes": 11871,
+      "sha256": "861e66537fa383f1d0ded3d6cdb50aa5b9fd144be4d7a6224580ecab5968a901"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/controllers/otp/index.js",
+      "sizeBytes": 2511,
+      "sha256": "8270645773c7a99aa3f73870d446c5df7b2c48cc21fa2de0be45316b89139c37"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/middlewares/auth.js",
+      "sizeBytes": 607,
+      "sha256": "64d02395a548e47ed2ea901a7d03c094988e5874959fee901ad47d1525cb5000"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/admin/index.js",
+      "sizeBytes": 209,
+      "sha256": "db73e3e725c7806feba370497ed6ac8e5d9f1ead915adcddbf67555e3d252a9b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/evaluator/auth.js",
+      "sizeBytes": 417,
+      "sha256": "642d06b26671c6c3a4b4093d63e117bd11a7d9ad7400b079c78ae87439aa6dd5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/evaluator/data.js",
+      "sizeBytes": 427,
+      "sha256": "c73078500e21c48156cd4e69cee6ae7eac44681dc01f0b8f96fbb5dc8d651610"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/evaluator/index.js",
+      "sizeBytes": 336,
+      "sha256": "97b0d13844a775d1eeb06f5dfbef97477c79a3dccdeb3177def1b98aa5bb25e0"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/institute/auth.js",
+      "sizeBytes": 406,
+      "sha256": "a802c7a643388ca6967800573b3df1e80e030d50eb44068adc84b05ce352af5e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/institute/data.js",
+      "sizeBytes": 804,
+      "sha256": "9554971dbf6378c07b0300d603763d1d4760411acd8ada6e3e6c61d67108df8c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/routes/institute/index.js",
+      "sizeBytes": 318,
+      "sha256": "4c86072e2e22434c86bed4e3482b4f3e4916670a72a9ebc24b5eb243789c1d5e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/services/enums.js",
+      "sizeBytes": 461,
+      "sha256": "a60c6073bb6bbc7ebd26516bf4b2683573844980df87504c6029e0dcca0a2059"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/services/evaluatorMatching.js",
+      "sizeBytes": 3103,
+      "sha256": "3265ff42d09c7a2d7af5d4e4b60275ae12aa1a13bbe4d57734abfa206245c0d5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/services/logging.js",
+      "sizeBytes": 1960,
+      "sha256": "23b0b17dddde8dad46a9253517977787e600fddabd17333ff928135252a0f4e7"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/services/university_validation.js",
+      "sizeBytes": 1851,
+      "sha256": "ece662c26f6a6f4357d434f3a337de989ce16ee7845cd478d2436d846710ab11"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/api/utils/db.js",
+      "sizeBytes": 234,
+      "sha256": "b5d453476c562501564d89aa6d4f6f268ca8b5b220a41a36829c72af077e6890"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/data.js",
+      "sizeBytes": 11166,
+      "sha256": "7417642122d0b1efa1d296303275bf4015e7f43139c1468080ba63667d2a54b7"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/schema.prisma",
+      "sizeBytes": 5500,
+      "sha256": "78a818cbec235cdcfb16c5eabfaf99b7ba2be0a736bfe5721c32123804ff0723"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/seed.js",
+      "sizeBytes": 5264,
+      "sha256": "36211c5e9b22beda82548c356ca59325bb801e434b76ff20bad9f23c0895f71a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/migrations/migration_lock.toml",
+      "sizeBytes": 126,
+      "sha256": "693566b52c49db47a2b0901d12400aa3d710d13a49f4a2a154b80c0505ed737c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/migrations/20241211102038_init/migration.sql",
+      "sizeBytes": 7332,
+      "sha256": "fb78f97dabbabb491485e53cf5eceb6998a582dfe22a982fd40eede2403961bc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/migrations/20241211130616_assigned_evaluators_to_ud/migration.sql",
+      "sizeBytes": 225,
+      "sha256": "7cb8bf0a37c356cb2270470b82c276a76996b14f4a9e7a586f2b7975eaa30e40"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-backend/prisma/migrations/20241212100559_admin_intro/migration.sql",
+      "sizeBytes": 59,
+      "sha256": "8dba99d3862a1c8b6f5304db45d880b9f67ffab310f6cfc575d5aea9eb9a4e4d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/.gitignore",
+      "sizeBytes": 253,
+      "sha256": "fe718e7babb14f3cbad2d97f08889b9ce5215ed3fe0e43b2b8cfbfb3b9b844e8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/app.json",
+      "sizeBytes": 1953,
+      "sha256": "f6cabf4923e908cfc98caf4355ce103c57ac1187883ca60fb4de9448c4ad694a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/bun.lockb",
+      "sizeBytes": 390791,
+      "sha256": "f74b874b607fc53089ad452684b601ecd2999e43714fe599b6be7aef9c249505"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/capacitor.config.ts",
+      "sizeBytes": 180,
+      "sha256": "98b8b3d9d57ee40b77ee561248e040590b4c3e1cf6764f4f19d1b9fd23b0d7cc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/components.json",
+      "sizeBytes": 441,
+      "sha256": "1d3769e98b2f1b0342d2f251bf05744332a5edae88b817b5b4469c062e3c6634"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/eslint.config.js",
+      "sizeBytes": 734,
+      "sha256": "dc00c7db700d03834d04a172ea709593ae5ef1bc750eb55dfc521a60d9e1baa0"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/index.html",
+      "sizeBytes": 367,
+      "sha256": "c5e5ab8ce259aa302afe628911479f36d42b6ae1e004c14be06d7f5afd2095f6"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/package-lock.json",
+      "sizeBytes": 481965,
+      "sha256": "94946fa4e896a3ea0fca8d4d4f551e9dd583f2a77401d5ab8157e6712068b3dd"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/package.json",
+      "sizeBytes": 2722,
+      "sha256": "a1e084ca917ff6b5c11d93a980fd07527c111b2c54772b76e180b2a5ad9c1f8e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/postcss.config.js",
+      "sizeBytes": 80,
+      "sha256": "190c877db466995bf1482f4a16abd06e04a89ede3119341e2a86ff96e1737b27"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/README.md",
+      "sizeBytes": 1607,
+      "sha256": "f83e8201f2934fb634577123959d9f332edfc9cb45438c764c9f6fc7ac6d71c3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/tailwind.config.js",
+      "sizeBytes": 2430,
+      "sha256": "711d62c99e4e5943680fea83fc75ca5700294eac9479316a1888da3f22c75f76"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/tsconfig.app.json",
+      "sizeBytes": 777,
+      "sha256": "3f4395b0a5f7a7804204ead3b4ba7aee36ed05269b977d4097c0c3850a62ded8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/tsconfig.json",
+      "sizeBytes": 213,
+      "sha256": "3f24c40e2f822c632d0448261986f1422a255dc00733640a1f7a565afb42d740"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/tsconfig.node.json",
+      "sizeBytes": 593,
+      "sha256": "cdf03296db009821b4da76adbc99712072f85fa48731d5c0b4e7f8d28a82f453"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/vite.config.ts",
+      "sizeBytes": 240,
+      "sha256": "77c152275b487a73957b3c34e86c215e3d3baf6d550416c4d58c573271980188"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/.gitignore",
+      "sizeBytes": 1824,
+      "sha256": "065e4a92a240fe11a0ea230491ad9dabef143f5fd5a3e6884ad6f0395666a971"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/build.gradle",
+      "sizeBytes": 636,
+      "sha256": "c05c6e67af5651a56aecb0908027be42c84c03dad529af4839dbdc4393405158"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/capacitor.settings.gradle",
+      "sizeBytes": 207,
+      "sha256": "b488e162f552d6efb8286793c7871bbc1061c9bf5ca3a6a495fdeb8988a541c7"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/gradle.properties",
+      "sizeBytes": 987,
+      "sha256": "3bab15c5b8bc4c2f4b6cf525497d15ad4abca53a460e6dd2eb0f0135817d31e6"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/gradlew",
+      "sizeBytes": 8527,
+      "sha256": "e0108761fee312b7b373ee96c0870cab5c167e664ac507776814b1d59e9b3bad"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/gradlew.bat",
+      "sizeBytes": 2776,
+      "sha256": "18774a0ac0203f6893bf1db3291a0d77f06cd1b4dca2a43b51e7009da3e28cfa"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/settings.gradle",
+      "sizeBytes": 208,
+      "sha256": "6ce098d15ebd69b44c4ecd786bca1bdc366340d2459b2af4d7bb0ab317aa9669"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/variables.gradle",
+      "sizeBytes": 496,
+      "sha256": "47391f3ef8551f8cdeabcc383a99bbee6927d8b4191cfaf3027353fe25741852"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/.gitignore",
+      "sizeBytes": 26,
+      "sha256": "99c54e51ee601a60fbde8016b2cbf717483bc2e92773be86c9247d02a7fa6ea4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/build.gradle",
+      "sizeBytes": 2118,
+      "sha256": "0a4ae997676c2d38ec177da294b831ce2a40d1f1811cd55f4650fd107d222344"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/capacitor.build.gradle",
+      "sizeBytes": 370,
+      "sha256": "99daeda0f3366bba0fe6bae2b51295645aebcb09c0c72c17d580515b47df1a9c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/proguard-rules.pro",
+      "sizeBytes": 751,
+      "sha256": "1cf8c57e8f79c250b0af9c1a5a4edad71a5c348a79ab70243b6bae086c150ad2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java",
+      "sizeBytes": 774,
+      "sha256": "ff50b4c110a7434312f9af54171f9e8523b015836f707c9b387b76d4c38a97f8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/AndroidManifest.xml",
+      "sizeBytes": 1518,
+      "sha256": "1012280e069bd8ad20829391d8acafff9a1ac1f7f1fefb6c2c0c493a34990b1e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/java/com/aicte/sih/MainActivity.java",
+      "sizeBytes": 117,
+      "sha256": "cc03b481ecfbabcd1c9bed070bbf9a6df2444de4b8a251e8c0e8bb1f5a4c53ca"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable/ic_launcher_background.xml",
+      "sizeBytes": 5606,
+      "sha256": "718ba51adf166bb55c3e9936bb8199a0148457f7f0191aaa2f37a94f3159d6ec"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable/splash.png",
+      "sizeBytes": 4040,
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-land-hdpi/splash.png",
+      "sizeBytes": 7705,
+      "sha256": "08cc34ad7713fe7ed58bceaa37b2387b670c53cd60264b4bd6442db3098e75dc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-land-mdpi/splash.png",
+      "sizeBytes": 4040,
+      "sha256": "5cf98b4451bd99b20df26f9e608a46946118be6b0ae90762f9ca1786a30c76ff"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-land-xhdpi/splash.png",
+      "sizeBytes": 9251,
+      "sha256": "22f87e1e3bc89aa01a7dbc39c9a4db058cd0bf4ad3fe9f55712bf69eb997f4bf"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-land-xxhdpi/splash.png",
+      "sizeBytes": 13984,
+      "sha256": "42aa26392546fcdee1b8d3ac6d4b41bfcceb41dc6a4f3a3c30c24a8a8f4db862"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-land-xxxhdpi/splash.png",
+      "sizeBytes": 17683,
+      "sha256": "60393ce8636fd263e4e1fea3fd4ab2de948c6295e898fda9b50ac4e5283be809"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-port-hdpi/splash.png",
+      "sizeBytes": 7934,
+      "sha256": "c5015f4ba3628392b538386c5e210f0b94f352a3160adab934fd0311972137ca"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-port-mdpi/splash.png",
+      "sizeBytes": 4096,
+      "sha256": "07fa579e1c83e04ba7f9cbcbfcf41b68e15fe3638f2c44a04e58b809103e6b69"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-port-xhdpi/splash.png",
+      "sizeBytes": 9875,
+      "sha256": "b73049cb37fe76d6c11b87a796766bf6af0c85483b31eb6a921657b0d764a4b9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-port-xxhdpi/splash.png",
+      "sizeBytes": 13346,
+      "sha256": "0c7f1212f25b7b90e9a6e1d320013e4ff3d3e03e634cbb07b7b7981cac51627f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-port-xxxhdpi/splash.png",
+      "sizeBytes": 17489,
+      "sha256": "3db071a03b2f8ffe0dfd4170fc59842d53cd15bba5e88af59401d58efabf7827"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml",
+      "sizeBytes": 1880,
+      "sha256": "a8514094f754b099d3e55ce1d6e0b2de79db418b2eeacb0fc2a6bb0bfadef221"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/layout/activity_main.xml",
+      "sizeBytes": 535,
+      "sha256": "5d770feb791313b947020cbfc57e5c733c556dac5e9e49261a1190e527073253"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "sizeBytes": 265,
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "sizeBytes": 265,
+      "sha256": "9c3a7e0a6515c6e1a7ae834a9ae430311ebc3241f7b2e5e7f0460aa690709a7c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "sizeBytes": 3450,
+      "sha256": "32baa10d2632a4417454a579f992bd640e0a3cec79321423559b2c9940de58a9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+      "sizeBytes": 4341,
+      "sha256": "bfcc1b0fa931b14bb241372c76ab4f04374b67d02363c98d9cb12edfdacdf5f3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "sizeBytes": 2786,
+      "sha256": "72b71c3581ca3b5a23b1c168d69b9d855b3f184fa079902a01f088eb4f0607d5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "sizeBytes": 2110,
+      "sha256": "58e78a618778926b1f6d9472a6468de878de8530970934e94aab5ba4ba08cc00"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+      "sizeBytes": 2725,
+      "sha256": "0166fc333074c373fbd0ce6b5defd71552166165ac778121ca9c9dff6b83f0fc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "sizeBytes": 1869,
+      "sha256": "27ed3603010ebc278f64f8645741ab132ff517abb5308eb9df6c8e42a48956b2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "sizeBytes": 5036,
+      "sha256": "6f88083b8166cc559102f7044688de7525287632ebe09ac45d001ac8bf4b3eae"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+      "sizeBytes": 6593,
+      "sha256": "40911a00922868686854a4804b93fd6e56b503664696de03f450bff690affb6d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "sizeBytes": 3981,
+      "sha256": "d35dbfff175b83c13ef59cf924abfc810f7b6a158595d7417c5498ea8c7c7ed1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "sizeBytes": 9793,
+      "sha256": "4a82bc1e9923576275869998925ce0ae021a79aa18b24a0dd87ad6b61ca85053"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "sizeBytes": 10455,
+      "sha256": "1ee4cd9ff371dcb2e3938097e434f6fb8731688ed7165e61fc63693ad5b2f455"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "sizeBytes": 6644,
+      "sha256": "ed346eb1e3f0280f15709393705899b3ff55c20b88f4e0308006b3c33cf5fe14"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "sizeBytes": 15529,
+      "sha256": "bd24fd383253bf8d43f0a81f11c071d76d1d555114376dd647cd9fb38fa0a9da"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "sizeBytes": 15916,
+      "sha256": "ab93096331e7cd8ec379f73f1e9adcaaa9ee1115c9f4ff10411a811fb9700174"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "sizeBytes": 9441,
+      "sha256": "87cb2f2ffe992652bb4fa768c73719a37b5852ab17fbf8e170e888f7a42b0761"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/values/ic_launcher_background.xml",
+      "sizeBytes": 120,
+      "sha256": "cd40bafe618ff506f4088778b135cb4faa15f25e0c9b475e22d730c74b7be115"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/values/strings.xml",
+      "sizeBytes": 276,
+      "sha256": "941726782e989b6c11243f74cfa82dbd4af5f2525e4d9b3962d9871de95dd9ed"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/values/styles.xml",
+      "sizeBytes": 823,
+      "sha256": "18ebba36575e9461347ee67361b23caf095f158ee85dbefe1b83a4669ba5bd6c"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/main/res/xml/file_paths.xml",
+      "sizeBytes": 213,
+      "sha256": "a46ed43ef65c90cb6778f4581decf3556e3f0055aad8f36d69dae16f9a0e99aa"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java",
+      "sizeBytes": 402,
+      "sha256": "d4045ae8fac1f0807e6b24eb34e68409a9a235df9d1a3f896fb8c9a49424363d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/gradle/wrapper/gradle-wrapper.jar",
+      "sizeBytes": 63375,
+      "sha256": "a8451eeda314d0568b5340498b36edf147a8f0d692c5ff58082d477abe9146e4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/android/gradle/wrapper/gradle-wrapper.properties",
+      "sizeBytes": 252,
+      "sha256": "252070f2b15e40fd80dc5f8f3a6ae8a2f6928bec943889e189a78b294e8f36a5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/public/aicte.webp",
+      "sizeBytes": 85494,
+      "sha256": "29548cd120f9a89fc42931bf735add96099f3e490e64ef8b27e0d587faa5049f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/Apaar.tsx",
+      "sizeBytes": 9519,
+      "sha256": "187db7b74396b077fbffc2c164d64b3ec04c87b93da4ea1918856ee7ecef13a6"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/ApaarDashboard.tsx",
+      "sizeBytes": 2364,
+      "sha256": "f021461e9441a15eda24e8ae74362f3b03cfc89283a6a094c7042a6c927e2d63"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/App.css",
+      "sizeBytes": 606,
+      "sha256": "a0715e0a09edbd0fbde65816a75e0fa0fc8b314c5260c0768c19bf3aac22621a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/App.tsx",
+      "sizeBytes": 4064,
+      "sha256": "abbbfc4d9c688fbe9bf3f1f07688f18f206becef468618182d56655874ffdab0"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/globals.css",
+      "sizeBytes": 2324,
+      "sha256": "9631b14b4ce465809600b6c5e8403f289a4b298b3853bdaa20828bf8b647f82f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/index.css",
+      "sizeBytes": 857,
+      "sha256": "ce3f3d5eb6214db28a0cbf2da35da11e50766a6ff960b96ef0eb0663430541bd"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/main.tsx",
+      "sizeBytes": 391,
+      "sha256": "45f8952fd8e83660a876e3f02c5123c458109e0c5d277790b3deeb082a0ffe42"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/vite-env.d.ts",
+      "sizeBytes": 38,
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/assets/aicte-graphic.png",
+      "sizeBytes": 62676,
+      "sha256": "327df56dca62bb37fc70b3c3162e808979d6efc330ba1feca53276e3a7e05e2b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/assets/aicte-logo.webp",
+      "sizeBytes": 85494,
+      "sha256": "29548cd120f9a89fc42931bf735add96099f3e490e64ef8b27e0d587faa5049f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/assets/react.svg",
+      "sizeBytes": 4126,
+      "sha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/assets/pdf/architect.pdf",
+      "sizeBytes": 7478,
+      "sha256": "29550d778741b8ba2ed38d4e21b7bbc97d84925eec24422a55f8a4d5b1eb9a43"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ApplicationModal.tsx",
+      "sizeBytes": 5301,
+      "sha256": "59ab7890b056f44aaa6973afdae60624c7036769a3c517602171b7827c52a33d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ApplicationSubmissionForm.tsx",
+      "sizeBytes": 2352,
+      "sha256": "f3fbe099a66a5e1e2772979ccf2e40294cd4a7f272b84e2896b7a135509dcb56"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/BackgroundLayout.tsx",
+      "sizeBytes": 1007,
+      "sha256": "925267c0c22d3e0dd6930d7f50d626cbec76900d5e8645634445ef585f7900c3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/Chatbot.tsx",
+      "sizeBytes": 3550,
+      "sha256": "67648b40ba83bcf23039bf38dcee0fb8c26456f1d251306d4346aeead738d787"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/CollapisbleSidebar.tsx",
+      "sizeBytes": 5928,
+      "sha256": "8dae4554b63bc4a7882bd56c4c16a8651f9e39649af3bbf017fc9f6b1be825b1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/DocumentInfo.tsx",
+      "sizeBytes": 10551,
+      "sha256": "95d29838ff72a7e9e3ca41c323361e8bdeeef3538e6d2326e037c50456f05df5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfViewer.tsx",
+      "sizeBytes": 853,
+      "sha256": "6df0a6aa592038b6ea2327033fb424a306dac2fc2650e29777e707462adfe131"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/VerificationPopup.tsx",
+      "sizeBytes": 1739,
+      "sha256": "714025338b5893b849ac2c1f61c91291c714deba533eb94e96cb165b1a7deda9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/EditableOverlay.tsx",
+      "sizeBytes": 2065,
+      "sha256": "327f062d2cd57c4e0b86113da09b4c96abbb579ede3ebfa94ca8a465585e931e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/EditableText.tsx",
+      "sizeBytes": 1169,
+      "sha256": "7f712afde00c9c71b685800559edd7e7f1b07636771e5241c164b62b58b57fd4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/ErrorChatbot.tsx",
+      "sizeBytes": 3176,
+      "sha256": "99416710219efd7b5ee74e882281744fdc0211180d861b71de660558f83d7cd5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfControls.tsx",
+      "sizeBytes": 860,
+      "sha256": "0ebcc5d212adf75e9b5ba989d409bd4fe709c0f381140485349119f6ad98e109"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfHighlightComponent.tsx",
+      "sizeBytes": 7115,
+      "sha256": "964c51de707594ede0bf0082ab378025701e57c455e759a2d4d70ae3c85f3fee"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfPopover.tsx",
+      "sizeBytes": 2916,
+      "sha256": "245cbd1488f393afbdbe55ef62183b5252242c6697aa24b0ccfc9fce054c939e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PlaceholderErrorComponent.tsx",
+      "sizeBytes": 5600,
+      "sha256": "7bd269a5dc51a28bd42703abc9da79a43e86a9e7f5a4ce21b2b085a0116e8419"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PreviousUploads.tsx",
+      "sizeBytes": 3058,
+      "sha256": "aff247a3c9705cab9ff9f92a8a9ce4b3b9af514a6d2bd224a180aee7d5d5da37"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfEditor/Header.tsx",
+      "sizeBytes": 944,
+      "sha256": "05cde9e1f6c5d694a8166df9b0c5da18183dc4a0c192bab24c6f2e94deeb2d46"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfEditor/MarkdownEditor.tsx",
+      "sizeBytes": 1332,
+      "sha256": "72a469544e956b51b7a07d6611e0dbad19bd584a889ad3117f327e2fd8d7ac8a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfEditor/PdfConverter.tsx",
+      "sizeBytes": 3192,
+      "sha256": "8e90d4e8653a8928d8284677f398c87ab7e684710e0a1b29d5965e5e745c2948"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/PdfErrorFix/PdfEditor/PdfEditor.tsx",
+      "sizeBytes": 8042,
+      "sha256": "713fd9963de30e34cf4d559363c9127d0655321aea299f123122516eb3289cf3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/accordion.tsx",
+      "sizeBytes": 2015,
+      "sha256": "00dd6eef660f08ce85154106fa0fa4d943ed699c5ca7b06bb08732978bcebb49"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/alert.tsx",
+      "sizeBytes": 1598,
+      "sha256": "5950ac01377e7eedc94b00eb3fee678745e4cc1a72b5343867f0733d07db6660"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/avatar.tsx",
+      "sizeBytes": 1405,
+      "sha256": "fb33bc4865b74d1f0239b1782dbdc4cc2d38690ba6e245e9e3b024c256b14c2b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/badge.tsx",
+      "sizeBytes": 1140,
+      "sha256": "dab689d836ad3292b41e7f4986b4e68e5d45c6903e4aeaae8972a82d4aebec29"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/button.tsx",
+      "sizeBytes": 1902,
+      "sha256": "c2b999a96781e6c932632bd089095368e973bf5602e1b1a62156b7d2b43f1e84"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/calendar.tsx",
+      "sizeBytes": 2827,
+      "sha256": "13218e14c27f1e890b1d0620c039153135fea844972a1af8c3496ff7f923e49f"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/card.tsx",
+      "sizeBytes": 1828,
+      "sha256": "525c4bb2c051987be64df0e92e1d90174912b219bf541e24ffbc4a3406de49e8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/chart.tsx",
+      "sizeBytes": 10567,
+      "sha256": "2b0f35e67cc5234b3d5c696192c4e16f8ead97a8399ed3e01cae93e35f7cc139"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/checkbox.tsx",
+      "sizeBytes": 1012,
+      "sha256": "5590aab08eeecc7a004aaca5cfb31e408edd3164075203e2c4f7a95f415a25e4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/collapsible.tsx",
+      "sizeBytes": 315,
+      "sha256": "6f5be8ba164c177759bf63cc25ad4d49391f162f6784ba624d72e5d5c0c0dde2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/dialog.tsx",
+      "sizeBytes": 3835,
+      "sha256": "f9c982ed8114c253c6ca738043d3f455e89c6d65569e90c9415776d6b4d6be14"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/dropdown-menu.tsx",
+      "sizeBytes": 7402,
+      "sha256": "ed077be912d4ac9d320250985ba904070a5fd35f64c89a27f5dd75478f64a1b4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/form.tsx",
+      "sizeBytes": 4097,
+      "sha256": "f09b5aef53d923b7911eb0c4a6c2f991b644541c6f74382d405d74457ac4cf9e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/input.tsx",
+      "sizeBytes": 768,
+      "sha256": "6299a6a387dc55e528aec4342deaea0b83f1ea3a365c135a31a18ee55334f441"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/label.tsx",
+      "sizeBytes": 710,
+      "sha256": "e69cfc27d78c9ef31b248ab8ea4fa54327c1038843f70efb5cd85d54c0bf1e0e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/popover.tsx",
+      "sizeBytes": 1292,
+      "sha256": "a887b6d5c3ba69aca1f23554c085f2d14e58734adb248f76612a5581ad84c6da"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/progress.tsx",
+      "sizeBytes": 778,
+      "sha256": "62867bfee64030a1b58ff7e18623893d1b626eab65340f160cdedf88b8b52200"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/radio-group.tsx",
+      "sizeBytes": 1424,
+      "sha256": "30c8d8ea431d9480180d47689b5863fc89e649329aa102766db30a2af5fe4ae8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/scroll-area.tsx",
+      "sizeBytes": 1642,
+      "sha256": "d7d02600effca55d0dcadce8c09c97ebddda3a19c5fa1d52dc9f6f727b26c6b1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/select.tsx",
+      "sizeBytes": 5618,
+      "sha256": "7fa27aaec9974b6862606f5136c82c4639ed6b128b898180bb44a536d55f809b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/separator.tsx",
+      "sizeBytes": 756,
+      "sha256": "c956c4cca4b8442fa9314d6079b9f975e1ee39d5804aaf2966990f6258ac342a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/sheet.tsx",
+      "sizeBytes": 4280,
+      "sha256": "363f8e06aa5b53c6475f445117f60fa9294be79e9e4f1f5bf70886800188124e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/sidebar.tsx",
+      "sizeBytes": 23381,
+      "sha256": "72aeae5c68c361fce30abd8926dd056e2a7351b16b9223347e1fa68610be3a69"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/skeleton.tsx",
+      "sizeBytes": 266,
+      "sha256": "87608e7cc815ad3d88e0b9de6c402bb37b58ea1b38636cf69709da1baff6e334"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/table.tsx",
+      "sizeBytes": 2859,
+      "sha256": "a4a6972c2d47d465d7f02c1dc4a6cbfeda7a97e46479c1b0cebdaf26bf9b497a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/tabs.tsx",
+      "sizeBytes": 1877,
+      "sha256": "6f74706bc6b53f9e4bcebb5e7ab8743b616aef181edc7758b8ee905f9b2fdcd7"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/textarea.tsx",
+      "sizeBytes": 649,
+      "sha256": "ec7c92aaed80f6923a7caa4bfe4eead395b50a7001504fd7fbb0b9381804dae9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/toast.tsx",
+      "sizeBytes": 4818,
+      "sha256": "d3c7ad5738d28011b414c43fd3a1bb6b5d4d96036967285cfac496f5bcb79b07"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/toaster.tsx",
+      "sizeBytes": 772,
+      "sha256": "1348f1a1f9820e2f1394b93cecc156a7e22f03636ab9270753985549aae2be74"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/toggle.tsx",
+      "sizeBytes": 1486,
+      "sha256": "955fa1bb97505b7a8bba3f7cff1991035a9afa0e1113f5d598147e6369dbf44b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/components/ui/tooltip.tsx",
+      "sizeBytes": 1203,
+      "sha256": "ac653259b74b55b6b2aa48449842c23d889c65687d949c4e9e529616a58e1c27"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/constants/API.ts",
+      "sizeBytes": 49,
+      "sha256": "01c800cb812d449e8fafbe33c9a1dbb5486548ea88125205ba714085369c2651"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/data/applicationTypes.json",
+      "sizeBytes": 7743,
+      "sha256": "4ae77a964eaa1f91cdb1e08fbff2c70cc2af513c289e3976a188bb7ae81b87c3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/use-mobile.tsx",
+      "sizeBytes": 565,
+      "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/use-toast.ts",
+      "sizeBytes": 3948,
+      "sha256": "03e892344ad170438ccfc156b4ee7ff0be4e535a2939e038f64556ce03b934ed"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useApplication.ts",
+      "sizeBytes": 3997,
+      "sha256": "e12362bc5583dc5a21b79fa200218232eeaf2e96114fae24ba2edb321661e591"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useAuth.ts",
+      "sizeBytes": 5522,
+      "sha256": "f6739ef617a30421e19ac7374f5bc0de605c008428b4cbb4b19c8428b85099a1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useChat.ts",
+      "sizeBytes": 1687,
+      "sha256": "61c3c0cdda873234454538181f9d2594080e7fc06cb4581453b8bdd5deff56c4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useChatPdf.ts",
+      "sizeBytes": 1834,
+      "sha256": "f856be2fd183cadc6d258a63710c7371f5e1af569bb9bd8d06bed510b2f31eb1"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useFileUpload.ts",
+      "sizeBytes": 3246,
+      "sha256": "23eb57b3f175eccf7b39242e7a747fabc3503eb273a25893ddb39e536da356bc"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useInstituteData.ts",
+      "sizeBytes": 1623,
+      "sha256": "3c102d5d4603c36422b38c08e84affe28d62c8c7b6d7787ef2bfdcc3f5581268"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useInstituteValidation.ts",
+      "sizeBytes": 863,
+      "sha256": "7bbf06cc4eca4dea12050a9f1627144c1709baaa666a2973e50ae4cac859efa4"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/useOTP.ts",
+      "sizeBytes": 837,
+      "sha256": "8083b22a1240a6c947e4e32bc63c25b3e1a8f4ed4ad35f048bbf5b9235a5ce65"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/hooks/usePdfConverter.ts",
+      "sizeBytes": 2427,
+      "sha256": "7886fd105670b5f3a40106cbe99865c19c8963fd9d357651c5f866b6c0664d70"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/lib/firebase.ts",
+      "sizeBytes": 240,
+      "sha256": "b234369cb4f45673e57290bb48fc91bc1cc6dd255383ecf6f2bdbb8b1032cbf2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/lib/pdfjs-setup.ts",
+      "sizeBytes": 4133,
+      "sha256": "9ebec0e5e63d7f98feb4658a79b3662651206859499bb40630c11fe6ac58f740"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/lib/utils.ts",
+      "sizeBytes": 294,
+      "sha256": "a7fed0e56c10488a4cc32d9e0fbc931e498afe1e8968b4d55c13465fdfa9b40b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/landing.tsx",
+      "sizeBytes": 12420,
+      "sha256": "acab124546ed7fa8bf7c621c905fb246dfd6fd9ccafcd0f98423045c8335bf8e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/admin/dashboard.tsx",
+      "sizeBytes": 13437,
+      "sha256": "7c2b9748b5874eb299d3ae5afae9061834bfd725132aa10d96b6a54ac93db492"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/admin/index.tsx",
+      "sizeBytes": 11605,
+      "sha256": "97b21dc8f693c29b7fcf419c91a8b45ee2169fd2cfccb69913af17869d0de71a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/evaluator/auth.tsx",
+      "sizeBytes": 6773,
+      "sha256": "5535bf292f9c558d5e8402f0a51d69037e46c702baca67ac49d6374d2ae60a0a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/evaluator/index.tsx",
+      "sizeBytes": 33548,
+      "sha256": "161b11af9b9b3a79eab929d475740b1c3b31540c25df2bf8b3f658d7f82db413"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/index.tsx",
+      "sizeBytes": 1818,
+      "sha256": "f4dffca3dd77c1320f970cc69beb625bf70a9ba3d4129f8a585115eff477923d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/settings.tsx",
+      "sizeBytes": 218,
+      "sha256": "79ddbcd34b25695ee1662632999e590761985942d50d0bb096e15d0886bbd25b"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/applications/Application.tsx",
+      "sizeBytes": 12177,
+      "sha256": "3fdc586717a9250f2eabf294723deb70fcd59fb2d643c2327da68e144f409409"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/applications/ErrorFixPage.tsx",
+      "sizeBytes": 5804,
+      "sha256": "4ee7c3ee0d7861ba3c2caec045a5fecaa6967a53c981bbc098dc807fa3aab9e2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/applications/index.tsx",
+      "sizeBytes": 15344,
+      "sha256": "92b679b6b7575a0301f6ab3fecf360e80bd2095c297363addc319d287ded62e6"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/applications/UploadDocument.tsx",
+      "sizeBytes": 8600,
+      "sha256": "8cead5ba83fcb57e36c465c88b33997995f2a38ba2c729a7d9517a0ee2fc63f7"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/auth/forgot.tsx",
+      "sizeBytes": 10188,
+      "sha256": "036f8e8b68a76ba2a3c9c34db768ff9fef328c9f8c5bd1372c06483d87c94cad"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/auth/login.tsx",
+      "sizeBytes": 10596,
+      "sha256": "57c755632876cb9c3bfe275188b9bf2d25b0a399bfcac146cfa328f888e07d03"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/auth/otp.tsx",
+      "sizeBytes": 13198,
+      "sha256": "e09f20fd71629aef942b0c03068c2505ea5892d5da79aeb734d2399a8166a14a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/auth/register.tsx",
+      "sizeBytes": 36836,
+      "sha256": "7e448771055bc8184c326c3af1978165538977292440dd5601cb06c46731e3d9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/dashboard/index.tsx",
+      "sizeBytes": 16134,
+      "sha256": "14384e60adce9b6819a29b4c8a0076129c81609a9f65c1ee0c0375714551a81e"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/pages/institute/dashboard/infrastructure.tsx",
+      "sizeBytes": 11829,
+      "sha256": "5428a676259cb31a4018e0f29f3a73319668d8cd40162e9ac708a19ba16e7520"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/schemas/applicationSchema.ts",
+      "sizeBytes": 1153,
+      "sha256": "92e6f53d1f903f9469219605c7c1e0ac9f1cd0b390f1562de47fe099a15d8c95"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte-frontend/src/schemas/instituteAuthSchema.ts",
+      "sizeBytes": 2171,
+      "sha256": "02b1820b059dc3c06fd0894d65a09ff1a432cb68f441df2912ba573fa7eb7ef2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/.gitignore",
+      "sizeBytes": 13,
+      "sha256": "eb205fafab90e0c0de00114b9d4078708911e9f50058c35f7eb208108c3bf834"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/image.jpg",
+      "sizeBytes": 10292,
+      "sha256": "862208813ce5911fd675f31e59e4ad21d6408e39d0d708b47ec1decdb66fed11"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/requirements.txt",
+      "sizeBytes": 1952,
+      "sha256": "93dde30d7e478d26e1bf4f68935014d4bdbb03799f390248ad67a9377c83683a"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/vercel.json",
+      "sizeBytes": 188,
+      "sha256": "353565433c77cef580a2cf3768905eae1d6a1e4b4226b5b2aa142440f46a95a3"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/index.py",
+      "sizeBytes": 10275,
+      "sha256": "fce706de71c29a1d7c531fcef57e56b7a3b9a75ea43a23de43bfc1781972a1ad"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/main.py",
+      "sizeBytes": 7502,
+      "sha256": "f031034f3862b83385df3964aa8e7959d835a7f42cd4a25d5ac66878691c905d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/data/best.pt",
+      "sizeBytes": 19172499,
+      "sha256": "290b242aa1422740de23e52cab3ca0977a0fa3f5cca3eb26b6b5c5e9db39e319"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/data/handbook_data.json",
+      "sizeBytes": 1750019,
+      "sha256": "64f46dccf7d0258fbf9f4d2cf2ac342abd807f7edd224c4089932a12ee1f9d64"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/routers/chat_router.py",
+      "sizeBytes": 332,
+      "sha256": "c89abf057d108b48757ec5921a5732e50d8c130633fdad235db31890bfdbba9d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/routers/detect_router.py",
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/services/chat/chat_pdf.py",
+      "sizeBytes": 1839,
+      "sha256": "13ebad3e671ab684c006a5901848b52a0854bfde6627325de2e1c8898850ddd9"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/services/chat/chatbot.py",
+      "sizeBytes": 1176,
+      "sha256": "4afe40f0ea86017a4d1961135816f3868d64b77ed02116c0524b56d0ea48c9c8"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/services/chat/pdf_comparison.py",
+      "sizeBytes": 979,
+      "sha256": "60395d728a169a54e2b2ef9c1588481822958e837012596024e639564df84b3d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/services/detect/blueprint.py",
+      "sizeBytes": 1593,
+      "sha256": "e643fcf8aeababfe9d987464cd1b33373286fc5e0f3f387b9e4d62c9c4734284"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/services/detect/object.py",
+      "sizeBytes": 595,
+      "sha256": "8e8c2bf3c5323a97457365661b32cd32c92778056eafb3d10cbb1c7530365aa5"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/utils/get_exif_data.py",
+      "sizeBytes": 1996,
+      "sha256": "7db991ead0db8d20e453c63d92d495d22322f6c036e21c89c3655f225f81137d"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/utils/index.py",
+      "sizeBytes": 759,
+      "sha256": "3ae2b3b26eacc13e6b4eb0ce8bf90126e5b8a8e4a4d1be9f38f9db74f5623e91"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/utils/pdf_compare_utils.py",
+      "sizeBytes": 10834,
+      "sha256": "bb1c2cb5e6f413f73d13d2c519d36dfa0c447adc61e82de94efab0bc29c34089"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/app/utils/query_processor.py",
+      "sizeBytes": 1984,
+      "sha256": "02c08a9ba777da72ce33235245d19f28ff67dcc2f4d27db6bce48c7e7b44e8b2"
+    },
+    {
+      "path": "aicte_doc_verification-master/aicte_models/load_balancer/nginx.conf",
+      "sizeBytes": 850,
+      "sha256": "85987b063729ac9f9f88eeebc5249fe45e99ea1724fcb44d17aa421c2d6fb0d2"
+    },
+    {
+      "path": "fastapi_engine/__init__.py",
+      "sizeBytes": 32,
+      "sha256": "3f6e9abcac69e8fa63c0742a73d99d2af1b18a30eebf3aac98700f184d42395f"
+    },
+    {
+      "path": "fastapi_engine/main.py",
+      "sizeBytes": 2355,
+      "sha256": "94b25d7e0fe9f804f1b820abc76652e1437578df4156f8b788c3a5c5180321f2"
+    },
+    {
+      "path": "fastapi_engine/models/compliance_risk_gbdt.joblib",
+      "sizeBytes": 660137,
+      "sha256": "6670a876a5a8fc5a51b70c7b5f89c252c9919d6f670154c65c0151d9be3c2d1e"
+    },
+    {
+      "path": "fastapi_engine/models/document_layout_cnn.pt",
+      "sizeBytes": 2203032,
+      "sha256": "fa9fcc1e8d28ae75b69ddcbe3b7692f1fe07ff0428ba201c82a59de3ccdc4d61"
+    },
+    {
+      "path": "fastapi_engine/models/models_metadata.json",
+      "sizeBytes": 1576,
+      "sha256": "b7ae91ec2a28b85607db13582f2a850520563dd80768b9233d7df71a1a5c6974"
+    },
+    {
+      "path": "fastapi_engine/routers/__init__.py",
+      "sizeBytes": 18,
+      "sha256": "cbacc8761833b64aa017a3df2d933c3897f9f19997044efaea49f206ec1b205a"
+    },
+    {
+      "path": "fastapi_engine/routers/chronograph.py",
+      "sizeBytes": 21239,
+      "sha256": "320ecd5694a039eead0187c0671b4afecd943ef2e7f023ad98e46c5004820028"
+    },
+    {
+      "path": "fastapi_engine/routers/deltascan.py",
+      "sizeBytes": 6388,
+      "sha256": "3f60856bb3f09a40c633e9d035224272107639b31696ac5dce1a5c0ab41ef335"
+    },
+    {
+      "path": "fastapi_engine/routers/document_ai.py",
+      "sizeBytes": 11131,
+      "sha256": "70dfee122ff01f14c9c992063d806a362774401967476783dd62efb6107fe88f"
+    },
+    {
+      "path": "fastapi_engine/routers/proofline.py",
+      "sizeBytes": 4911,
+      "sha256": "8c348181e55b1b978225db52dbe584596b859adfb6fe16e895e8a3fcea7515cd"
+    },
+    {
+      "path": "fastapi_engine/routers/reviewpilot.py",
+      "sizeBytes": 6519,
+      "sha256": "3bd7ad35da4da2749069d2edf6966d271097e4b8a7f0f285b5e50e4e2beb6ace"
+    },
+    {
+      "path": "fastapi_engine/routers/rulereplay.py",
+      "sizeBytes": 9086,
+      "sha256": "d96a50077831d192e72846beb2a56c69627265091b3ffdb0d8ab5062b1d45959"
+    },
+    {
+      "path": "fastapi_engine/routers/system_ml.py",
+      "sizeBytes": 14853,
+      "sha256": "7f751b7491ee499bd8c2c8d0e876bbd81f2082c9d9677898bd1402f58c5bc642"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "sizeBytes": 33484,
+      "sha256": "0e53448da332de46e2a147a189dfe30370d881427b3c6153843b570878016c04"
+    },
+    {
+      "path": "public/assets/aistudio/Paste_October_21__2026_-_11_09PM_43b6673d",
+      "sizeBytes": 29904,
+      "sha256": "43b6673d8da7ead24d248a6fee6996ee4051de40d126688627c1cf1b2745da5b"
+    },
+    {
+      "path": "scripts/inspect_db.cjs",
+      "sizeBytes": 584,
+      "sha256": "f09ed690c20757a1340549adad95b4fe685307f0f7c5dbbd26a0b10ddc9860c0"
+    },
+    {
+      "path": "scripts/process_document.py",
+      "sizeBytes": 12832,
+      "sha256": "f94907d334e52341e9a11488b0ef62c7d438d57f05a2a6fdccdb2592d75ef3b1"
+    },
+    {
+      "path": "scripts/seed_document_pages.ts",
+      "sizeBytes": 1640,
+      "sha256": "850f7aa1b4dc3628812ffaab8391c1e575edee7ab458c4b7738b1915787f1b58"
+    },
+    {
+      "path": "scripts/test_db.cjs",
+      "sizeBytes": 488,
+      "sha256": "0b298766f5b9a277c0116560cf898b6d507535ff1103d888c588d965ed3eedd2"
+    },
+    {
+      "path": "server/db/prisma.ts",
+      "sizeBytes": 404,
+      "sha256": "ba836388e6c419b064dcf9d905128df30cd651cf40df22ab058cb1e14866742c"
+    },
+    {
+      "path": "server/db/seed.ts",
+      "sizeBytes": 39643,
+      "sha256": "793c8df3cece51cf912118cbcc9aacf8cbc18b6c669d45df9f85f60780981745"
+    },
+    {
+      "path": "server/middleware/auth.ts",
+      "sizeBytes": 3087,
+      "sha256": "d60a7a4b817e283748fdba63de01469978411712608c0a4a03c66a1c528d1341"
+    },
+    {
+      "path": "server/routes/alerts.ts",
+      "sizeBytes": 5101,
+      "sha256": "60c3b0556a4afda3273a9062c43538a668779cd2c5dac119e5809c9d22a2f3d3"
+    },
+    {
+      "path": "server/routes/analytics.ts",
+      "sizeBytes": 1798,
+      "sha256": "283093f8aa1717e6bddf074af1a2eac2727c6b5c7c34de4ed88102c2fe8b9f5b"
+    },
+    {
+      "path": "server/routes/applications.ts",
+      "sizeBytes": 19079,
+      "sha256": "c0812b0b75382cc41a227affa69ad3fb2e4433f4d3c7c2a7e9937028b5695204"
+    },
+    {
+      "path": "server/routes/audit.ts",
+      "sizeBytes": 1432,
+      "sha256": "61391f16866b3f48e43c82f64f1fd43ca48db2c985c3c03113a676a85b750e9a"
+    },
+    {
+      "path": "server/routes/auth.ts",
+      "sizeBytes": 5802,
+      "sha256": "0d8f2574e950aed7a13de0620f453ed6dfacfcb315e29f4e16cbe9f2e1e7969f"
+    },
+    {
+      "path": "server/routes/copilot.ts",
+      "sizeBytes": 7377,
+      "sha256": "6f9d78a7af0321c10c2581261a330ef03a0ae8fd0acf1f2bae57864eff4c31f0"
+    },
+    {
+      "path": "server/routes/documents.ts",
+      "sizeBytes": 22530,
+      "sha256": "650f4f58c2b266a3fa5d800bbfcecf77feb4f36eaf5ac9bcd2add0bb0dcdf931"
+    },
+    {
+      "path": "server/routes/findings.ts",
+      "sizeBytes": 13620,
+      "sha256": "4ca40a2e75a6ae16de05a0170bd85f944374a6344f3c760d5bd93e8c3f6dbd01"
+    },
+    {
+      "path": "server/routes/institutions.ts",
+      "sizeBytes": 2783,
+      "sha256": "41b2da4f94b5b97d7a48aa99287d263ce0cef4f28cf9280f275e521001849e0b"
+    },
+    {
+      "path": "server/routes/obligations.ts",
+      "sizeBytes": 1530,
+      "sha256": "a1586e85fc478c0670417455019b42ef986c4c906e0512362bc32d0caae12900"
+    },
+    {
+      "path": "server/routes/provenance.ts",
+      "sizeBytes": 7994,
+      "sha256": "5e6ac8e2336e9b18bdaac9b521e8f94f74df6eb3cb128de3d580591d6caa4441"
+    },
+    {
+      "path": "server/routes/review-queue.ts",
+      "sizeBytes": 3032,
+      "sha256": "67ea35bef51967e8705d1c9da12b57f6b5030b9cf902ff2be934209bc526c202"
+    },
+    {
+      "path": "server/routes/rules.ts",
+      "sizeBytes": 13202,
+      "sha256": "54d3d6958041074b2a0c31f9f34d6113df1c92abcf9539ea8bb0143d22978e9b"
+    },
+    {
+      "path": "server/routes/settings.ts",
+      "sizeBytes": 33131,
+      "sha256": "c0225bb7dbc05cbad2dc391d4e40c2cfb1232138c489b306fca78aad00798873"
+    },
+    {
+      "path": "server/routes/state.ts",
+      "sizeBytes": 17357,
+      "sha256": "c39838dd0b3db14cf07ae0e244bbcd7a3755ade0d8e02e322b8c6ebe2a772696"
+    },
+    {
+      "path": "server/routes/tasks.ts",
+      "sizeBytes": 6996,
+      "sha256": "2c8cd2c9ba0cd075b8ac4d1e6592073d3d5733dcdbdc5ddc46c262a4da1da633"
+    },
+    {
+      "path": "server/routes/users.ts",
+      "sizeBytes": 665,
+      "sha256": "fcc0d67bf58d10f95d5cd2df45dcb54b51006c0bb9b1f97563088e3e6e65b687"
+    },
+    {
+      "path": "server/services/audit-service.ts",
+      "sizeBytes": 1327,
+      "sha256": "b97523b04cffe1db2d9da1ad38347b106a018a166b7008f8e7d05c16368c9f83"
+    },
+    {
+      "path": "server/services/fastapi-service.ts",
+      "sizeBytes": 6150,
+      "sha256": "bb205e84f2ffaf2b39be74f3781991a6e4088715de0778dda44c6145b8bf170a"
+    },
+    {
+      "path": "server/services/notification-service.ts",
+      "sizeBytes": 3050,
+      "sha256": "962417e5126a12918160fe073df2eb68eaaccc33b5232f10b626398da7046e29"
+    },
+    {
+      "path": "server/services/ocr-service.ts",
+      "sizeBytes": 4822,
+      "sha256": "3eaa4e9c9c2ce0c9308c54dc799985820691c5997d26d2b5f134cc521c5bf435"
+    },
+    {
+      "path": "server/services/validation-engine.ts",
+      "sizeBytes": 8117,
+      "sha256": "e04d1a7e9f36fd0e37fa4e05198bd52822a244358a0b6cb55884c18cdd9e6527"
+    },
+    {
+      "path": "sih-24-1729-main/LICENSE",
+      "sizeBytes": 1079,
+      "sha256": "982800238d0d4e1920ebd3040a085e4b0df165cf37702d6c71bb42078b0ba27d"
+    },
+    {
+      "path": "sih-24-1729-main/README.md",
+      "sizeBytes": 1831,
+      "sha256": "ff3897e24516c6016942a6eb4e8ee6d16c62aeb0c611a26229a2717984cf9946"
+    },
+    {
+      "path": "sih-24-1729-main/ai-service/app.py",
+      "sizeBytes": 3150,
+      "sha256": "ebd072ce753896aaed1d20819e33a7597c01e44e4359a82f5ec72cad157ebe5a"
+    },
+    {
+      "path": "sih-24-1729-main/ai-service/requirements.txt",
+      "sizeBytes": 1765,
+      "sha256": "da1bd1a305278a3f280cca4d5cf38414de62424b51de1b3350bcd7dac4a4662b"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/.gitattributes",
+      "sizeBytes": 38,
+      "sha256": "5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/mvnw",
+      "sizeBytes": 10665,
+      "sha256": "7e6e5d26712efd78140f2f63dafe8d17028f6c5c97ac1f746a043110b7a1d9ad"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/mvnw.cmd",
+      "sizeBytes": 7061,
+      "sha256": "3dc8d558cc15e5051a9ef3778099c6a8bcd83320ba0383ece14811194d08d730"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/pom.xml",
+      "sizeBytes": 3672,
+      "sha256": "838a119407386b5866ef6ef6a443a8cce1466085bd588c5c010efa3fcce1439b"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/.mvn/wrapper/maven-wrapper.properties",
+      "sizeBytes": 951,
+      "sha256": "90da0b8373999aed95eb5626f3bf7afa54aa9268db0bae81b0f0bebf1db0a13c"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/ApiGatewayApplication.java",
+      "sizeBytes": 843,
+      "sha256": "b7d4cf461a5648388e102432f216c7d6b18acf9764c8bb0f3472b8b0f6ca3c4d"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/configs/GatewayConfig.java",
+      "sizeBytes": 2155,
+      "sha256": "fc6577c3069cef95cb63daee924be0287defa13a5b1e99defe55564d5b2fe711"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/configs/RestClientConfig.java",
+      "sizeBytes": 359,
+      "sha256": "205ed1fe68201aa9caeaf44b85326ea7ac228b7162130eef0fd422eb852c811f"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/configs/SecurityConfig.java",
+      "sizeBytes": 2974,
+      "sha256": "f194fad116d94d02f4bec70b1aa0ff4249790bf9bc5af0ba1bbb6c65aa2e2bb5"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/filter/JwtAuthFilter.java",
+      "sizeBytes": 2432,
+      "sha256": "8721d08c2eabc0b9635b89c1b80ebb693036f67184f40000e57645b4356b354f"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/java/com/sih/khc/apigateway/util/JwtService.java",
+      "sizeBytes": 931,
+      "sha256": "2313e46e3e3e41713c3d1e5565c11dafc1bbd88b9d566ce4ee23b5bd1a1397e7"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/main/resources/application.yaml.example",
+      "sizeBytes": 2178,
+      "sha256": "7f23ccee624e8d7a9cc6596ac6e972f0fb06b5276241ede9403e71bf7b7d1586"
+    },
+    {
+      "path": "sih-24-1729-main/api-gateway/src/test/java/com/sih/khc/apigateway/ApiGatewayApplicationTests.java",
+      "sizeBytes": 227,
+      "sha256": "3d382f44bd497bc0391499fa78a238627c36b916470c96ce93a1a492e24ed1a2"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/.gitattributes",
+      "sizeBytes": 38,
+      "sha256": "5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/mvnw",
+      "sizeBytes": 10665,
+      "sha256": "7e6e5d26712efd78140f2f63dafe8d17028f6c5c97ac1f746a043110b7a1d9ad"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/mvnw.cmd",
+      "sizeBytes": 7061,
+      "sha256": "3dc8d558cc15e5051a9ef3778099c6a8bcd83320ba0383ece14811194d08d730"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/pom.xml",
+      "sizeBytes": 4225,
+      "sha256": "32f9c6501d016319d32bdf3b25ead410cf5460ee1fe62b8280ec4cc88b7ace9a"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/.mvn/wrapper/maven-wrapper.properties",
+      "sizeBytes": 951,
+      "sha256": "90da0b8373999aed95eb5626f3bf7afa54aa9268db0bae81b0f0bebf1db0a13c"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/ApplicationServiceApplication.java",
+      "sizeBytes": 456,
+      "sha256": "871c9bf3d70a68b6a23f58608f66a1ea99777d13ed6ec0ad07f7b0a71c2ad67a"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/controller/ApplicationController.java",
+      "sizeBytes": 3090,
+      "sha256": "e309f39ad6340e74c86b163ca20c10647b2e5dce0c9e5615bb07e06e12b59773"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/controller/DocumentsController.java",
+      "sizeBytes": 6764,
+      "sha256": "7c7c57930b6d67e98c4db76a5a2a79e5344246464da15b5664829c7165025032"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/dto/ApplicationDTO.java",
+      "sizeBytes": 332,
+      "sha256": "0b5f74c97ecdd33f2a69e1a4280916f99ff22190f84fb56976e614f5101e04b0"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/dto/DocumentDTO.java",
+      "sizeBytes": 295,
+      "sha256": "892ac83fd3c41bb6e8b18f49a1b09945781b355fe63ad8f0b4b0d6728c49cd8c"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/model/ApplicationModel.java",
+      "sizeBytes": 1064,
+      "sha256": "8e2200e379f76b8b8f80595668ff0236a20b4e2ba5137cafda1b7327ebf870de"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/model/ApplicationTypes.java",
+      "sizeBytes": 134,
+      "sha256": "db2681f60e9771cacfe29d17c12763fc9e86ffddf7054eca10704253d6ee6ad4"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/model/DocumentsModel.java",
+      "sizeBytes": 705,
+      "sha256": "a34caed7aff00c8401e2768e135878b5ae2faf7400c17e02fe7d4b49da80db9e"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/model/DocumentStatus.java",
+      "sizeBytes": 126,
+      "sha256": "ca795571af368b6068c842011b5d81e44fe6c677a20cc39c823e40e8024a5130"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/repository/ApplicationsRepo.java",
+      "sizeBytes": 287,
+      "sha256": "941200e8c7ff8d1e1eacaaf9fc5012e44e073451f7c24f3cc3b3f87cbe8d5529"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/repository/DocumentsRepo.java",
+      "sizeBytes": 657,
+      "sha256": "bf6565a5ddae4c9b912a4cbc688d541e273bbc741a0cae01977090db173e6fc2"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/service/ApplicationService.java",
+      "sizeBytes": 1689,
+      "sha256": "b8cb94184e03f38d03272326cbac1f3af148a2d4d4993c1489d4a72cd3043fea"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/service/DocumentEncryptionService.java",
+      "sizeBytes": 6279,
+      "sha256": "6fd9f0926f01bfa18b8f56311e01a0071750fdae9c5270473ca155a0e5157658"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/service/DocumentService.java",
+      "sizeBytes": 2754,
+      "sha256": "3b9421bcfe5759ef282d8fc86773d2dc6a836a39fc97c2cdcec32be4f02c7186"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/java/com/sih/khc/application_service/utils/AES_Utils.java",
+      "sizeBytes": 874,
+      "sha256": "3509bd2189a2653e24d3d84738b8ab4bf1fdbf9c2860768237d5d54dcb512832"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/main/resources/application.yaml.example",
+      "sizeBytes": 922,
+      "sha256": "f857ced7c5073408a81dd5615460fc7e77077a9559adc11630dd67a0f5e69510"
+    },
+    {
+      "path": "sih-24-1729-main/application-service/src/test/java/com/sih/khc/application_service/ApplicationServiceApplicationTests.java",
+      "sizeBytes": 244,
+      "sha256": "7018b6bba91969a54b6f521e6b9b79888054cadd630ca7a2b694f2ed9ef4964b"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/.gitattributes",
+      "sizeBytes": 38,
+      "sha256": "5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/mvnw",
+      "sizeBytes": 10665,
+      "sha256": "7e6e5d26712efd78140f2f63dafe8d17028f6c5c97ac1f746a043110b7a1d9ad"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/mvnw.cmd",
+      "sizeBytes": 7061,
+      "sha256": "3dc8d558cc15e5051a9ef3778099c6a8bcd83320ba0383ece14811194d08d730"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/pom.xml",
+      "sizeBytes": 4375,
+      "sha256": "907efd54619fb2d781aca42542762ba3a283bac9963adf97a86d916f7537ce03"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/.mvn/wrapper/maven-wrapper.properties",
+      "sizeBytes": 951,
+      "sha256": "90da0b8373999aed95eb5626f3bf7afa54aa9268db0bae81b0f0bebf1db0a13c"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/AuthServiceApplication.java",
+      "sizeBytes": 499,
+      "sha256": "d3ba6a2f2d8782c354238564778c109c26991dd91c14d3725882c8175739fc6d"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/configs/JwtAuthFilter.java",
+      "sizeBytes": 2375,
+      "sha256": "227d11e1115f7df9cbf6a0ba1c25a55cd716dc726d9f70f667c5498153cbf6c4"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/configs/SecurityConfig.java",
+      "sizeBytes": 2943,
+      "sha256": "bd2d03565674c4670ee8e23b6fb4c91294dedc0e660cb354c02cfe489504fd28"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/configs/SwaggerConfig.java",
+      "sizeBytes": 1374,
+      "sha256": "775127fb6dcdebfcacb064d6caaaa3e6d6dcc10a4fb8f0062054fa8b5ce69732"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/configs/WebConfig.java",
+      "sizeBytes": 567,
+      "sha256": "e3dd882666a3c76b97e389fdc6644514df8d6fe3ceeb73230fec1896d11c0aaf"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/controller/AuthController.java",
+      "sizeBytes": 2232,
+      "sha256": "ea47b0a5508a1e008d4cbb36ed5fe5fda146e8c6de31136d5943b44ccdf06650"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/controller/UserController.java",
+      "sizeBytes": 4775,
+      "sha256": "453bb04a101da6c041484698c035c97e27fc749106b6b60c36a591fecfe68266"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/dto/AuthResponse.java",
+      "sizeBytes": 289,
+      "sha256": "99f5b78873d2662d438b28fea353e68f7c3884b3e1921f38485eb8cf947a9da6"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/dto/InitialRegsDTO.java",
+      "sizeBytes": 345,
+      "sha256": "4c09316a3835cc9cc4ac6565dec00550d284771b6d4e3ab11ebafa2208c78c66"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/dto/LoginDTO.java",
+      "sizeBytes": 152,
+      "sha256": "6cb0dc0ae6d9d711708cb6c6af0dd004e5e21caff8c2e338dd23a51a3e87e091"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/dto/RepresentativeDTO.java",
+      "sizeBytes": 263,
+      "sha256": "cfd1a66c84697acd00e2bec042b2f38adb0887e31ae77d4e714f8a504aa356b1"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/dto/RepresentativeRegsDTO.java",
+      "sizeBytes": 336,
+      "sha256": "729e9b67e6f5c1ddaa4fa19b0cf3e13a6c3bf4cd5f42bbf2b2134ca8ae280499"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/Domains.java",
+      "sizeBytes": 102,
+      "sha256": "31e3d50ae48efda98cb3992aba231f48451885d50e93a769f8e6984a17dfbea9"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/Representative.java",
+      "sizeBytes": 449,
+      "sha256": "6465527a57dae29e2a53619e63df76d9476fa3caf4f3e138e005a1ff1effe409"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/Reviewer.java",
+      "sizeBytes": 413,
+      "sha256": "6081002141f02cd96ab3d6d3839e472ce5cc955667d61a6916dc3b537aac4a07"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/UserModel.java",
+      "sizeBytes": 828,
+      "sha256": "43a3e7a20959aeec1dd89906b15ca3e2e110fa6a9c339da71d445b14a5e63b1b"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/UserPrincipal.java",
+      "sizeBytes": 1403,
+      "sha256": "8889c9509d160eb249fe8e2dfc86b9f061e6a440d8d498a203a007b54822adfe"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/models/UserRole.java",
+      "sizeBytes": 145,
+      "sha256": "6935987c5b703c7314bbb828506ec2eea134784c088d3ab4e479342e5f70acd4"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/repository/RepresentativeRepo.java",
+      "sizeBytes": 273,
+      "sha256": "e8cb75b6dcee42e27b32edaaf903b2c8c23bc8145adaee260c8658a706d44ad1"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/repository/ReviewerRepo.java",
+      "sizeBytes": 254,
+      "sha256": "6e66b4d3f5a661e139544ffdb0dcb6c3ccc78e56d4f3be74fd3fa3cea17c01ae"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/repository/UserRepo.java",
+      "sizeBytes": 423,
+      "sha256": "8b66ceb05510e8b78c7d6ef3829f5c258b526a28411ab84406718a041b73161f"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/AuthService.java",
+      "sizeBytes": 238,
+      "sha256": "2d6364f576989bd614efc8f3ad4fd1edca06ccf3709ab56ca861110fe55cf902"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/AuthServiceImpl.java",
+      "sizeBytes": 5283,
+      "sha256": "00ed35e6d31857bcdae3419e0996b82cb961a7b8ccb137785351e9510ae3338d"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/JwtService.java",
+      "sizeBytes": 526,
+      "sha256": "78771e4059fe1e08f283672b42e59b5b96a74208bc1ecca2502ec10be4109c16"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/JwtServiceImpl.java",
+      "sizeBytes": 3422,
+      "sha256": "3b54ede9c2e56e453811896cb2bfaca42e7cded4b9ac3cf3ae3690e71a317786"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/MailService.java",
+      "sizeBytes": 133,
+      "sha256": "87ac59175c475a2173b011e6d48c55c80d88f40b61ffede993c43fcf1491aed2"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/MailServiceImpl.java",
+      "sizeBytes": 1963,
+      "sha256": "b2d418ef8dbdc518b162a93fe6345b1638d880344686800743ea4f89dceb83ad"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/PasswordService.java",
+      "sizeBytes": 499,
+      "sha256": "3129fe7a64ca199be9119f82280eda5c1d5cba3f40a5d9e2a96587b71f300e84"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/PasswordServiceImpl.java",
+      "sizeBytes": 1508,
+      "sha256": "345404de2f5356fa9ac82790e5643449be5447413c675f4472ea6e2031dc8003"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/RepresentativeService.java",
+      "sizeBytes": 383,
+      "sha256": "17da804c36d1bd7f898fa28f9a7ea2ac3fb175ac7ea32c6819e9c006fc6a38b6"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/RepresentativeServiceImpl.java",
+      "sizeBytes": 1498,
+      "sha256": "c0cebfba7731613e07bbc32b40b2b11b0f204112dda94ac0a2cd2f110ee48d15"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/UserService.java",
+      "sizeBytes": 770,
+      "sha256": "47cdad29fb5fb406d3ecbd1dc261ebc68c18d9b83db8caf25aee4ff5c255c9c5"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/java/com/sih/khc/auth_service/service/UserServiceImpl.java",
+      "sizeBytes": 3620,
+      "sha256": "710a0b94d4bf8eff3fff4ac3a737c320df75da4765fb7007451f0b2c65b69dc1"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/main/resources/application.yaml.example",
+      "sizeBytes": 1292,
+      "sha256": "bfb7d8e62228fce3d8ec168ce3b01ffce1ac012f8997840eaf3ed246c80a63a4"
+    },
+    {
+      "path": "sih-24-1729-main/auth-service/src/test/java/com/sih/khc/auth_service/AuthServiceApplicationTests.java",
+      "sizeBytes": 230,
+      "sha256": "602b219f79da4e7f9e9574aee8471a8135946d3b06585364115efa5f425d8d8e"
+    },
+    {
+      "path": "sih-24-1729-main/client/components.json",
+      "sizeBytes": 440,
+      "sha256": "e7682f2d62ec1c9d2afea5330652244b7e8fc8342fd8457b048cc817287a5d47"
+    },
+    {
+      "path": "sih-24-1729-main/client/eslint.config.js",
+      "sizeBytes": 734,
+      "sha256": "dc00c7db700d03834d04a172ea709593ae5ef1bc750eb55dfc521a60d9e1baa0"
+    },
+    {
+      "path": "sih-24-1729-main/client/index.html",
+      "sizeBytes": 754,
+      "sha256": "aa8819337495c77bafd4f5e9b71f557149d7484a0065a2c506b5574d0ed4c065"
+    },
+    {
+      "path": "sih-24-1729-main/client/package-lock.json",
+      "sizeBytes": 208570,
+      "sha256": "8f6aeaf1389dabf0da37f0a69b7cabab1029812102c3030cac7ce768e1af099c"
+    },
+    {
+      "path": "sih-24-1729-main/client/package.json",
+      "sizeBytes": 1847,
+      "sha256": "e7365af098119ff38266678c82d79ff393bc4df6f6b20babd6d49f1e0de9b614"
+    },
+    {
+      "path": "sih-24-1729-main/client/postcss.config.js",
+      "sizeBytes": 80,
+      "sha256": "190c877db466995bf1482f4a16abd06e04a89ede3119341e2a86ff96e1737b27"
+    },
+    {
+      "path": "sih-24-1729-main/client/README.md",
+      "sizeBytes": 38,
+      "sha256": "d53a79d2245990acab3c20c1c5e51a5366c361832dec42497eec5d9dae17832b"
+    },
+    {
+      "path": "sih-24-1729-main/client/tailwind.config.js",
+      "sizeBytes": 1995,
+      "sha256": "c52f185dc94c1cbf13eff6159b82ad56fbf179875898729c80e439f9a8576d08"
+    },
+    {
+      "path": "sih-24-1729-main/client/tsconfig.app.json",
+      "sizeBytes": 733,
+      "sha256": "6a233902db0c9d6a3f8dd982b7010ec526570f0e7b6ef8c2bf2c8f3e3af4b280"
+    },
+    {
+      "path": "sih-24-1729-main/client/tsconfig.json",
+      "sizeBytes": 233,
+      "sha256": "b3ff28e241f4eb552d45c2f7869581e14cffc92a28541eec2b52fe7593a195b7"
+    },
+    {
+      "path": "sih-24-1729-main/client/tsconfig.node.json",
+      "sizeBytes": 593,
+      "sha256": "d417b0be3b2264c26a4865d3a9ef788e8e7229da62ef2a88ed41a81e04eff668"
+    },
+    {
+      "path": "sih-24-1729-main/client/vite.config.ts",
+      "sizeBytes": 352,
+      "sha256": "e55ae3e549e5f9c984d7574ef47d12597c00a9667bbea0c50adc4481a043d243"
+    },
+    {
+      "path": "sih-24-1729-main/client/public/vite.svg",
+      "sizeBytes": 1497,
+      "sha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/App.tsx",
+      "sizeBytes": 10009,
+      "sha256": "7a212eaabf398edc85f395357566b307b357198f127db5fb14f4a47bac41e8ba"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/index.css",
+      "sizeBytes": 1883,
+      "sha256": "08aaa5c539e6785ea22aef9d686a34b771523f674bdf038394ae473289e8daef"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/main.tsx",
+      "sizeBytes": 1545,
+      "sha256": "ad91be96de60af7b12f7ec3673fad326fe01d2b12d49ec781c3f81083fd0b235"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/vite-env.d.ts",
+      "sizeBytes": 38,
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/assets/aicte-logo.png",
+      "sizeBytes": 752130,
+      "sha256": "1135c3caeb6804d019301ebb742fd926cdb35136ce5f16b19bac63cb7d133254"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/additional-info-requests.tsx",
+      "sizeBytes": 1931,
+      "sha256": "85bcc36cf55af789a3aa516ad725fde028cc168d62d2fe7fca4270448e043aa6"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/application-queue.tsx",
+      "sizeBytes": 2544,
+      "sha256": "45b6bb7df8eaa48cde032df3994f797272c3ce3926a82f13d7d72432adc38e7a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/application-status.tsx",
+      "sizeBytes": 1282,
+      "sha256": "3e7c1cd97351c5a8fc6dd21209a4c8569248834e6056f4a519c6ef6c0c327263"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/approval-timeline.tsx",
+      "sizeBytes": 2944,
+      "sha256": "fad811cce20b96084a1a8b148e2e84c13fc96502f4877f36ecd39c9210a71fe3"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/chatbot-interface.tsx",
+      "sizeBytes": 2049,
+      "sha256": "39b6b48bb79f53a7a6f8ba8250ddda672f59cc17123f94a639dc70d45b7b3106"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ChatInterface.tsx",
+      "sizeBytes": 4431,
+      "sha256": "f0a14a90ec732e819b4ed70504fa1eebab2938c017d3e64e4cf3fb36ae29fefd"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/document-management.tsx",
+      "sizeBytes": 2203,
+      "sha256": "17e71bd033c3ca438af7774ab607fc33bba2f2a2e8f89c4dcfd8a8131a1ad290"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/document-status.tsx",
+      "sizeBytes": 1091,
+      "sha256": "4633a3fed72b8951d3e1589b577a6ebaef24503e8b318825e172d0003e7f91f0"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/document-viewer.tsx",
+      "sizeBytes": 2623,
+      "sha256": "b600ab71f97ce78b9a006c6bbd68e07a28bccfcc897ee706b3e9189e970f4484"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/Footer.tsx",
+      "sizeBytes": 3290,
+      "sha256": "3def402c3804fb4d7cc0ef8dc5161daac26002e19aa4f3ef224ef4688de9c565"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/InitialRegistrationForm.tsx",
+      "sizeBytes": 5307,
+      "sha256": "be4b362960c1b809f88a8b88c4573e566b82fe49824a47b11f76ade5e3b74354"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/location-select.tsx",
+      "sizeBytes": 1108,
+      "sha256": "6b03973afa73facb4537d6e4498f68a395ac5b9656d4ec4797af19fb93447fe2"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/Navbar.tsx",
+      "sizeBytes": 2009,
+      "sha256": "cc56bb49af16ca6f45c92ca52fa5bdf870d68039c59bf2f692aacd969d96c7b8"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/OtpModal.tsx",
+      "sizeBytes": 3482,
+      "sha256": "5f2519e0547b019c3ab78f00642eef8601582cfcaa6bac34fd760ed1feed8541"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/performance-metrics.tsx",
+      "sizeBytes": 1302,
+      "sha256": "91e592412bda89a110bce015d4d5db7441a7e436436ab39e19b2658f7a6b6e53"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ProcessCard.tsx",
+      "sizeBytes": 1050,
+      "sha256": "54f554a6c7a08addc0508ef35186ab1754e66b45a7f3e5df0b65f3146a1d96c2"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/recent-activity.tsx",
+      "sizeBytes": 996,
+      "sha256": "6594986da18f32e390399899ba5d82303e8105e55a0f6cca8031d0eb5db3ccab"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/Rep-Sidebar.tsx",
+      "sizeBytes": 2110,
+      "sha256": "4d76e1df681bd4089c5c5c942fa1d10ee3f9ac36ca558f932a3e0785fcf6874d"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/review-workflow.tsx",
+      "sizeBytes": 3409,
+      "sha256": "b2b8c655b687dd550910716bad1b79447936c47a16c0a555bb5f7b3a32c84eed"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/simple-captcha.tsx",
+      "sizeBytes": 2747,
+      "sha256": "d2a12febae22dbbb059aab3ab72da6f525b04916f3ac4c109128ae52cd4a2f16"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/site-visit-scheduler.tsx",
+      "sizeBytes": 1792,
+      "sha256": "3b38b60b63f7abff08a8e36abf0747a2879844f3b8aa4a25af21029a02d5a9a6"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/rep/upload-application.tsx",
+      "sizeBytes": 5577,
+      "sha256": "505e0d0d68e77884d63108e9defec7869be6d2e4eac9edda29640667d89cd95a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/accordion.tsx",
+      "sizeBytes": 2001,
+      "sha256": "dcbfb3243a26096fc3e5f54039ccb5c4c23d9bb79a4d5846b4be75bf912f07d9"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/alert.tsx",
+      "sizeBytes": 1598,
+      "sha256": "5950ac01377e7eedc94b00eb3fee678745e4cc1a72b5343867f0733d07db6660"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/badge.tsx",
+      "sizeBytes": 1140,
+      "sha256": "dab689d836ad3292b41e7f4986b4e68e5d45c6903e4aeaae8972a82d4aebec29"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/button.tsx",
+      "sizeBytes": 1902,
+      "sha256": "c2b999a96781e6c932632bd089095368e973bf5602e1b1a62156b7d2b43f1e84"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/calendar.tsx",
+      "sizeBytes": 2813,
+      "sha256": "ccfaa3af323176c3e5147120bd804cf139c4ba0aa6e1a87ba6a868abff06b8c8"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/card.tsx",
+      "sizeBytes": 1828,
+      "sha256": "525c4bb2c051987be64df0e92e1d90174912b219bf541e24ffbc4a3406de49e8"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/checkbox.tsx",
+      "sizeBytes": 1012,
+      "sha256": "5590aab08eeecc7a004aaca5cfb31e408edd3164075203e2c4f7a95f415a25e4"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/dialog.tsx",
+      "sizeBytes": 3835,
+      "sha256": "f9c982ed8114c253c6ca738043d3f455e89c6d65569e90c9415776d6b4d6be14"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/form.tsx",
+      "sizeBytes": 4097,
+      "sha256": "f09b5aef53d923b7911eb0c4a6c2f991b644541c6f74382d405d74457ac4cf9e"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/input-otp.tsx",
+      "sizeBytes": 2143,
+      "sha256": "7c4799e3597f2780c09a39a1391b921fa16eaedd0476457492af734f58e2ec98"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/input.tsx",
+      "sizeBytes": 768,
+      "sha256": "6299a6a387dc55e528aec4342deaea0b83f1ea3a365c135a31a18ee55334f441"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/label.tsx",
+      "sizeBytes": 724,
+      "sha256": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/progress.tsx",
+      "sizeBytes": 778,
+      "sha256": "62867bfee64030a1b58ff7e18623893d1b626eab65340f160cdedf88b8b52200"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/radio-group.tsx",
+      "sizeBytes": 1424,
+      "sha256": "30c8d8ea431d9480180d47689b5863fc89e649329aa102766db30a2af5fe4ae8"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/scroll-area.tsx",
+      "sizeBytes": 1642,
+      "sha256": "d7d02600effca55d0dcadce8c09c97ebddda3a19c5fa1d52dc9f6f727b26c6b1"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/select.tsx",
+      "sizeBytes": 5618,
+      "sha256": "7fa27aaec9974b6862606f5136c82c4639ed6b128b898180bb44a536d55f809b"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/separator.tsx",
+      "sizeBytes": 756,
+      "sha256": "c956c4cca4b8442fa9314d6079b9f975e1ee39d5804aaf2966990f6258ac342a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/table.tsx",
+      "sizeBytes": 2859,
+      "sha256": "a4a6972c2d47d465d7f02c1dc4a6cbfeda7a97e46479c1b0cebdaf26bf9b497a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/tabs.tsx",
+      "sizeBytes": 1877,
+      "sha256": "6f74706bc6b53f9e4bcebb5e7ab8743b616aef181edc7758b8ee905f9b2fdcd7"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/textarea.tsx",
+      "sizeBytes": 649,
+      "sha256": "ec7c92aaed80f6923a7caa4bfe4eead395b50a7001504fd7fbb0b9381804dae9"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/toast.tsx",
+      "sizeBytes": 4818,
+      "sha256": "d3c7ad5738d28011b414c43fd3a1bb6b5d4d96036967285cfac496f5bcb79b07"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/components/ui/toaster.tsx",
+      "sizeBytes": 772,
+      "sha256": "1348f1a1f9820e2f1394b93cecc156a7e22f03636ab9270753985549aae2be74"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/hooks/use-toast.ts",
+      "sizeBytes": 3948,
+      "sha256": "03e892344ad170438ccfc156b4ee7ff0be4e535a2939e038f64556ce03b934ed"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/hooks/useLoginForm.ts",
+      "sizeBytes": 857,
+      "sha256": "e841653d21f1709c5327647b212ca0daf150d4f141ee0e9976a405b2b4263f5a"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/lib/utils.ts",
+      "sizeBytes": 166,
+      "sha256": "7c8c3dfc0cdd370d44932828eb067ef771c8fe7996693221d5d4b90af6d54f2d"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/lib/data/india-states-cities.ts",
+      "sizeBytes": 2895,
+      "sha256": "c46a92c871936dc6b5b5753bdd95f089b9a2714556d5ba9aa1dfea5a121e6032"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/lib/validations/registration.ts",
+      "sizeBytes": 3966,
+      "sha256": "7b0841895e8d6cf9c2b9962c16d17b28f6e154cec41b401e67c389b7410b77c5"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/LoginPage.tsx",
+      "sizeBytes": 10595,
+      "sha256": "ec5f0b7fb154a1196d79f1dc786de134a4c2a1ab310ecfa080be4b3a36308639"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/RegisterPage.tsx",
+      "sizeBytes": 3482,
+      "sha256": "11762759e77ca7f45f395ccfdfa583a48a801a4d8a9b101b8206b21cb2757fa4"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/eval/eval-dashboard.tsx",
+      "sizeBytes": 7722,
+      "sha256": "5f9cbc0de5fc87f87a788730a70500150b56c45959f7c116faa460b38210f9db"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/rep/dashboard.tsx",
+      "sizeBytes": 4079,
+      "sha256": "d662dfefe2d1904eb20c7f75222c200ba6fe856c13af4f7e2a2df637b8301239"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/rev/rev-dashboard.tsx",
+      "sizeBytes": 6801,
+      "sha256": "629fb4852351b45d9100cd6b27bb1194da91fc976219244f0f13adff4253bc34"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/root/ApprovalProcess.tsx",
+      "sizeBytes": 7230,
+      "sha256": "a13e911571fe919d88e1e32b2b3580d907d4bc1608406bcabedc2fa1e34378c8"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/root/Contact.tsx",
+      "sizeBytes": 13307,
+      "sha256": "211c00cb5209b391cf499c982f17c5f3eeafbf6fe18b14199b028930f294e5dd"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/pages/root/Regulations.tsx",
+      "sizeBytes": 7881,
+      "sha256": "dd599462fee93df44a3be9d65ed6cb8fd003640f6c007ab1f197bb352185d883"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/types/auth.ts",
+      "sizeBytes": 608,
+      "sha256": "c2b11512a8c08278a9654e43e935fd48fa0bf9a8178849330c21207bf131ff74"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/types/location.ts",
+      "sizeBytes": 257,
+      "sha256": "eadc7a58b5e147f1aadb50438d9f0d3806b19ae43965968309b84939a76aa576"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/utils/cn.ts",
+      "sizeBytes": 169,
+      "sha256": "4acbc7165a8d54738ff62b51414e772c08fe78434e524e6d8770180d3ba2925f"
+    },
+    {
+      "path": "sih-24-1729-main/client/src/utils/tokenManager.ts",
+      "sizeBytes": 406,
+      "sha256": "8b00426588b057dc08af585bb7b299d14148ce9ca465ba9c5d2821950777073a"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/.gitattributes",
+      "sizeBytes": 38,
+      "sha256": "5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/mvnw",
+      "sizeBytes": 10665,
+      "sha256": "7e6e5d26712efd78140f2f63dafe8d17028f6c5c97ac1f746a043110b7a1d9ad"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/mvnw.cmd",
+      "sizeBytes": 7061,
+      "sha256": "3dc8d558cc15e5051a9ef3778099c6a8bcd83320ba0383ece14811194d08d730"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/pom.xml",
+      "sizeBytes": 1910,
+      "sha256": "6e437ba8833bc4c2f4661fe8afd8d56d7ed1f6c838b415aa8a16b42d7295b582"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/.mvn/wrapper/maven-wrapper.properties",
+      "sizeBytes": 951,
+      "sha256": "90da0b8373999aed95eb5626f3bf7afa54aa9268db0bae81b0f0bebf1db0a13c"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/src/main/java/com/sih/mainservice/MainServiceApplication.java",
+      "sizeBytes": 465,
+      "sha256": "2564e6f97aebb9a68de1602878a8362fa628b82534ada57f4852c4391e38b79e"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/src/main/resources/application.properties.example",
+      "sizeBytes": 131,
+      "sha256": "b4f250658b605d05ec8153bf93779c53472e8f3241ff36d24374cfe956e0316c"
+    },
+    {
+      "path": "sih-24-1729-main/main-service/src/test/java/com/sih/mainservice/MainServiceApplicationTests.java",
+      "sizeBytes": 216,
+      "sha256": "0b922de9e481257c74f8a5703e7d8626f30810d022cdbcb29e12843825a9c561"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/.gitattributes",
+      "sizeBytes": 38,
+      "sha256": "5775a77ad2f6d12dde053a3fb0cca4309189163f0888f4e7e984cd0ab327028b"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/mvnw",
+      "sizeBytes": 10665,
+      "sha256": "7e6e5d26712efd78140f2f63dafe8d17028f6c5c97ac1f746a043110b7a1d9ad"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/mvnw.cmd",
+      "sizeBytes": 7061,
+      "sha256": "3dc8d558cc15e5051a9ef3778099c6a8bcd83320ba0383ece14811194d08d730"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/pom.xml",
+      "sizeBytes": 3236,
+      "sha256": "a4016caaf5502350dadad3e6c3f19952ddf40aa8a008f58307e18ef668c5007a"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/.mvn/wrapper/maven-wrapper.properties",
+      "sizeBytes": 951,
+      "sha256": "90da0b8373999aed95eb5626f3bf7afa54aa9268db0bae81b0f0bebf1db0a13c"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/UniversityServiceApplication.java",
+      "sizeBytes": 680,
+      "sha256": "d6e5027455aa8b22e6ac210d408256bfaf93be97469ac612d19a2d1e07c02578"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/controller/UniversityController.java",
+      "sizeBytes": 2179,
+      "sha256": "ec9aa256b6bba57a37357b51896a04f4140078819dd6c2a73fb82c47ffd8f974"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/CreateUniversityDTO.java",
+      "sizeBytes": 195,
+      "sha256": "cbe7c45f7292306b60212ab6172e20af17ef688d33f561a55532d5c3580ecdf3"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/InitialRegsDTO.java",
+      "sizeBytes": 352,
+      "sha256": "2133447ee224e69c6461b9223e364495901c920f72a174fcb7f61da546a3e30e"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/MailDTO.java",
+      "sizeBytes": 213,
+      "sha256": "ac503bb825ba882cc6f8533febc7dd92d0785777244136b7af734072bde3d137"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/RepresentativeDTO.java",
+      "sizeBytes": 189,
+      "sha256": "0e196e2ce664c544cf1be8eae9f136a7ecf834d318cb9909f0a72006669236c6"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/TokenRequestDTO.java",
+      "sizeBytes": 294,
+      "sha256": "9ae669e84d7214fb780bc0f5a088f7a47c596282225280b0e095843e245a4e76"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/dto/UniversityDTO.java",
+      "sizeBytes": 321,
+      "sha256": "d09fadabd956755fd2d6f380712e0277f3aa0dc2a200f967aaa6af747f0b3821"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/model/University.java",
+      "sizeBytes": 581,
+      "sha256": "a2a38df28570620de524212a6a6c7856cb080de20dee726cf5b68ed199a1457c"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/repository/UniversityRepo.java",
+      "sizeBytes": 430,
+      "sha256": "5b262003f75eb09e94b62bfec927b0a44df9eb81de0b6c8c6adf8301efa090b7"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/service/DocServiceImpl.java",
+      "sizeBytes": 3496,
+      "sha256": "255ca2a3b3cf284c35e24b49533c77e75df2be1025ba9c0d4f5cb7837a716ee8"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/service/UniversityService.java",
+      "sizeBytes": 514,
+      "sha256": "9788fcfb224a2a7c6482602a2c222fa0c2aa06c14c9fbd4de38cff296621704f"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/service/UniversityServiceImpl.java",
+      "sizeBytes": 5586,
+      "sha256": "c89e15df35b402f4f00b2cc72b97314fecce5159904511823b2f5d90856e50bc"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/java/com/sih/khc/university_service/utils/AES_Utils.java",
+      "sizeBytes": 873,
+      "sha256": "d2ae5c55a57b90225e80422edeacd526b19c639942a91ad24ce7ea898aa034d4"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/main/resources/application.yaml.example",
+      "sizeBytes": 1427,
+      "sha256": "9e81947adf0a0b98d63fb8f38665feb59ee053b05ae5017c69af39cccf63518a"
+    },
+    {
+      "path": "sih-24-1729-main/university-service/src/test/java/com/sih/khc/university_service/UniversityServiceApplicationTests.java",
+      "sizeBytes": 233,
+      "sha256": "7431b1c98ee581d7c5cca0902ade4e8075bab1a4c2ebf3094d02cdc549116c3b"
+    },
+    {
+      "path": "src/App.tsx",
+      "sizeBytes": 5682,
+      "sha256": "a14e0e40dcea3d2ce078866d0a610145d7747654cc2ba533028b77e7ce3ba26c"
+    },
+    {
+      "path": "src/index.css",
+      "sizeBytes": 1607,
+      "sha256": "612cda5dde3ade29f544630cab2b04132c6c198c5deb50a9532b2b02b820e660"
+    },
+    {
+      "path": "src/main.tsx",
+      "sizeBytes": 1456,
+      "sha256": "aa9c82953c0ac5516ec06bfa67921a4583173e236129006c2a652e0ffbb0d0df"
+    },
+    {
+      "path": "src/components/layout/AppShell.tsx",
+      "sizeBytes": 27151,
+      "sha256": "7924aaa07561bf33edbb59f2667746e40705d696173c8994a4296b77d8b1b3ac"
+    },
+    {
+      "path": "src/components/traceability/EvidenceToActionDrawer.tsx",
+      "sizeBytes": 28544,
+      "sha256": "9abb8907d315bac4afa90a889fc4ebdbfcb0ca7f3eb7114372ad78793b064d90"
+    },
+    {
+      "path": "src/components/traceability/FixPreviewSandbox.tsx",
+      "sizeBytes": 6285,
+      "sha256": "46a9854560ef8007b31ec17ced6122422d6c8f57639d681673185d84d667137b"
+    },
+    {
+      "path": "src/features/administration/AdministrationPage.tsx",
+      "sizeBytes": 12270,
+      "sha256": "52235ca15604ec399bab134633e0bdc08ff2d2e0f2dce2ad1a9850912fedf247"
+    },
+    {
+      "path": "src/features/alerts/AlertCenterPage.tsx",
+      "sizeBytes": 8238,
+      "sha256": "086803c5ae05dbd6b9adf5012e09d6b9bbfea8a06ac34f9c8182377b2110df98"
+    },
+    {
+      "path": "src/features/analytics/AnalyticsReportsPage.tsx",
+      "sizeBytes": 6850,
+      "sha256": "5cf2df5db0b30324f9cd282de250a96cb6eccce26423e3d266b703f296497517"
+    },
+    {
+      "path": "src/features/applications/ApplicationIntakePage.tsx",
+      "sizeBytes": 23253,
+      "sha256": "da8485da5724b0ba86764b0f1f6d4aca214f24a95c88edf7806ac750f0561035"
+    },
+    {
+      "path": "src/features/applications/ApplicationsPage.tsx",
+      "sizeBytes": 25325,
+      "sha256": "469b0c07630905da7ba70bfc12e91e23643efdbdf0b858ba522680db32c98e2b"
+    },
+    {
+      "path": "src/features/audit/AuditTrailPage.tsx",
+      "sizeBytes": 9200,
+      "sha256": "d0f7e0e5c7f31db3c29b875b116d34751cb524148bd4445ce04a8838946650c0"
+    },
+    {
+      "path": "src/features/audit/ProoflineManifestView.tsx",
+      "sizeBytes": 11437,
+      "sha256": "7b64858736a712ee15cfe4572d2e101c49990dc383b677427b425debf076014a"
+    },
+    {
+      "path": "src/features/compliance/ComplianceCalendarPage.tsx",
+      "sizeBytes": 4017,
+      "sha256": "b8a2ce95dac6dc94564a86449e06b0160e9d4510076da25c83308cdcff83ae8e"
+    },
+    {
+      "path": "src/features/compliance/ComplianceCenterPage.tsx",
+      "sizeBytes": 14707,
+      "sha256": "a88a12554e0dcbc7c1b38f377c970476b3d2b2b287e29afc153b0b7814585cf3"
+    },
+    {
+      "path": "src/features/compliance/CompliancePage.tsx",
+      "sizeBytes": 12876,
+      "sha256": "c056e375d8be965df1fea4f89bb8f0730509b17d6b65f37a18878ba3076ab41e"
+    },
+    {
+      "path": "src/features/copilot/RegulatoryCopilotPage.tsx",
+      "sizeBytes": 11602,
+      "sha256": "4f6cc0612a989ad873be440ac2c8af99747a532cea26c89fe5cc3bec1f92626c"
+    },
+    {
+      "path": "src/features/dashboard/ControlTowerPage.tsx",
+      "sizeBytes": 28278,
+      "sha256": "96dfa173e0759e57fd155614e0462a588810fb990948925ade4659c02464db31"
+    },
+    {
+      "path": "src/features/dashboard/MyWorkPage.tsx",
+      "sizeBytes": 9434,
+      "sha256": "0a7dd17fd9e1f2d84f0d114779a10d81bc4eff7fd24cb3bd68f5565461dd4dde"
+    },
+    {
+      "path": "src/features/document-intelligence/ChronoGraphView.tsx",
+      "sizeBytes": 14617,
+      "sha256": "a952d47ae727a7f0876ef0ef3c638f3f3f802f4136a22895483eb423e5863e29"
+    },
+    {
+      "path": "src/features/document-intelligence/DeltaScanView.tsx",
+      "sizeBytes": 9118,
+      "sha256": "87dd54598618bbde742e40bdc177972262fd4695a48cea7289dcc1f75500ae57"
+    },
+    {
+      "path": "src/features/document-intelligence/DocumentIntelligencePage.tsx",
+      "sizeBytes": 37048,
+      "sha256": "72b7c02935d6c66dcab66f37159cad1c7d1b36f017822db62a6fac401e2886bb"
+    },
+    {
+      "path": "src/features/institutions/InstitutionsPage.tsx",
+      "sizeBytes": 9298,
+      "sha256": "35ec520b91f15cfdd5d7b3fd554dfbbdd387ef4b002f6328d69f217449e6e26e"
+    },
+    {
+      "path": "src/features/reports/ReportsAuditPage.tsx",
+      "sizeBytes": 5533,
+      "sha256": "b3a3f7f546e2c99848cfd46c9b10d00555e29e79b8a9295eddc6d9d9378cdf7a"
+    },
+    {
+      "path": "src/features/rules/RegulatoryRulebookPage.tsx",
+      "sizeBytes": 10502,
+      "sha256": "5940799ddf62fb74d5047181c94bb34146eecbcb0acbb4b6f57d3ee8a4671151"
+    },
+    {
+      "path": "src/features/rules/RuleReplayView.tsx",
+      "sizeBytes": 13253,
+      "sha256": "ef9ab43d46cc27157d6df7d6422b8d1662050cd41b79b1ce1ac2ad5c2cc424a8"
+    },
+    {
+      "path": "src/features/settings/SettingsPage.tsx",
+      "sizeBytes": 74851,
+      "sha256": "84d527a068aa46b5f37d006ebc36437bfb9cca7ae123f4692d5629a8bc6956a7"
+    },
+    {
+      "path": "src/features/tasks/TasksAlertsPage.tsx",
+      "sizeBytes": 4726,
+      "sha256": "b250a29b6a1f86dc82cdb68868ce1ae240f7ebb3889af5f5273f660406ec5dc1"
+    },
+    {
+      "path": "src/features/verification/ReviewPilotQueueView.tsx",
+      "sizeBytes": 8274,
+      "sha256": "6ea2359e3260471d1451478287d3240f7ae6fbe84f835a67f0f7f0aa19d8706b"
+    },
+    {
+      "path": "src/features/verification/VerificationPage.tsx",
+      "sizeBytes": 3683,
+      "sha256": "c660e6990aa282caf5856f7437dde14b35a5fad6a650db3271f841f83d0d92ae"
+    },
+    {
+      "path": "src/features/verification/VerificationQueuePage.tsx",
+      "sizeBytes": 16414,
+      "sha256": "52c731db122c132846c5f4188d3415ce6aa0b29b50fbfc38471a33ce24a94ee4"
+    },
+    {
+      "path": "src/features/workflows/WorkflowManagementPage.tsx",
+      "sizeBytes": 17391,
+      "sha256": "8551015ddc9fc2e15c4cc0c9bff6538c85b93c6c1ceb587764c40008129c1245"
+    },
+    {
+      "path": "src/lib/api-client.ts",
+      "sizeBytes": 13997,
+      "sha256": "2db1ae08142a014106d3171291387fe8ac91d6c092c3a6e2a99756ebe260962e"
+    },
+    {
+      "path": "src/lib/permissions.ts",
+      "sizeBytes": 3341,
+      "sha256": "2b628d44ba51cd98545220854fc9a68bd57e94b2c7a79c65796fab71a1afb248"
+    },
+    {
+      "path": "src/lib/store.tsx",
+      "sizeBytes": 15093,
+      "sha256": "e3b9478d03cc82f8d60894b9537f2f023d00de423638b9c52cf511e64e73ef38"
+    },
+    {
+      "path": "src/tests/auth-isolation.test.ts",
+      "sizeBytes": 4365,
+      "sha256": "bd3b91278a83bf8a1e88da67b48ae2882c3acde548ca1142c9d7147585698941"
+    },
+    {
+      "path": "src/tests/differentiated-features.test.ts",
+      "sizeBytes": 8836,
+      "sha256": "d982dc9bd5d57a639c34742c920e233b30a364a27a7545202e16ab66912b42f4"
+    },
+    {
+      "path": "src/tests/e2e-journey.test.ts",
+      "sizeBytes": 6651,
+      "sha256": "2696dabbf7596b7ff80ece1ca2f9bec8b40dd5c1b680c1da3dad41524e885728"
+    },
+    {
+      "path": "src/tests/offline-copilot.test.ts",
+      "sizeBytes": 2292,
+      "sha256": "b196d1c91f69bc86a49fd6aef70c6f19c6e63bd5187cec644735a7474bcd51e6"
+    },
+    {
+      "path": "src/tests/settings-control.test.ts",
+      "sizeBytes": 9332,
+      "sha256": "d42417596c8494505fefa7fc1912320a8b1ebf7118da388564672279d5a28d0d"
+    },
+    {
+      "path": "src/tests/trace-flow.test.tsx",
+      "sizeBytes": 2930,
+      "sha256": "31eed33462cc0bdb8f74495c67925ba924235fbdf0b4f3ca3091ee4fb230582c"
+    },
+    {
+      "path": "src/tests/validation-engine.test.ts",
+      "sizeBytes": 2223,
+      "sha256": "f0093546eee03d1544130aa750ca9c053a538d3b977e90bcfaaeeb53143de13a"
+    },
+    {
+      "path": "src/tests/fixtures/demo-data.ts",
+      "sizeBytes": 79370,
+      "sha256": "25b567dc489360c2dfc96df361cfd9c4fae65974d8fbbcb6109e0197edc2ef23"
+    },
+    {
+      "path": "src/types/domain.ts",
+      "sizeBytes": 18130,
+      "sha256": "fd65eda7ad6c7b2ef8290e1bdc24461d7ffd1656f44e46a7ce14f68e2ae22173"
+    },
+    {
+      "path": "tests/test_fastapi_engine.py",
+      "sizeBytes": 9071,
+      "sha256": "10948f97f76695ca089b337f56ff25b126dbc778ee31d1a569b3bd0a50e5d31e"
+    }
+  ]
+}

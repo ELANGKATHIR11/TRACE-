@@ -69,8 +69,15 @@ rulesRouter.post('/:id/publish', async (req, res) => {
       return;
     }
 
-    // Role check: Only regulatory_system_administrator can publish
-    if (req.user && req.user.role !== 'regulatory_system_administrator') {
+    // Enforce authentication & role check: Only authenticated regulatory_system_administrator can publish
+    if (!req.user) {
+      res.status(401).json({
+        error: 'Authentication required. Please log in as an authorized regulatory administrator.',
+      });
+      return;
+    }
+
+    if (req.user.role !== 'regulatory_system_administrator') {
       res.status(403).json({
         error: 'Only Regulatory System Administrators can publish approved rule sets.',
       });
@@ -83,7 +90,7 @@ rulesRouter.post('/:id/publish', async (req, res) => {
       return;
     }
 
-    const publisher = req.user?.name || 'Rajeshwari Nair (Regulatory System Admin)';
+    const publisher = req.user.name;
 
     const updated = await prisma.ruleSet.update({
       where: { id: req.params.id },
@@ -96,9 +103,9 @@ rulesRouter.post('/:id/publish', async (req, res) => {
     });
 
     await logAuditEvent({
-      actorId: req.user?.id || 'USR-SYS-01',
+      actorId: req.user.id,
       actorName: publisher,
-      actorRole: 'regulatory_system_administrator',
+      actorRole: req.user.role,
       action: 'RULE_SET_PUBLISHED',
       entityType: 'RuleSet',
       entityId: ruleSet.id,
@@ -333,8 +340,14 @@ rulesRouter.get('/impact-reports/:id', async (req, res) => {
 rulesRouter.post('/impact-reports/:id/publish', async (req, res) => {
   try {
     const { approvalNote } = req.body;
+    if (!req.user) {
+      res.status(401).json({
+        error: 'Authentication required. Please log in as an authorized regulatory administrator.',
+      });
+      return;
+    }
+
     const isAuthorized =
-      !req.user ||
       req.user.role === 'regulatory_system_administrator' ||
       req.user.role === 'scrutiny_committee_lead' ||
       req.user.role === 'scrutiny_committee_member' ||
@@ -351,7 +364,7 @@ rulesRouter.post('/impact-reports/:id/publish', async (req, res) => {
       return;
     }
 
-    const publisher = req.user?.name || 'Dr. Arvind Deshmukh (Scrutiny Committee Lead)';
+    const publisher = req.user.name;
     const updated = await prisma.impactReport.update({
       where: { id: req.params.id },
       data: {
@@ -362,9 +375,9 @@ rulesRouter.post('/impact-reports/:id/publish', async (req, res) => {
     });
 
     await logAuditEvent({
-      actorId: req.user?.id || 'USR-SYS-01',
+      actorId: req.user.id,
       actorName: publisher,
-      actorRole: req.user?.role || 'regulatory_system_administrator',
+      actorRole: req.user.role,
       action: 'REGULATORY_CHANGE_PUBLISHED_FROM_REPLAY',
       entityType: 'ImpactReport',
       entityId: report.id,

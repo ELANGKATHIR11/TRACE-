@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../db/prisma';
 import { logAuditEvent } from '../services/audit-service';
+import { assertTenantAccess } from '../middleware/auth';
 
 export const applicationsRouter = Router();
 
@@ -8,10 +9,31 @@ applicationsRouter.get('/', async (req, res) => {
   try {
     const { academicYear, category, institutionId, stage } = req.query;
 
+    const isInstUser =
+      req.user &&
+      ['institution_compliance_officer', 'institution_administrator'].includes(req.user.role) &&
+      req.user.institutionId;
+
+    if (
+      isInstUser &&
+      institutionId &&
+      institutionId !== 'ALL' &&
+      String(institutionId) !== req.user?.institutionId
+    ) {
+      res.status(403).json({
+        error: `Tenant isolation violation: Cannot query applications for institution ${institutionId}.`,
+      });
+      return;
+    }
+
     const whereClause: any = {};
     if (academicYear && academicYear !== 'ALL') whereClause.academicYear = String(academicYear);
     if (category && category !== 'ALL') whereClause.category = String(category);
-    if (institutionId && institutionId !== 'ALL') whereClause.institutionId = String(institutionId);
+    if (isInstUser) {
+      whereClause.institutionId = req.user!.institutionId;
+    } else if (institutionId && institutionId !== 'ALL') {
+      whereClause.institutionId = String(institutionId);
+    }
     if (stage && stage !== 'ALL') whereClause.currentStage = String(stage);
 
     const applications = await prisma.application.findMany({
@@ -111,6 +133,10 @@ applicationsRouter.get('/:id', async (req, res) => {
       return;
     }
 
+    if (!assertTenantAccess(req, res, app.institutionId, 'application')) {
+      return;
+    }
+
     res.json({ application: app });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch application', detail: error?.message });
@@ -133,6 +159,10 @@ applicationsRouter.post('/', async (req, res) => {
 
     if (!institutionId || !category || !programName) {
       res.status(400).json({ error: 'institutionId, category, and programName are required.' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, institutionId, 'institution application intake')) {
       return;
     }
 
@@ -215,6 +245,10 @@ applicationsRouter.patch('/:id/stage', async (req, res) => {
 
     if (!application) {
       res.status(404).json({ error: 'Application not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, application.institutionId, 'application workflow stage')) {
       return;
     }
 
@@ -308,6 +342,10 @@ applicationsRouter.post('/:id/analyze', async (req, res) => {
 
     if (!application) {
       res.status(404).json({ error: 'Application not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, application.institutionId, 'application claim analysis')) {
       return;
     }
 
@@ -461,6 +499,10 @@ applicationsRouter.get('/:id/claim-graph', async (req, res) => {
       prisma.application.findUnique({ where: { id: applicationId } }),
     ]);
 
+    if (app && !assertTenantAccess(req, res, app.institutionId, 'application claim graph')) {
+      return;
+    }
+
     // Format nodes and edges
     const nodes = claims.map((c) => ({
       id: c.id,
@@ -507,6 +549,10 @@ applicationsRouter.get('/:id/claim-graph', async (req, res) => {
 applicationsRouter.get('/:id/contradictions', async (req, res) => {
   try {
     const applicationId = req.params.id;
+    const appCheck = await prisma.application.findUnique({ where: { id: applicationId } });
+    if (appCheck && !assertTenantAccess(req, res, appCheck.institutionId, 'application contradictions')) {
+      return;
+    }
     const contradictions = await prisma.claimRelationship.findMany({
       where: {
         applicationId,
@@ -545,6 +591,345 @@ applicationsRouter.get('/:id/contradictions', async (req, res) => {
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch contradictions', detail: error?.message });
+  }
+});
+
+// ==========================================
+// FEATURE A: Full 11-Node Compliance Evidence Graph
+// Application -> Document -> Document Version -> Extracted Field -> Institutional Record / Verification Attempt
+// -> Regulation Clause -> Rule Version -> Validation Run -> Finding -> Corrective Task -> Reviewer Decision
+// ==========================================
+applicationsRouter.get('/:id/evidence-graph', async (req, res) => {
+  try {
+    const applicationId = req.params.id;
+    const app = await prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        institution: true,
+        documents: {
+          include: {
+            versions: true,
+            extractedFields: true,
+          },
+        },
+        findings: true,
+        tasks: true,
+        validationManifests: {
+          orderBy: { signedAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    if (!app) {
+      res.status(404).json({ error: 'Application not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, app.institutionId, 'compliance evidence graph')) {
+      return;
+    }
+
+    const ruleSet = await prisma.ruleSet.findUnique({ where: { id: app.ruleSetId } });
+    const clauses = await prisma.regulatoryClause.findMany({ where: { ruleSetId: app.ruleSetId } });
+
+    const nodes: Array<{
+      id: string;
+      entityType: string;
+      label: string;
+      metadata: Record<string, any>;
+    }> = [];
+    const edges: Array<{
+      id: string;
+      source: string;
+      target: string;
+      relationship: string;
+    }> = [];
+
+    // 1. Application Node
+    const appNodeId = `APP:${app.id}`;
+    nodes.push({
+      id: appNodeId,
+      entityType: 'Application',
+      label: `${app.code} — ${app.programName}`,
+      metadata: {
+        applicationId: app.id,
+        category: app.category,
+        academicYear: app.academicYear,
+        stage: app.currentStage,
+      },
+    });
+
+    // 2. Institutional Record Node
+    const instNodeId = `INST:${app.institution.id}`;
+    nodes.push({
+      id: instNodeId,
+      entityType: 'InstitutionalRecord',
+      label: `${app.institution.name} (${app.institution.code})`,
+      metadata: {
+        institutionId: app.institution.id,
+        region: app.institution.region,
+        accreditation: app.institution.accreditationStatus,
+      },
+    });
+    edges.push({
+      id: `EDGE:${instNodeId}->${appNodeId}`,
+      source: instNodeId,
+      target: appNodeId,
+      relationship: 'SUBMITTED_APPLICATION',
+    });
+
+    // 3. Rule Version Node
+    const ruleSetNodeId = `RULESET:${app.ruleSetId}`;
+    nodes.push({
+      id: ruleSetNodeId,
+      entityType: 'RuleVersion',
+      label: `${ruleSet?.code || app.ruleSetId} (${ruleSet?.version || 'v2.0'})`,
+      metadata: {
+        ruleSetId: app.ruleSetId,
+        version: ruleSet?.version || 'v2.0',
+        status: ruleSet?.status || 'Published',
+      },
+    });
+    edges.push({
+      id: `EDGE:${appNodeId}->${ruleSetNodeId}`,
+      source: appNodeId,
+      target: ruleSetNodeId,
+      relationship: 'GOVERNED_BY_RULE_VERSION',
+    });
+
+    // 4. Validation Run Node
+    const latestManifest = app.validationManifests[0];
+    const valRunNodeId = `VRUN:${latestManifest?.assessmentId || `RUN-${app.code}`}`;
+    nodes.push({
+      id: valRunNodeId,
+      entityType: 'ValidationRun',
+      label: `Validation Run ${latestManifest?.assessmentId || `RUN-${app.code}`}`,
+      metadata: {
+        assessmentId: latestManifest?.assessmentId || `RUN-${app.code}`,
+        manifestHash: latestManifest?.manifestHash || null,
+        evaluatedAt: (app.lastEvaluatedAt || app.updatedAt).toISOString(),
+      },
+    });
+    edges.push({
+      id: `EDGE:${appNodeId}->${valRunNodeId}`,
+      source: appNodeId,
+      target: valRunNodeId,
+      relationship: 'EVALUATED_IN_RUN',
+    });
+
+    // 5. Regulation Clause Nodes
+    for (const c of clauses) {
+      const clauseNodeId = `CLAUSE:${c.id}`;
+      nodes.push({
+        id: clauseNodeId,
+        entityType: 'RegulationClause',
+        label: `${c.clauseNumber}: ${c.title}`,
+        metadata: {
+          clauseId: c.id,
+          clauseNumber: c.clauseNumber,
+          category: c.category,
+          pageReference: c.pageReference,
+        },
+      });
+      edges.push({
+        id: `EDGE:${ruleSetNodeId}->${clauseNodeId}`,
+        source: ruleSetNodeId,
+        target: clauseNodeId,
+        relationship: 'CONTAINS_CLAUSE',
+      });
+    }
+
+    // 6. Document, DocumentVersion, ExtractedField, VerificationAttempt Nodes
+    for (const doc of app.documents) {
+      const docNodeId = `DOC:${doc.id}`;
+      nodes.push({
+        id: docNodeId,
+        entityType: 'Document',
+        label: `${doc.title} (${doc.currentVersion})`,
+        metadata: {
+          documentId: doc.id,
+          category: doc.category,
+          validationState: doc.validationState,
+          sha256: doc.sha256,
+        },
+      });
+      edges.push({
+        id: `EDGE:${appNodeId}->${docNodeId}`,
+        source: appNodeId,
+        target: docNodeId,
+        relationship: 'INCLUDES_DOCUMENT',
+      });
+
+      const targetClauseNodeId = `CLAUSE:${doc.requiredByClauseId}`;
+      edges.push({
+        id: `EDGE:${docNodeId}->${targetClauseNodeId}`,
+        source: docNodeId,
+        target: targetClauseNodeId,
+        relationship: 'EVIDENCE_FOR_CLAUSE',
+      });
+
+      // Verification Attempt Node
+      const verifNodeId = `VERIF:${doc.id}`;
+      nodes.push({
+        id: verifNodeId,
+        entityType: 'VerificationAttempt',
+        label: `Issuer Check: ${doc.issuerVerification}`,
+        metadata: {
+          documentId: doc.id,
+          issuerVerification: doc.issuerVerification,
+          integrityScreening: doc.integrityScreening,
+        },
+      });
+      edges.push({
+        id: `EDGE:${docNodeId}->${verifNodeId}`,
+        source: docNodeId,
+        target: verifNodeId,
+        relationship: 'VERIFIED_BY_ATTEMPT',
+      });
+
+      for (const ver of doc.versions) {
+        const verNodeId = `DOCVER:${ver.id}`;
+        nodes.push({
+          id: verNodeId,
+          entityType: 'DocumentVersion',
+          label: `${doc.title} — ${ver.version}`,
+          metadata: {
+            version: ver.version,
+            fileName: ver.fileName,
+            sha256: ver.sha256,
+            uploadedAt: ver.uploadedAt.toISOString(),
+            changeNote: ver.changeNote,
+          },
+        });
+        edges.push({
+          id: `EDGE:${docNodeId}->${verNodeId}`,
+          source: docNodeId,
+          target: verNodeId,
+          relationship: 'HAS_IMMUTABLE_VERSION',
+        });
+      }
+
+      for (const field of doc.extractedFields) {
+        const fieldNodeId = `FIELD:${field.id}`;
+        nodes.push({
+          id: fieldNodeId,
+          entityType: 'ExtractedField',
+          label: `${field.label}: ${field.extractedValue}`,
+          metadata: {
+            fieldId: field.id,
+            key: field.key,
+            extractedValue: field.extractedValue,
+            expectedRuleValue: field.expectedRuleValue,
+            ocrConfidence: field.ocrConfidence,
+            pageNumber: field.pageNumber,
+            boundingBoxId: field.boundingBoxId,
+          },
+        });
+        edges.push({
+          id: `EDGE:${docNodeId}->${fieldNodeId}`,
+          source: docNodeId,
+          target: fieldNodeId,
+          relationship: 'EXTRACTED_FIELD',
+        });
+      }
+    }
+
+    // 7. Finding, CorrectiveTask, ReviewerDecision Nodes
+    for (const f of app.findings) {
+      const findingNodeId = `FINDING:${f.id}`;
+      nodes.push({
+        id: findingNodeId,
+        entityType: 'Finding',
+        label: `[${f.severity}] ${f.title}`,
+        metadata: {
+          findingId: f.id,
+          severity: f.severity,
+          clauseId: f.clauseId,
+          clauseNumber: f.clauseNumber,
+          extractedValue: f.extractedValue,
+          expectedValue: f.expectedValue,
+          lifecycleStatus: f.lifecycleStatus,
+        },
+      });
+      edges.push({
+        id: `EDGE:${valRunNodeId}->${findingNodeId}`,
+        source: valRunNodeId,
+        target: findingNodeId,
+        relationship: 'PRODUCED_FINDING',
+      });
+      if (f.documentId) {
+        edges.push({
+          id: `EDGE:DOC:${f.documentId}->${findingNodeId}`,
+          source: `DOC:${f.documentId}`,
+          target: findingNodeId,
+          relationship: 'TRIGGERED_FINDING',
+        });
+      }
+      edges.push({
+        id: `EDGE:${findingNodeId}->CLAUSE:${f.clauseId}`,
+        source: findingNodeId,
+        target: `CLAUSE:${f.clauseId}`,
+        relationship: 'EVALUATED_AGAINST_CLAUSE',
+      });
+
+      // Reviewer Decision Node
+      const decNodeId = `DECISION:${f.id}`;
+      nodes.push({
+        id: decNodeId,
+        entityType: 'ReviewerDecision',
+        label: f.resolvedBy ? `Resolved by ${f.resolvedBy}` : `Status: ${f.lifecycleStatus}`,
+        metadata: {
+          findingId: f.id,
+          lifecycleStatus: f.lifecycleStatus,
+          resolvedBy: f.resolvedBy,
+          resolvedAt: f.resolvedAt?.toISOString() || null,
+          resolutionNote: f.resolutionNote,
+        },
+      });
+      edges.push({
+        id: `EDGE:${findingNodeId}->${decNodeId}`,
+        source: findingNodeId,
+        target: decNodeId,
+        relationship: 'HAS_REVIEWER_DECISION',
+      });
+    }
+
+    for (const t of app.tasks) {
+      const taskNodeId = `TASK:${t.id}`;
+      nodes.push({
+        id: taskNodeId,
+        entityType: 'CorrectiveTask',
+        label: `${t.taskCode}: ${t.title}`,
+        metadata: {
+          taskId: t.id,
+          taskCode: t.taskCode,
+          findingId: t.findingId,
+          assigneeName: t.assigneeName,
+          status: t.status,
+          dueDate: t.dueDate.toISOString().split('T')[0],
+        },
+      });
+      edges.push({
+        id: `EDGE:FINDING:${t.findingId}->${taskNodeId}`,
+        source: `FINDING:${t.findingId}`,
+        target: taskNodeId,
+        relationship: 'ASSIGNED_CORRECTIVE_TASK',
+      });
+    }
+
+    res.json({
+      success: true,
+      applicationId: app.id,
+      applicationCode: app.code,
+      entityTypesPresent: Array.from(new Set(nodes.map((n) => n.entityType))),
+      totalNodes: nodes.length,
+      totalEdges: edges.length,
+      nodes,
+      edges,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to build compliance evidence graph', detail: error?.message });
   }
 });
 

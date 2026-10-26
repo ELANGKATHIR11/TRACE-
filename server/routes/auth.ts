@@ -106,25 +106,53 @@ authRouter.post('/logout', async (req, res) => {
   }
 });
 
+function sanitizeUser(user: any) {
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    role: user.role,
+    roleLabel: user.roleLabel,
+    title: user.title,
+    organization: user.organization,
+    institutionId: user.institutionId,
+    email: user.email,
+    badgeCode: user.badgeCode,
+    permissionsDescription: user.permissionsDescription,
+  };
+}
+
 authRouter.get('/me', async (req, res) => {
   if (!req.user) {
-    // Return primary default reviewer user for transparent initial session
-    const defaultUser = await prisma.user.findFirst({
-      where: { role: 'authorized_reviewer' },
-    });
-    if (!defaultUser) {
-      res.status(401).json({ error: 'Not authenticated' });
-      return;
-    }
-    res.json({ user: defaultUser });
+    res.status(401).json({ error: 'Not authenticated. A valid session is required.' });
     return;
   }
-  res.json({ user: req.user });
+  res.json({ user: sanitizeUser(req.user) });
 });
 
-// Role switcher with audit trail for testing and verification
+// Role switcher with strict session check and authorization for demo / testing
 authRouter.post('/switch-role', async (req, res) => {
   try {
+    // In production or unauthenticated requests, switch-role is strictly blocked
+    if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DEMO_ROLE_SWITCH) {
+      res.status(403).json({ error: 'Role switching is disabled in production environments.' });
+      return;
+    }
+
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required. An active session is required to switch demo roles.' });
+      return;
+    }
+
+    // Explicit administrator or authorized user check
+    const allowedSwitchers = ['regulatory_system_administrator', 'scrutiny_committee_lead', 'authorized_reviewer'];
+    if (!allowedSwitchers.includes(req.user.role)) {
+      res.status(403).json({
+        error: `Role escalation denied. Current role '${req.user.role}' is not authorized for identity switching.`,
+      });
+      return;
+    }
+
     const { userId } = req.body;
     if (!userId) {
       res.status(400).json({ error: 'userId is required' });
@@ -136,7 +164,7 @@ authRouter.post('/switch-role', async (req, res) => {
     });
 
     if (!targetUser) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: 'Target user not found' });
       return;
     }
 
@@ -159,23 +187,26 @@ authRouter.post('/switch-role', async (req, res) => {
     });
 
     await logAuditEvent({
-      actorId: targetUser.id,
-      actorName: targetUser.name,
-      actorRole: targetUser.role,
+      actorId: req.user.id,
+      actorName: req.user.name,
+      actorRole: req.user.role,
       action: 'ROLE_SWITCHED',
       entityType: 'User',
       entityId: targetUser.id,
+      previousState: req.user.role,
       newState: targetUser.role,
       ipAddress: req.ip,
       outcome: 'Success',
+      evidenceReference: `User switched identity to ${targetUser.name} (${targetUser.role})`,
     });
 
     res.json({
       success: true,
-      user: targetUser,
+      user: sanitizeUser(targetUser),
       token,
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Role switch failed', detail: error?.message });
   }
 });
+

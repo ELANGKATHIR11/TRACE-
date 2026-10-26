@@ -105,3 +105,38 @@ export function enforceTenantIsolation(req: Request, res: Response, next: NextFu
   }
   next();
 }
+
+/**
+ * Checks if an authenticated institution user is attempting to access a resource belonging to another institution.
+ * Returns true if access is allowed, or sends 403 and returns false if forbidden.
+ */
+export function assertTenantAccess(
+  req: Request,
+  res: Response,
+  resourceInstitutionId: string | null | undefined,
+  resourceLabel: string = 'resource'
+): boolean {
+  if (!req.user) {
+    return true;
+  }
+
+  // System administrators, authorized reviewers, and auditors have cross-institution oversight
+  if (['regulatory_system_administrator', 'authorized_reviewer', 'auditor'].includes(req.user.role)) {
+    return true;
+  }
+
+  // Institution-scoped users can only access their own institution's resources
+  if (
+    req.user.institutionId &&
+    resourceInstitutionId &&
+    req.user.institutionId !== resourceInstitutionId
+  ) {
+    res.status(403).json({
+      error: `Tenant isolation violation: Access to another institution's ${resourceLabel} (${resourceInstitutionId}) is forbidden for user affiliated with ${req.user.institutionId}.`,
+    });
+    return false;
+  }
+
+  return true;
+}
+

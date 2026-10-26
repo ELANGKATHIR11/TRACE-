@@ -1,5 +1,14 @@
 import { prisma } from '../db/prisma';
 
+export interface StructuredAnomalyIndicator {
+  indicator_code: string;
+  reason: string;
+  evidence_reference: string;
+  confidence_or_severity: string;
+  limitations: string;
+  recommended_next_action: string;
+}
+
 export interface ValidationOutcome {
   passed: boolean;
   documentValidationState: string;
@@ -14,6 +23,7 @@ export interface ValidationOutcome {
     extractedValue?: string;
     expectedValue?: string;
   }>;
+  anomalyIndicators: StructuredAnomalyIndicator[];
   summary: string;
 }
 
@@ -58,11 +68,27 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
 
   const app = document.application;
   const findingsTriggered: ValidationOutcome['findingsTriggered'] = [];
+  const anomalyIndicators: StructuredAnomalyIndicator[] = [];
 
   let docValidationState = 'Validated';
   let crossDocStatus = 'Consistent across records';
   let ruleEvaluationStatus = 'Criteria satisfied';
   const summaryParts: string[] = [];
+
+  // Check 0: Duplicate SHA-256 or Near-Duplicate Title/Certificate Screening across application
+  const siblingDuplicates = app.documents.filter(
+    (d) => d.id !== document.id && d.sha256 === document.sha256
+  );
+  if (siblingDuplicates.length > 0) {
+    anomalyIndicators.push({
+      indicator_code: 'EXACT_HASH_DUPLICATE',
+      reason: `Document '${document.title}' shares identical SHA-256 hash with '${siblingDuplicates[0].title}' (${siblingDuplicates[0].id}).`,
+      evidence_reference: `${document.id} vs ${siblingDuplicates[0].id} (SHA-256: ${document.sha256.slice(0, 16)}...)`,
+      confidence_or_severity: 'High (Deterministic SHA-256 Match)',
+      limitations: 'Identical file hashes indicate duplicate submission; does not prove fraudulent intent if same document covers multiple clauses.',
+      recommended_next_action: 'Verify whether distinct supporting certificates are required for each regulatory clause.',
+    });
+  }
 
   // Check 1: Expiry date check
   if (document.expiryDate) {
@@ -77,6 +103,14 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
         note: `Document expired on ${document.expiryDate.toISOString().split('T')[0]}. Current date exceeds certificate validity.`,
         extractedValue: document.expiryDate.toISOString().split('T')[0],
         expectedValue: 'Active validity throughout academic year 2026-27',
+      });
+      anomalyIndicators.push({
+        indicator_code: 'EXPIRED_CERTIFICATE_VALIDITY',
+        reason: `Certificate validity date (${document.expiryDate.toISOString().split('T')[0]}) has elapsed prior to scrutiny.`,
+        evidence_reference: `${document.id} · Expiry: ${document.expiryDate.toISOString().split('T')[0]}`,
+        confidence_or_severity: 'Critical (Statutory Validity Breach)',
+        limitations: 'Automated date comparison; check if an official renewal endorsement is attached in annexures.',
+        recommended_next_action: 'Request renewed certificate from issuing authority valid through AY 2026-27.',
       });
       summaryParts.push('Document expiration check failed.');
     }
@@ -122,6 +156,14 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
           note: `Extracted date ${completionDateStr} is post-dated beyond statutory cutoff (30-Jun-2026 per APH 2026-27 v2.0).`,
           extractedValue: completionDateStr,
           expectedValue: 'On or before 30-Jun-2026',
+        });
+        anomalyIndicators.push({
+          indicator_code: 'STATUTORY_CUTOFF_DATE_EXCEEDED',
+          reason: `Extracted handover/completion date (${completionDateStr}) exceeds the APH 2026-27 Clause 4.2.b statutory readiness cutoff (30-Jun-2026).`,
+          evidence_reference: `${document.id} · Field handover_completion_date = ${completionDateStr}`,
+          confidence_or_severity: 'Critical (Deterministic Chronological Rule Check)',
+          limitations: 'Date extracted via OCR/document parser; human reviewer must verify physical stamp and signatory date.',
+          recommended_next_action: 'Assign corrective task to institution compliance officer to submit revised completion certificate dated <= 30-Jun-2026.',
         });
         summaryParts.push(
           `Date ${completionDateStr} violates APH Clause 4.2.b cutoff of 30-Jun-2026.`
@@ -227,6 +269,7 @@ export async function validateDocumentRecord(documentId: string): Promise<Valida
     crossDocStatus,
     ruleEvaluationStatus,
     findingsTriggered,
+    anomalyIndicators,
     summary: summaryParts.join(' ') || 'All deterministic compliance checks passed.',
   };
 }

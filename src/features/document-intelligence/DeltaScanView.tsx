@@ -32,6 +32,21 @@ export const DeltaScanView: React.FC<DeltaScanViewProps> = ({
 }) => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [deltaResult, setDeltaResult] = useState<any | null>(null);
+  const [isLoadingDiff, setIsLoadingDiff] = useState<boolean>(false);
+  const [versionDiff, setVersionDiff] = useState<any | null>(null);
+
+  const handleLoadVersionDiff = async () => {
+    setIsLoadingDiff(true);
+    try {
+      const res = await api.getDocumentVersionDiff(documentId);
+      setVersionDiff(res);
+      toast.success(`Loaded version diff for ${res.documentTitle} (${res.currentVersion}).`);
+    } catch (err: any) {
+      toast.error(`Failed to load version diff: ${err.message}`);
+    } finally {
+      setIsLoadingDiff(false);
+    }
+  };
 
   const handleExecuteDeltaScan = async () => {
     setIsRunning(true);
@@ -72,15 +87,88 @@ export const DeltaScanView: React.FC<DeltaScanViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={handleExecuteDeltaScan}
-          disabled={isRunning}
-          className="inline-flex items-center gap-1.5 rounded-md bg-amber-600 px-3 py-1.5 font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
-        >
-          <Zap className={`h-3.5 w-3.5 ${isRunning ? 'animate-bounce' : ''}`} />
-          {isRunning ? 'Calculating Delta Plan...' : 'Execute DeltaScan'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleLoadVersionDiff}
+            disabled={isLoadingDiff}
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <FileCheck className="h-3.5 w-3.5 text-[#0F766E]" />
+            {isLoadingDiff ? 'Comparing Versions...' : 'Inspect Version Diff (v1.0 vs v2.0)'}
+          </button>
+
+          <button
+            onClick={handleExecuteDeltaScan}
+            disabled={isRunning}
+            className="inline-flex items-center gap-1.5 rounded-md bg-amber-600 px-3 py-1.5 font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50"
+          >
+            <Zap className={`h-3.5 w-3.5 ${isRunning ? 'animate-bounce' : ''}`} />
+            {isRunning ? 'Calculating Delta Plan...' : 'Execute DeltaScan'}
+          </button>
+        </div>
       </div>
+
+      {/* Document Version Diff Panel (Feature D) */}
+      {versionDiff && (
+        <div className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/30 p-3.5">
+          <div className="flex items-center justify-between border-b border-teal-200 pb-2">
+            <span className="font-bold text-slate-900 text-xs">
+              Immutable Version Lineage & Field/Text Diff ({versionDiff.versionComparison?.previousVersion?.version} → {versionDiff.versionComparison?.currentVersion?.version})
+            </span>
+            <span className="rounded bg-teal-100 px-2 py-0.5 font-mono text-[10px] font-bold text-[#0F766E]">
+              {versionDiff.versionComparison?.sha256Changed ? 'SHA-256 Updated' : 'Identical Digest'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[10px]">
+            <div className="rounded border border-slate-200 bg-white p-2">
+              <div className="font-bold text-slate-700">Prior Version ({versionDiff.versionComparison?.previousVersion?.version})</div>
+              <div className="text-slate-500 truncate">{versionDiff.versionComparison?.previousVersion?.fileName}</div>
+              <div className="text-slate-400">SHA256: {versionDiff.versionComparison?.previousVersion?.sha256?.slice(0, 20)}...</div>
+            </div>
+            <div className="rounded border border-emerald-200 bg-white p-2">
+              <div className="font-bold text-emerald-800">Current Version ({versionDiff.versionComparison?.currentVersion?.version})</div>
+              <div className="text-slate-600 truncate">{versionDiff.versionComparison?.currentVersion?.fileName}</div>
+              <div className="text-slate-400">SHA256: {versionDiff.versionComparison?.currentVersion?.sha256?.slice(0, 20)}...</div>
+            </div>
+          </div>
+
+          {versionDiff.fieldDiffs?.length > 0 && (
+            <div className="space-y-1">
+              <div className="font-semibold text-slate-800 text-[11px]">Extracted Field Changes:</div>
+              {versionDiff.fieldDiffs.map((fd: any) => (
+                <div key={fd.fieldId} className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-[10px]">
+                  <span className="font-bold text-slate-800">{fd.label} (p.{fd.pageNumber})</span>
+                  <span>
+                    <span className="text-red-600 line-through mr-1.5">{fd.previousValue}</span>
+                    <ArrowRight className="inline h-3 w-3 text-slate-400 mr-1.5" />
+                    <span className="text-emerald-700 font-bold">{fd.currentValue}</span>
+                  </span>
+                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold">{fd.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {versionDiff.textLineDiffs?.some((tl: any) => tl.changeType === 'MODIFIED') && (
+            <div className="space-y-1">
+              <div className="font-semibold text-slate-800 text-[11px]">Modified Document Text Lines:</div>
+              {versionDiff.textLineDiffs
+                .filter((tl: any) => tl.changeType === 'MODIFIED')
+                .map((tl: any, idx: number) => (
+                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[10px]">
+                    <div className="rounded border border-red-200 bg-red-50 p-1.5 text-red-900">
+                      - [p.{tl.pageNumber}] {tl.previousLine}
+                    </div>
+                    <div className="rounded border border-emerald-200 bg-emerald-50 p-1.5 text-emerald-900">
+                      + [p.{tl.pageNumber}] {tl.currentLine}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Target Document Info */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-100 bg-slate-50 p-2.5 font-mono text-[11px]">

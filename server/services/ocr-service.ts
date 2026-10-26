@@ -49,6 +49,22 @@ export interface DocumentProcessingResult {
   boundingBoxes: BoundingBoxResult[];
   extractedFields: ExtractedFieldResult[];
   integrityScreening: string;
+  digitalSignature?: {
+    status: string;
+    sigFlags: number;
+    signatureCount: number;
+    signatures: any[];
+    summary: string;
+    limitations: string;
+  };
+  visualForensics?: {
+    status: string;
+    suspicionScore: number;
+    globalSharpness?: number;
+    anomalousRegionRatio?: number;
+    method?: string;
+    limitations: string;
+  };
   error?: string;
 }
 

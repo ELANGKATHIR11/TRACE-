@@ -25,17 +25,34 @@ import { stateRouter } from './server/routes/state';
 import { reviewQueueRouter } from './server/routes/review-queue';
 import { provenanceRouter } from './server/routes/provenance';
 import { settingsRouter } from './server/routes/settings';
+import { reportsRouter } from './server/routes/reports';
+import { logAuditEvent } from './server/services/audit-service';
 
 dotenv.config();
 
 const PORT = Number(process.env.PORT || 3000);
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  process.env.APP_URL,
+].filter(Boolean) as string[];
 
 export async function createExpressApp() {
   const app = express();
 
   app.use(
     cors({
-      origin: true,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (such as mobile apps, curl, or supertest)
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
       credentials: true,
     }) as any
   );
@@ -49,11 +66,14 @@ export async function createExpressApp() {
   // Health and Readiness Endpoint
   app.get('/api/health', async (_req, res) => {
     let dbStatus = 'disconnected';
+    let dbReady = false;
     try {
       await prisma.$queryRaw`SELECT 1`;
       dbStatus = 'connected';
-    } catch (e: any) {
-      dbStatus = `error: ${e?.message}`;
+      dbReady = true;
+    } catch {
+      dbStatus = 'disconnected';
+      dbReady = false;
     }
 
     const localAiConfig = {
@@ -63,8 +83,11 @@ export async function createExpressApp() {
       ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
     };
 
-    res.json({
-      status: 'ok',
+    const overallStatus = dbReady ? 'ok' : 'degraded';
+    const statusCode = dbReady ? 200 : 503;
+
+    res.status(statusCode).json({
+      status: overallStatus,
       service: 'TRACE — Regulatory Assurance & Compliance Engine',
       environment: process.env.NODE_ENV || 'development',
       offlineMode: true,
@@ -112,6 +135,9 @@ export async function createExpressApp() {
         '/api/copilot/query': { post: { summary: 'Source-grounded Regulatory Copilot' } },
         '/api/analytics': { get: { summary: 'Database-backed compliance analytics' } },
         '/api/audit': { get: { summary: 'Immutable audit trail' } },
+        '/api/reports/application/{id}': { get: { summary: 'Canonical application validation report' } },
+        '/api/reports/application/{id}/json': { get: { summary: 'Downloadable JSON validation report' } },
+        '/api/reports/application/{id}/pdf': { get: { summary: 'Downloadable PDF validation report' } },
         '/api/state': { get: { summary: 'Full unified state snapshot for client synchronization' } },
       },
     });
@@ -139,41 +165,111 @@ export async function createExpressApp() {
   app.use('/api/ml', settingsRouter);
   app.use('/api/system', settingsRouter);
   app.use('/api/assessments', provenanceRouter);
+  app.use('/api/reports', reportsRouter);
 
   return app;
 }
 
 // Background scheduler for overdue tasks & compliance deadlines
-function startBackgroundScheduler() {
+let isSchedulerRunning = false;
+let schedulerIntervalId: ReturnType<typeof setInterval> | null = null;
+
+export function startBackgroundScheduler() {
+  if (schedulerIntervalId) {
+    return schedulerIntervalId;
+  }
   const CHECK_INTERVAL_MS = 60000; // Check every 60 seconds
-  setInterval(async () => {
+
+  schedulerIntervalId = setInterval(async () => {
+    if (isSchedulerRunning) return;
+    isSchedulerRunning = true;
     try {
       const now = new Date();
       // Detect overdue tasks
-      await prisma.correctiveTask.updateMany({
+      const overdueTasks = await prisma.correctiveTask.findMany({
         where: {
           status: 'Open',
           dueDate: { lt: now },
         },
-        data: {
-          status: 'Overdue',
-        },
       });
 
+      if (overdueTasks.length > 0) {
+        await prisma.correctiveTask.updateMany({
+          where: {
+            id: { in: overdueTasks.map((t) => t.id) },
+          },
+          data: {
+            status: 'Overdue',
+          },
+        });
+
+        for (const t of overdueTasks) {
+          await logAuditEvent({
+            actorId: 'SYSTEM-SCHEDULER',
+            actorName: 'Automated Deadline Scheduler',
+            actorRole: 'system_service',
+            action: 'TASK_STATUS_OVERDUE',
+            entityType: 'CorrectiveTask',
+            entityId: t.id,
+            applicationId: t.applicationId,
+            institutionId: t.institutionId,
+            previousState: 'Open',
+            newState: 'Overdue',
+            evidenceReference: `Overdue deadline: ${t.dueDate.toISOString()}`,
+          });
+        }
+      }
+
       // Detect expired documents
-      await prisma.document.updateMany({
+      const expiredDocs = await prisma.document.findMany({
         where: {
           expiryDate: { lt: now },
           validationState: { not: 'Expired document' },
         },
-        data: {
-          validationState: 'Expired document',
-        },
       });
+
+      if (expiredDocs.length > 0) {
+        await prisma.document.updateMany({
+          where: {
+            id: { in: expiredDocs.map((d) => d.id) },
+          },
+          data: {
+            validationState: 'Expired document',
+          },
+        });
+
+        for (const d of expiredDocs) {
+          await logAuditEvent({
+            actorId: 'SYSTEM-SCHEDULER',
+            actorName: 'Automated Deadline Scheduler',
+            actorRole: 'system_service',
+            action: 'DOCUMENT_STATUS_EXPIRED',
+            entityType: 'Document',
+            entityId: d.id,
+            applicationId: d.applicationId,
+            institutionId: d.institutionId,
+            previousState: d.validationState,
+            newState: 'Expired document',
+            evidenceReference: `Document statutory expiry reached: ${d.expiryDate?.toISOString()}`,
+          });
+        }
+      }
     } catch (schedErr) {
       console.warn('[Scheduler] Periodic compliance check error:', schedErr);
+    } finally {
+      isSchedulerRunning = false;
     }
   }, CHECK_INTERVAL_MS);
+
+  return schedulerIntervalId;
+}
+
+export function stopBackgroundScheduler() {
+  if (schedulerIntervalId) {
+    clearInterval(schedulerIntervalId);
+    schedulerIntervalId = null;
+    isSchedulerRunning = false;
+  }
 }
 
 export async function startServer() {
@@ -200,6 +296,15 @@ export async function startServer() {
   });
 
   startBackgroundScheduler();
+
+  const shutdown = async () => {
+    stopBackgroundScheduler();
+    server.close();
+    await prisma.$disconnect();
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
   return server;
 }

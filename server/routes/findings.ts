@@ -1,15 +1,37 @@
 import { Router } from 'express';
 import { prisma } from '../db/prisma';
 import { logAuditEvent } from '../services/audit-service';
+import { assertTenantAccess } from '../middleware/auth';
 
 export const findingsRouter = Router();
 
 findingsRouter.get('/', async (req, res) => {
   try {
     const { applicationId, institutionId, severity, status } = req.query;
+    const isInstUser =
+      req.user &&
+      ['institution_compliance_officer', 'institution_administrator'].includes(req.user.role) &&
+      req.user.institutionId;
+
+    if (
+      isInstUser &&
+      institutionId &&
+      institutionId !== 'ALL' &&
+      String(institutionId) !== req.user?.institutionId
+    ) {
+      res.status(403).json({
+        error: `Tenant isolation violation: Cannot query findings for institution ${institutionId}.`,
+      });
+      return;
+    }
+
     const where: any = {};
     if (applicationId) where.applicationId = String(applicationId);
-    if (institutionId) where.institutionId = String(institutionId);
+    if (isInstUser) {
+      where.institutionId = req.user!.institutionId;
+    } else if (institutionId) {
+      where.institutionId = String(institutionId);
+    }
     if (severity && severity !== 'ALL') where.severity = String(severity);
     if (status && status !== 'ALL') where.lifecycleStatus = String(status);
 
@@ -85,6 +107,10 @@ findingsRouter.post('/:id/resolve', async (req, res) => {
 
     if (!finding) {
       res.status(404).json({ error: 'Finding not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, finding.institutionId, 'finding')) {
       return;
     }
 
@@ -175,6 +201,10 @@ findingsRouter.post('/:id/fix-preview', async (req, res) => {
 
     if (!finding) {
       res.status(404).json({ error: 'Finding not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, finding.institutionId, 'finding')) {
       return;
     }
 

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../db/prisma';
+import { assertTenantAccess } from '../middleware/auth';
 
 export const institutionsRouter = Router();
 
@@ -81,6 +82,10 @@ institutionsRouter.get('/:id', async (req, res) => {
 
     if (!institution) {
       res.status(404).json({ error: 'Institution not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, institution.id, 'institution profile')) {
       return;
     }
 

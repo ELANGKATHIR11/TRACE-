@@ -69,4 +69,50 @@ describe('Real Authentication, RBAC & Tenant Isolation', () => {
     expect(publishRes.status).toBe(403);
     expect(publishRes.body.error).toContain('Only Regulatory System Administrators');
   });
+
+  it('rejects unauthenticated calls to /api/auth/me with HTTP 401', async () => {
+    const res = await request(app).get('/api/auth/me');
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain('Not authenticated');
+  });
+
+  it('rejects unauthenticated role switching attempts with HTTP 401', async () => {
+    const res = await request(app)
+      .post('/api/auth/switch-role')
+      .send({ userId: 'USR-SYS-01' });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain('Authentication required');
+  });
+
+  it('rejects unauthenticated settings mutations with HTTP 401', async () => {
+    const res = await request(app)
+      .patch('/api/settings/general')
+      .send({ appName: 'Unauthorized Name' });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain('Authentication required');
+  });
+
+  it('rejects anonymous regulatory publication with HTTP 401', async () => {
+    const res = await request(app)
+      .post('/api/rules/RS-APH-2026-V1/publish')
+      .send({ approvalNote: 'Anonymous attempt' });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain('Authentication required');
+  });
+
+  it('never exposes password hashes in user or authentication responses', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'arvind.deshmukh@trace-scrutiny.demo.in', password: 'TraceSecure2026!' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user).not.toHaveProperty('passwordHash');
+    expect(res.body.user).not.toHaveProperty('password');
+    expect(JSON.stringify(res.body)).not.toContain('$2a$');
+    expect(JSON.stringify(res.body)).not.toContain('$2b$');
+  });
 });
+

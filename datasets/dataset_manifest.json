@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-10-26T06:36:30.398752+00:00",
+  "hard_limit_mib": 900.0,
+  "working_limit_mib": 850.0,
+  "retained_size_bytes": 27997906,
+  "retained_size_mib": 26.701,
+  "datasets": {
+    "funsd": {
+      "id": "funsd",
+      "name": "FUNSD \u2014 Form Understanding in Noisy Scanned Documents",
+      "source": "https://guillaumejaume.github.io/FUNSD/dataset.zip",
+      "license": "Non-Commercial Research & Educational Use Only (FUNSD License)",
+      "status": "DOWNLOADED_AND_PREPARED",
+      "is_synthetic": false,
+      "archive_sha256": "c31735649e4f441bcbb4fd0f379574f7520b42286e80b01d80b445649d54761f",
+      "extracted_files": 809,
+      "size_bytes": 27789495,
+      "size_mib": 26.502,
+      "retrieved_at": "2026-10-25T18:30:44.850092+00:00",
+      "splits": {
+        "train": 139,
+        "val": 29,
+        "test": 31
+      }
+    },
+    "sroie": {
+      "id": "sroie",
+      "name": "SROIE \u2014 Scanned Receipts OCR and Information Extraction (ICDAR 2019)",
+      "status": "SKIPPED_AUTH_REQUIRED",
+      "reason": "Portal requires interactive login (<urlopen error timed out>).",
+      "license": "ICDAR 2019 Competition Academic Research Terms",
+      "is_synthetic": false,
+      "retrieved_at": "2026-10-25T18:30:55.948372+00:00",
+      "size_bytes": 0,
+      "size_mib": 0.0
+    },
+    "cord": {
+      "id": "cord",
+      "name": "CORD \u2014 Consolidated Receipt Dataset for Post-OCR Parsing",
+      "status": "SKIPPED_SIZE_CAP_EXCEEDED",
+      "reason": "Full dataset estimated at 1950.0 MiB, which exceeds TRACE's 850 MiB conservative working limit (900 MiB hard cap). Official dataset card probed.",
+      "metadata_probe": {
+        "ok": true,
+        "hf_id": "naver-clova-ix/cord-v2",
+        "sha": "7f0115a4b758a71d6473b8d085751692da2fef98",
+        "downloads": 16218
+      },
+      "license": "CC-BY-4.0 (Clova AI Research, NAVER Corp.)",
+      "is_synthetic": false,
+      "retrieved_at": "2026-10-25T18:30:56.397835+00:00",
+      "size_bytes": 0,
+      "size_mib": 0.0
+    },
+    "trace-regulatory-synth": {
+      "id": "trace-regulatory-synth",
+      "name": "TRACE AICTE Regulatory Compliance Corpus (Labeled Synthetic Benchmark)",
+      "source": "local://datasets/trace-regulatory-synth",
+      "license": "MIT / Internal SIH 2026 Demonstration Fixture (Explicitly Labeled Synthetic)",
+      "retrieved_at": "2026-10-25T18:30:56.468661+00:00",
+      "status": "PREPARED_SYNTHETIC",
+      "is_synthetic": true,
+      "total_samples": 480,
+      "splits": {
+        "train": 336,
+        "val": 72,
+        "test": 72
+      },
+      "size_bytes": 193444,
+      "size_mib": 0.184,
+      "train_sha256": "85cde79e603538792c213b21cb841d5ef598bcd32e5052921b33ae65b9228cb0"
+    }
+  },
+  "within_working_limit": true,
+  "within_hard_limit": true
+}

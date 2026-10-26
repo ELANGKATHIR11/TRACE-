@@ -2,16 +2,26 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
+import { execFile } from 'child_process';
 import { prisma } from '../db/prisma';
 import { fastApiClient, isFastApiHealthy } from '../services/fastapi-service';
+
+function runProcessAsync(cmd: string, args: string[], cwd: string): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, { cwd, timeout: 60000 }, (err, stdout, stderr) => {
+      if (err) return reject(err);
+      resolve({ stdout: String(stdout), stderr: String(stderr) });
+    });
+  });
+}
 
 export const settingsRouter = Router();
 
 // HARD PROJECT STORAGE CAP: 1.5 GB
 const PROJECT_STORAGE_CAP_BYTES = 1610612736; // 1.5 GB
 
-// Helper to determine actor from authenticated session or demo persona header
-function getActor(req: Request) {
+// Helper to determine actor from authenticated session
+function getActor(req: Request): { id: string; name: string; role: string } {
   if (req.user) {
     return {
       id: req.user.id,
@@ -19,34 +29,39 @@ function getActor(req: Request) {
       role: req.user.role,
     };
   }
-  const headerRole = (req.headers['x-user-role'] as string) || 'regulatory_system_administrator';
   return {
-    id: 'USR-SYS-01',
-    name: 'Rajeshwari Nair',
-    role: headerRole,
+    id: 'UNAUTHENTICATED',
+    name: 'Unauthenticated Caller',
+    role: 'anonymous',
   };
 }
 
-// RBAC Guard: Restrict sensitive mutations to system administrators / scrutiny leads
+// RBAC Guard: Restrict sensitive mutations and reads to authenticated system administrators / authorized reviewers
 function checkAdminAccess(req: Request, res: Response): boolean {
-  const actor = getActor(req);
-  if (
-    actor.role === 'institution_compliance_officer' ||
-    actor.role === 'institution_administrator'
-  ) {
-    res.status(403).json({
-      error: 'Forbidden: Institution users do not have permissions to modify global system configuration.',
+  if (!req.user) {
+    res.status(401).json({
+      error: 'Authentication required. Please log in with an administrative account.',
     });
     return false;
   }
-  if (actor.role === 'auditor' && req.method !== 'GET') {
+
+  const allowedRoles = ['regulatory_system_administrator', 'scrutiny_committee_lead', 'authorized_reviewer'];
+  if (!allowedRoles.includes(req.user.role)) {
+    if (req.user.role === 'auditor') {
+      res.status(403).json({
+        error: 'Forbidden: Auditor role is strictly read-only and cannot alter system settings.',
+      });
+      return false;
+    }
     res.status(403).json({
-      error: 'Forbidden: Auditor role is strictly read-only and cannot alter system settings.',
+      error: `Forbidden: Role '${req.user.role}' is not authorized to modify system configuration.`,
     });
     return false;
   }
+
   return true;
 }
+
 
 // Recursive directory size calculator
 function getDirSizeBytes(dirPath: string): number {
@@ -658,9 +673,61 @@ settingsRouter.get('/datasets', async (_req, res) => {
     const datasets = await prisma.datasetManifest.findMany({
       orderBy: { id: 'asc' },
     });
-    res.json({ datasets });
+    const manifestPath = path.resolve(process.cwd(), 'datasets', 'dataset_manifest.json');
+    let cliManifest: any = null;
+    if (fs.existsSync(manifestPath)) {
+      try {
+        cliManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+      } catch {
+        cliManifest = null;
+      }
+    }
+    res.json({ datasets, cliManifest });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to list datasets', detail: error?.message });
+  }
+});
+
+settingsRouter.post('/datasets/manage', async (req, res) => {
+  if (!checkAdminAccess(req, res)) return;
+  try {
+    const schema = z.object({
+      action: z.enum(['list', 'download', 'validate', 'prepare', 'status']),
+      dataset: z.string().optional(),
+    });
+    const parsed = schema.parse(req.body);
+    const actor = getActor(req);
+    const pythonExe = process.env.MINICONDA_PYTHON || 'C:\\Users\\elang\\miniconda3\\envs\\dgpu-core\\python.exe';
+    const scriptPath = path.resolve(process.cwd(), 'scripts', 'datasets.py');
+
+    const args = [scriptPath, parsed.action];
+    if (parsed.action === 'download' && parsed.dataset) {
+      args.push('--dataset', parsed.dataset);
+    }
+
+    const { stdout } = await runProcessAsync(pythonExe, args, process.cwd());
+    const output = JSON.parse(stdout);
+
+    await prisma.configAuditEvent.create({
+      data: {
+        section: 'Datasets',
+        action: `DATASET_MANAGER_${parsed.action.toUpperCase()}`,
+        details: `Executed scripts/datasets.py ${parsed.action} (Retained: ${output.retained_size_mib ?? output.current_retained_mib ?? 0} MiB / 850 MiB limit)`,
+        actorId: actor.id,
+        actorName: actor.name,
+        actorRole: actor.role,
+        ipAddress: req.ip || '127.0.0.1',
+        newValueJson: JSON.stringify(output),
+      },
+    });
+
+    res.json({
+      success: true,
+      action: parsed.action,
+      result: output,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Dataset manager operation failed', detail: error?.message });
   }
 });
 

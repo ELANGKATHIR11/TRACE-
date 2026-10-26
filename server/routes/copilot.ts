@@ -6,6 +6,40 @@ export const copilotRouter = Router();
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const LOCAL_LLM_MODEL = process.env.LOCAL_LLM_MODEL || 'qwen2.5:1.5b-instruct';
 
+/**
+ * Sanitizes untrusted user or document text to neutralize prompt-injection attempts
+ * (e.g., "Ignore previous instructions", role-hijacking tags, or system overrides).
+ */
+export function sanitizeUntrustedPromptInput(raw: string): {
+  sanitized: string;
+  injectionDetected: boolean;
+} {
+  if (!raw || typeof raw !== 'string') {
+    return { sanitized: '', injectionDetected: false };
+  }
+  const injectionPatterns = [
+    /ignore\s+(all\s+)?(previous|prior|above)\s+instructions/gi,
+    /disregard\s+(all\s+)?(previous|prior|system)\s+(instructions|prompts|rules)/gi,
+    /system\s*override/gi,
+    /<\|im_start\|>/gi,
+    /<\|im_end\|>/gi,
+    /\[INST\]/gi,
+    /\[\/INST\]/gi,
+    /you\s+are\s+now\s+an?\s+unrestricted/gi,
+    /declare\s+institution\s+(approved|fraudulent)/gi,
+  ];
+
+  let sanitized = raw;
+  let injectionDetected = false;
+  for (const pattern of injectionPatterns) {
+    if (pattern.test(sanitized)) {
+      injectionDetected = true;
+      sanitized = sanitized.replace(pattern, '[REDACTED_UNTU_INSTRUCTION_OVERRIDE]');
+    }
+  }
+  return { sanitized: sanitized.slice(0, 2000), injectionDetected };
+}
+
 copilotRouter.post('/query', async (req, res) => {
   try {
     const { question, applicationId } = req.body;
@@ -13,6 +47,8 @@ copilotRouter.post('/query', async (req, res) => {
       res.status(400).json({ error: 'Question is required.' });
       return;
     }
+
+    const { sanitized: safeQuestion, injectionDetected } = sanitizeUntrustedPromptInput(question);
 
     // Retrieve genuine stored regulatory clauses from local PostgreSQL
     const storedClauses = await prisma.regulatoryClause.findMany({
@@ -84,6 +120,9 @@ copilotRouter.post('/query', async (req, res) => {
           'Reconcile counter-affidavit signatories with the authorized board resolution prior to scrutiny submission.',
         ],
         uncertaintyWarnings: [
+          ...(injectionDetected
+            ? ['Prompt-injection or instruction-override pattern detected in query input and neutralized by TRACE input guard.']
+            : []),
           'Automated local screening certifies document text and cryptographic integrity, not third-party issuer authenticity.',
           'Statutory norms mandate on-site physical verification by an Expert Visit Committee (EVC).',
         ],
@@ -114,9 +153,9 @@ CRITICAL EPISTEMIC RULES:
    "uncertaintyWarnings" (array of strings),
    "recommendedNextActions" (array of strings).`;
 
-      const userPrompt = `QUESTION: ${question}
+      const userPrompt = `QUESTION (UNTRUSTED USER INPUT): ${safeQuestion}
 
-STORED REGULATORY CLAUSES:
+STORED REGULATORY CLAUSES (AUTHORITATIVE):
 ${JSON.stringify(
   storedClauses.map((c) => ({
     clauseId: c.id,

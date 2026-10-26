@@ -1,12 +1,13 @@
 {
-  "trainedAt": "2026-10-22 15:35:38",
+  "trainedAt": "2026-10-26 00:02:56",
   "hardware": {
-    "accelerator": "NVIDIA GeForce RTX 5060 Laptop GPU",
-    "cudaVersion": "13.0",
+    "accelerator": "CPU",
+    "cudaVersion": "N/A",
     "pytorchVersion": "2.14.0"
   },
   "models": [
     {
+      "id": "doc-layout-cnn",
       "name": "DocumentLayoutCNN",
       "type": "Deep Learning (PyTorch CNN)",
       "classes": [
@@ -17,11 +18,44 @@
       ],
       "parameters": 548452,
       "artifactPath": "fastapi_engine/models/document_layout_cnn.pt",
-      "sizeBytes": 2203032,
-      "sizeMB": 2.1,
-      "targetAccuracy": "99.8%"
+      "sizeBytes": 2202712,
+      "sizeMB": 2.101,
+      "evaluatedSamples": 180,
+      "heldOutAccuracy": 1.0,
+      "heldOutPrecision": 1.0,
+      "heldOutRecall": 1.0,
+      "heldOutMacroF1": 1.0,
+      "heldOutLoss": 0.0,
+      "confusionMatrix": [
+        [
+          45,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          45,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          45,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          45
+        ]
+      ],
+      "validationStatus": "Experimental Prototype (Measured on 15% held-out synthetic layout split; never substitutes for official AICTE scrutiny)"
     },
     {
+      "id": "compliance-risk-gbdt",
       "name": "ComplianceRiskGBDT",
       "type": "Machine Learning (Gradient Boosting Decision Trees)",
       "classes": [
@@ -30,14 +64,94 @@
         "High Risk (Urgent/Critical)"
       ],
       "artifactPath": "fastapi_engine/models/compliance_risk_gbdt.joblib",
-      "sizeBytes": 660137,
-      "sizeMB": 0.63,
-      "trainAccuracy": "99.90%"
+      "sizeBytes": 646313,
+      "sizeMB": 0.616,
+      "evaluatedSamples": 225,
+      "heldOutAccuracy": 0.9244,
+      "heldOutPrecision": 0.8832,
+      "heldOutRecall": 0.9022,
+      "heldOutMacroF1": 0.8919,
+      "confusionMatrix": [
+        [
+          27,
+          2,
+          0
+        ],
+        [
+          5,
+          40,
+          4
+        ],
+        [
+          0,
+          6,
+          141
+        ]
+      ],
+      "validationStatus": "Experimental Prototype (Measured on 15% held-out synthetic compliance vectors; review priority only, never fraud probability)"
+    },
+    {
+      "id": "doc-text-tfidf-logreg",
+      "name": "DocTextTFIDFClassifier",
+      "type": "Machine Learning Baseline (TF-IDF + Logistic Regression)",
+      "classes": [
+        "Infrastructure & Completion Certificate",
+        "Fire & Safety NOC",
+        "Sworn Regulatory Affidavit",
+        "Financial Corpus & FDR",
+        "Land & Building Plan"
+      ],
+      "artifactPath": "fastapi_engine/models/doc_text_tfidf_logreg.joblib",
+      "sizeBytes": 102436,
+      "sizeMB": 0.098,
+      "evaluatedSamples": 90,
+      "heldOutAccuracy": 1.0,
+      "heldOutPrecision": 1.0,
+      "heldOutRecall": 1.0,
+      "heldOutMacroF1": 1.0,
+      "confusionMatrix": [
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          18,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          18,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          18,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          18
+        ]
+      ],
+      "validationStatus": "Experimental Prototype (Measured on 15% held-out synthetic text split; low-confidence < 0.55 routes to unknown / needs_review)"
     }
   ],
   "budgetCompliance": {
-    "totalModelBytes": 2863169,
-    "totalModelMB": 2.73,
+    "totalModelBytes": 2951461,
+    "totalModelMB": 2.81,
     "budgetCapMB": 50.0,
     "isUnderBudget": true
   }

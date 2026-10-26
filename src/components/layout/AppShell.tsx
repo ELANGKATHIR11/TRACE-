@@ -53,9 +53,16 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
     searchParams.get('openSettings') === 'true'
   );
 
-  const unreadAlertsCount = state.alerts.filter((a) => !a.isRead).length;
-  const openFindingsCount = state.findings.filter((f) => f.status !== 'Resolved').length;
-  const myTasksCount = state.tasks.filter((t) => t.status !== 'Completed').length;
+  const alerts = state?.alerts || [];
+  const findings = state?.findings || [];
+  const tasks = state?.tasks || [];
+  const documents = state?.documents || [];
+  const applications = state?.applications || [];
+  const users = state?.users || [];
+
+  const unreadAlertsCount = alerts.filter((a) => !a.isRead).length;
+  const openFindingsCount = findings.filter((f) => f.status !== 'Resolved').length;
+  const myTasksCount = tasks.filter((t) => t.status !== 'Completed').length;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -90,11 +97,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   ];
 
   // Calculate current step in the Live Demo Journey
-  const targetFinding = state.findings.find((f) => f.id === 'FND-2026-001');
-  const targetDoc = state.documents.find((d) => d.id === 'DOC-2026-101');
+  const targetFinding = findings.find((f) => f.id === 'FND-2026-001');
+  const targetDoc = documents.find((d) => d.id === 'DOC-2026-101');
   const hasTaskAssigned = Boolean(targetFinding?.assignedTaskId);
   const hasRemediationUploaded =
-    (targetDoc?.versions.length || 1) > 1 || targetFinding?.status === 'Remediation Uploaded';
+    (targetDoc?.versions?.length || 1) > 1 || targetFinding?.status === 'Remediation Uploaded';
   const hasValidationPassed = targetDoc?.validationState === 'Validated';
   const isFindingResolved = targetFinding?.status === 'Resolved';
 
@@ -103,7 +110,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   const searchResults = searchQuery.trim()
     ? [
-        ...state.applications
+        ...applications
           .filter(
             (a) =>
               a.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,7 +124,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             sub: `${a.institutionName} · ${a.workflowStage}`,
             onSelect: () => navigate(`/applications?tab=registry&appId=${a.id}`),
           })),
-        ...state.findings
+        ...findings
           .filter(
             (f) =>
               f.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,7 +138,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             sub: `Clause ${f.clauseId} · Status: ${f.status}`,
             onSelect: () => openFindingDrawer(f.id),
           })),
-        ...state.documents
+        ...documents
           .filter(
             (d) =>
               d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -363,11 +370,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
               </div>
               <select
                 aria-label="Switch Active Demonstration User Role"
-                value={state.currentUser.id}
+                value={state?.currentUser?.id || 'USR-REV-01'}
                 onChange={(e) => switchDemoUserRole(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer max-w-[195px] truncate"
               >
-                {state.users.map((u) => (
+                {users.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.roleLabel} — {u.name}
                   </option>

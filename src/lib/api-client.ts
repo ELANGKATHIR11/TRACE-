@@ -447,7 +447,14 @@ export const api = {
   },
 
   async getDatasets() {
-    return request<{ datasets: any[] }>('/ml/datasets');
+    return request<{ datasets: any[]; cliManifest?: any }>('/ml/datasets');
+  },
+
+  async runDatasetManager(action: 'list' | 'download' | 'validate' | 'prepare' | 'status', dataset?: string) {
+    return request<{ success: boolean; action: string; result: any }>('/ml/datasets/manage', {
+      method: 'POST',
+      body: JSON.stringify({ action, dataset }),
+    });
   },
 
   async startTraining(data: { modelId: string; datasetId: string; epochs?: number; learningRate?: number; batchSize?: number }) {
@@ -487,6 +494,48 @@ export const api = {
 
   async getSettingsAudit() {
     return request<{ events: any[] }>('/settings/audit');
+  },
+
+  // ==========================================
+  // Validation Reports (PDF & JSON) & Evidence Graph & Version Diff
+  // ==========================================
+  async getValidationReport(applicationId: string) {
+    return request<{ success: boolean; report: any }>(`/reports/application/${applicationId}`);
+  },
+
+  getValidationReportJsonUrl(applicationId: string) {
+    return `${BASE_URL}/reports/application/${applicationId}/json`;
+  },
+
+  getValidationReportPdfUrl(applicationId: string) {
+    return `${BASE_URL}/reports/application/${applicationId}/pdf`;
+  },
+
+  async getEvidenceGraph(applicationId: string) {
+    return request<{
+      success: boolean;
+      applicationId: string;
+      applicationCode: string;
+      entityTypesPresent: string[];
+      totalNodes: number;
+      totalEdges: number;
+      nodes: any[];
+      edges: any[];
+    }>(`/applications/${applicationId}/evidence-graph`);
+  },
+
+  async getDocumentVersionDiff(documentId: string) {
+    return request<{
+      success: boolean;
+      documentId: string;
+      documentTitle: string;
+      currentVersion: string;
+      hasMultipleVersions: boolean;
+      versionComparison: any;
+      fieldDiffs: any[];
+      textLineDiffs: any[];
+      findingsImpact: any[];
+    }>(`/documents/${documentId}/version-diff`);
   },
 };
 

@@ -218,5 +218,57 @@ class TestFastAPIDocumentAIEngine(unittest.TestCase):
         verify_data = verify_res.json()
         self.assertTrue(verify_data["valid"])
 
+    def test_tfidf_document_classifier_and_low_confidence_routing(self):
+        # High-confidence Fire NOC text
+        res_fire = self.client.post("/system_ml/classify-document", json={
+            "text": "Directorate of Maharashtra Fire and Emergency Services Provisional Fire Safety NOC Certificate NBC Part 4 hydrant sprinkler",
+            "confidenceThreshold": 0.55
+        })
+        self.assertEqual(res_fire.status_code, 200)
+        data_fire = res_fire.json()
+        self.assertEqual(data_fire["predictedCategory"], "Fire & Safety NOC")
+        self.assertFalse(data_fire["needsHumanReview"])
+
+        # Low-confidence / out-of-distribution text should route to unknown / needs_review
+        res_unk = self.client.post("/system_ml/classify-document", json={
+            "text": "random unrelated text xyz 123",
+            "confidenceThreshold": 0.85
+        })
+        self.assertEqual(res_unk.status_code, 200)
+        data_unk = res_unk.json()
+        self.assertEqual(data_unk["predictedCategory"], "unknown / needs_review")
+        self.assertTrue(data_unk["needsHumanReview"])
+
+    def test_held_out_model_evaluation_and_dataset_manager(self):
+        # 1. Verify live held-out evaluation returns measured metrics & confusion matrices
+        for model_id in ["doc-layout-cnn", "compliance-risk-gbdt", "doc-text-tfidf-logreg"]:
+            eval_res = self.client.post(f"/system_ml/models/{model_id}/evaluate")
+            self.assertEqual(eval_res.status_code, 200)
+            ev = eval_res.json()
+            self.assertEqual(ev["modelId"], model_id)
+            self.assertGreater(ev["evaluatedSamples"], 0)
+            self.assertGreaterEqual(ev["accuracy"], 0.70)
+            self.assertIn("confusionMatrix", ev)
+            self.assertTrue(isinstance(ev["confusionMatrix"], list))
+            self.assertGreater(len(ev["confusionMatrix"]), 0)
+            self.assertIn("Experimental Prototype", ev["validationStatus"])
+
+        # 2. Verify executable dataset manager status & manifest (< 850 MiB working limit)
+        import subprocess
+        import json
+        res_proc = subprocess.run(
+            [sys.executable, "scripts/datasets.py", "status"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        status_json = json.loads(res_proc.stdout)
+        self.assertEqual(status_json["command"], "status")
+        self.assertTrue(status_json["within_working_limit"])
+        self.assertTrue(status_json["within_hard_limit"])
+        self.assertLess(status_json["retained_size_mib"], 850.0)
+        self.assertIn("funsd", status_json["datasets"])
+        self.assertIn("trace-regulatory-synth", status_json["datasets"])
+
 if __name__ == "__main__":
     unittest.main()

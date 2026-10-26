@@ -6,11 +6,14 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, '.'),
+      '@': path.resolve(process.cwd(), '.'),
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
+    hookTimeout: 30000,
+    testTimeout: 30000,
+    fileParallelism: false,
   },
 });

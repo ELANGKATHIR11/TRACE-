@@ -2,15 +2,37 @@ import { Router } from 'express';
 import { prisma } from '../db/prisma';
 import { logAuditEvent } from '../services/audit-service';
 import { createAndDispatchNotification } from '../services/notification-service';
+import { assertTenantAccess } from '../middleware/auth';
 
 export const tasksRouter = Router();
 
 tasksRouter.get('/', async (req, res) => {
   try {
     const { applicationId, institutionId, status } = req.query;
+    const isInstUser =
+      req.user &&
+      ['institution_compliance_officer', 'institution_administrator'].includes(req.user.role) &&
+      req.user.institutionId;
+
+    if (
+      isInstUser &&
+      institutionId &&
+      institutionId !== 'ALL' &&
+      String(institutionId) !== req.user?.institutionId
+    ) {
+      res.status(403).json({
+        error: `Tenant isolation violation: Cannot query tasks for institution ${institutionId}.`,
+      });
+      return;
+    }
+
     const where: any = {};
     if (applicationId) where.applicationId = String(applicationId);
-    if (institutionId) where.institutionId = String(institutionId);
+    if (isInstUser) {
+      where.institutionId = req.user!.institutionId;
+    } else if (institutionId) {
+      where.institutionId = String(institutionId);
+    }
     if (status && status !== 'ALL') where.status = String(status);
 
     const tasks = await prisma.correctiveTask.findMany({
@@ -77,6 +99,10 @@ tasksRouter.post('/', async (req, res) => {
 
     if (!finding) {
       res.status(404).json({ error: 'Finding not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, finding.institutionId, 'corrective task creation')) {
       return;
     }
 
@@ -180,6 +206,10 @@ tasksRouter.patch('/:id/status', async (req, res) => {
 
     if (!task) {
       res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+
+    if (!assertTenantAccess(req, res, task.institutionId, 'corrective task update')) {
       return;
     }
 

@@ -79,7 +79,9 @@ export const RuleReplayView: React.FC<RuleReplayViewProps> = ({
     }
     setIsPublishing(true);
     try {
-      toast.success('Regulatory edition successfully published! Operational obligations updated with audit trail.');
+      const res = await api.publishImpactReport(replayResult.id, approvalNote);
+      setReplayResult((prev: any) => (prev ? { ...prev, ...res.report, isPublished: true, isDraft: false } : prev));
+      toast.success('Regulatory edition formally published! Impact report signed off and audit trail persisted.');
     } catch (err: any) {
       toast.error(`Publishing failed: ${err.message}`);
     } finally {
